@@ -1,4 +1,27 @@
-import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
+// Load Supabase from either CDN. A failed dependency must not fail silently.
+let createClient;
+for (const cdn of [
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
+  'https://esm.sh/@supabase/supabase-js@2'
+]) {
+  try {
+    const mod = await import(cdn);
+    if (typeof mod.createClient === 'function') {
+      createClient = mod.createClient;
+      break;
+    }
+  } catch (err) {
+    console.warn('Unable to load Supabase client from', cdn, err);
+  }
+}
+if (!createClient) {
+  const notice = document.getElementById('notice');
+  if (notice) {
+    notice.className = 'notice error';
+    notice.textContent = 'The sign-in service did not load. Try refreshing this page with Ctrl+F5. If the problem continues, please tell an administrator.';
+  }
+  throw new Error('All Supabase client CDNs failed to load');
+}
 const ROOT='https://lxvceqshpjnjjlllbpaq.supabase.co';
 const KEY='sb_publishable_8wAnbhewmF5a0E2IRUaPhA_swWBgUm_';
 const db=createClient(ROOT,KEY,{auth:{persistSession:true,detectSessionInUrl:true}});
@@ -236,4 +259,5 @@ async function loadSettings(){
 $('save-links').onclick=async()=>{
  try{await api('settings-save',{key:'public_email_links',value:$('email-links').value});toast('Email links saved')}catch(e){toast(e.message,true)}
 };
+window.divisionAppReady = true;
 init();
