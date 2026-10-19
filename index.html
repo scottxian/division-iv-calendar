@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
+<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css"><script type="module" src="app.js"></script>
+</head><body>
+<a href="#content" class="skip">Skip to content</a>
+<header><div class="container topbar">
+<div class="brand"><span class="seal" aria-hidden="true">IV</span><div><b>Division IV</b><small>Calendar &amp; Events</small></div></div>
+<nav aria-label="Main navigation"><button id="nav-public" class="nav-btn active" type="button">Event Requests</button><button id="nav-admin" class="nav-btn hidden" type="button">Inspector Desk</button><button id="nav-signin" class="nav-btn" type="button">Inspector Sign In</button><button id="nav-signout" class="nav-btn hidden" type="button">Sign Out</button></nav>
+</div></header>
+<main class="container" id="content">
+<div class="hero"><div class="eyebrow">Division IV · Masonic Events</div><h1>Calendar requests, made simple.</h1><p>Submit an event, change the details, or request a cancellation. An authorized inspector reviews each request before it reaches the public calendar.</p></div>
+<div id="notice" class="notice hidden" role="status" aria-live="polite"></div>
+<section id="public-view">
+<div id="banner" class="banner" role="status"><b>Testing in progress.</b> Public submissions are not yet enabled. Authorized inspectors may submit test requests after signing in.</div>
+<div class="choices" role="group" aria-label="What would you like to do?">
+<button type="button" class="choice selected" data-mode="new"><span class="symbol">＋</span><strong>New Event</strong><small>Add an event to the Division IV calendar</small></button>
+<button type="button" class="choice" data-mode="change"><span class="symbol">✎</span><strong>Change an Event</strong><small>Change only the details you need</small></button>
+<button type="button" class="choice" data-mode="cancel"><span class="symbol">×</span><strong>Cancel an Event</strong><small>Request cancellation of an existing event</small></button>
+</div>
+<section id="new-panel" class="panel">
+<h2>New Event</h2><p class="muted">Fields marked * are required. Optional information can be added below.</p>
+<form id="new-form">
+<div class="form-title">Event details</div>
+<div class="form-grid">
+<label class="wide">Event title <span class="req">*</span><input name="title" maxlength="180" required placeholder="Example: Entered Apprentice Degree"></label>
+<label>Event type <span class="req">*</span><select id="event-type" name="event_type" required><option value="">Choose event type</option></select></label>
+<label>Hosting lodge or organization <span class="req">*</span><input name="hosted_by" required placeholder="Example Lodge No. 123"></label>
+<label>Start date and time <span class="req">*</span><input name="start_local" type="datetime-local" required></label>
+<label>End date and time <span class="req">*</span><input name="end_local" type="datetime-local" required></label>
+<label>Event format <select name="event_mode"><option value="in_person">In person</option><option value="hybrid">Hybrid (in person and online)</option><option value="online">Online only</option></select></label>
+<label>District (optional)<input name="district" placeholder="District number"></label>
+<label class="wide">Location name <input name="location_name" placeholder="Lodge hall, restaurant, or other venue"></label>
+<label class="wide">Location address <input name="location_address" placeholder="Full street address, if available"></label>
+<label class="wide checkline"><input type="checkbox" name="location_tbd"> Location to be announced (TBD)</label>
+<label class="wide">Public description <textarea name="public_description" rows="3" placeholder="What should attendees know?"></textarea></label>
+</div>
+<details><summary>More event information (optional)</summary>
+<div class="form-grid">
+<label>Dress / attire <input name="attire"></label><label>Who is invited? <input name="invited_audience"></label>
+<label class="wide">Registration link <input name="registration_url" type="url" placeholder="https://"></label>
+<label class="wide">Payment link <input name="payment_url" type="url" placeholder="https://"></label>
+<label class="wide">Flyer or invitation link <input name="flyer_url" type="url" placeholder="https://"></label>
+</div></details>
+<div class="form-title">Your contact information (not published)</div>
+<div class="form-grid">
+<label>Name <span class="req">*</span><input name="contact_name" autocomplete="name" maxlength="150" required></label>
+<label>Email <span class="req">*</span><input name="contact_email" type="email" autocomplete="email" required></label>
+<label>Telephone (optional)<input name="contact_phone" type="tel" autocomplete="tel"></label>
+<label class="wide">Message for inspector (optional)<textarea name="contact_message" rows="2"></textarea></label>
+</div>
+<input name="website" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" placeholder="Leave blank">
+<div id="turnstile-widget" aria-label="Anti-spam verification"></div>
+<div class="form-actions"><span>Submission does not publish the event immediately.</span><button type="submit" class="primary">Submit for Review →</button></div>
+</form></section>
+<section id="existing-panel" class="panel hidden">
+<h2 id="lookup-title">Change an Event</h2>
+<p>Enter the <strong>original Request ID</strong> from your submission confirmation or approval email. If you cannot find it, ask an inspector.</p>
+<div class="form-grid">
+<label>Original Request ID <span class="req">*</span><input id="lookup-code" placeholder="DIV4-20261018-..." autocapitalize="characters"></label>
+<label>Original contact email <span class="req">*</span><input type="email" id="lookup-email" placeholder="name@example.com"></label>
+</div><p class="help">We'll verify the original email before displaying the event.</p>
+<button type="button" class="primary" id="lookup-button">Verify &amp; Find Event →</button>
+<div id="existing-editor" class="hidden"><hr><h3 id="event-being-edited"></h3><p class="muted" id="event-summary"></p>
+<form id="modify-form">
+<div id="edit-fields" class="form-grid">
+<label class="wide">Event title <input name="title"></label>
+<label>Event type <select name="event_type" id="edit-event-type"><option value="">Choose event type</option></select></label>
+<label>Start date and time <input type="datetime-local" name="start_local"></label>
+<label>End date and time <input type="datetime-local" name="end_local"></label>
+<label>Location name <input name="location_name"></label>
+<label>Location address <input name="location_address"></label>
+<label class="wide">Event description <textarea name="public_description" rows="3"></textarea></label>
+<label class="wide checkline"><input type="checkbox" name="location_tbd"> Location TBD</label>
+</div>
+<label id="cancel-label" class="wide hidden">Cancellation reason <textarea id="cancel-reason" rows="3" placeholder="Why should this event be cancelled?"></textarea></label>
+<label class="wide">Message for inspector (optional) <textarea id="modify-message" rows="2"></textarea></label>
+<div class="form-actions"><span>Only changed fields are submitted for review.</span><button type="submit" id="modify-submit" class="primary">Submit Changes →</button></div>
+</form></div>
+</section>
+</section>
+<section id="signin-view" class="panel narrow hidden">
+<h2>Inspector Sign In</h2><p class="muted">Enter the email address your administrator approved. We'll email you a secure sign-in link.</p>
+<form id="signin-form"><label>Email address <input type="email" id="signin-email" required autocomplete="email" placeholder="you@example.com"></label><div class="form-actions"><button class="primary full" type="submit">Email Sign-In Link →</button></div></form>
+<p class="help">Inspector accounts must be enabled by an administrator. If your email does not arrive, check Junk/Spam.</p>
+</section>
+<section id="admin-view" class="hidden">
+<div class="admin-head"><div><div class="eyebrow">Inspector Desk</div><h2 id="welcome">Review Requests</h2></div><span class="chip" id="staff-role">Inspector</span></div>
+<div class="tabs">
+<button class="tab active" data-tab="requests" type="button">Review Requests</button>
+<button class="tab" data-tab="history" type="button">Status Log</button>
+<button class="tab admin-only hidden" data-tab="staff" type="button">Inspectors</button>
+<button class="tab admin-only hidden" data-tab="settings" type="button">Settings</button>
+</div>
+<div id="tab-requests">
+<section class="panel">
+<div class="filters">
+<label>Status <select id="filter-status"><option value="pending" selected>Pending</option><option value="all">All statuses</option><option value="approved">Approved</option><option value="needs_correction">Needs Correction</option><option value="rejected">Rejected</option></select></label>
+<label>Event type <select id="filter-type"><option value="">All types</option></select></label>
+<label>Lodge <input id="filter-lodge" placeholder="Search lodge"></label>
+<label>Event date from <input id="filter-event-from" type="date"></label>
+<label>Event date through <input id="filter-event-to" type="date"></label>
+<label>Submitted from <input id="filter-from" type="date"></label>
+<label>Submitted through <input id="filter-to" type="date"></label>
+<button type="button" class="secondary" id="refresh-requests">Apply Filters</button>
+</div>
+<div class="list-head"><strong id="count">Requests</strong><small>Click an event to see details</small></div>
+<div id="request-list" class="request-list"></div>
+<div class="pagination"><button type="button" class="secondary" id="prev-page">← Previous</button><span id="page-label">Page 1</span><button type="button" class="secondary" id="next-page">Next →</button></div>
+</section><section id="request-detail" class="panel hidden" aria-live="polite"></section>
+</div>
+<section id="tab-history" class="panel hidden"><h3>Status Log</h3><p class="muted">Timestamped changes made by applicants and reviewers.</p><button id="refresh-history" class="secondary" type="button">Refresh</button><div id="history-content" class="timeline"></div><div class="pagination"><button id="history-prev" type="button" class="secondary">← Previous</button><span id="history-page">Page 1</span><button id="history-next" type="button" class="secondary">Next →</button></div></section>
+<section id="tab-staff" class="panel hidden"><h3>Inspectors</h3><div id="staff-list"></div><hr><h3>Add or Update Inspector</h3>
+<form id="staff-form" class="form-grid">
+<label>Email <input type="email" name="email" required></label>
+<label>Name <input name="display_name" required></label>
+<label>Phone (optional)<input name="phone" type="tel"></label>
+<label>Role <select name="role"><option value="inspector">Inspector</option><option value="admin">Administrator</option></select></label>
+<label class="checkline"><input type="checkbox" name="enabled" checked> Access enabled</label>
+<div class="wide"><button type="submit" class="primary">Save Inspector</button></div>
+</form></section>
+<section id="tab-settings" class="panel hidden"><h3>Administration Settings</h3>
+<label>Calendar subscription links included in outgoing emails <textarea id="email-links" rows="6" placeholder="Google Calendar: https://...&#10;Apple / Outlook: https://..."></textarea></label>
+<p class="help">You and Morrison can update these links. They appear in emails once the email provider is configured.</p>
+<button type="button" id="save-links" class="secondary">Save Email Links</button>
+<hr><p class="muted">Public submissions, automatic calendar publishing, and outgoing email delivery are being tested before launch.</p>
+</section>
+</section>
+</main>
+<footer><div class="container">Division IV Calendar Requests · All event submissions require inspector approval · Times are Pacific</div></footer>
+<div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+</body></html>
