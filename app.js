@@ -1,30 +1,68 @@
-// Load Supabase from either CDN. A failed dependency must not fail silently.
-let createClient;
-for (const cdn of [
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
-  'https://esm.sh/@supabase/supabase-js@2'
-]) {
-  try {
-    const mod = await import(cdn);
-    if (typeof mod.createClient === 'function') {
-      createClient = mod.createClient;
-      break;
-    }
-  } catch (err) {
-    console.warn('Unable to load Supabase client from', cdn, err);
-  }
-}
-if (!createClient) {
-  const notice = document.getElementById('notice');
-  if (notice) {
-    notice.className = 'notice error';
-    notice.textContent = 'The sign-in service did not load. Try refreshing this page with Ctrl+F5. If the problem continues, please tell an administrator.';
-  }
-  throw new Error('All Supabase client CDNs failed to load');
-}
+/* Dependency-free auth: the login button must not depend on a third-party CDN. */
 const ROOT='https://lxvceqshpjnjjlllbpaq.supabase.co';
 const KEY='sb_publishable_8wAnbhewmF5a0E2IRUaPhA_swWBgUm_';
-const db=createClient(ROOT,KEY,{auth:{persistSession:true,detectSessionInUrl:true}});
+const AUTH_STORAGE='division-iv-calendar-session-v1';
+const authEvents=new Set();
+let currentSession=null;
+try{currentSession=JSON.parse(localStorage.getItem(AUTH_STORAGE)||'null')}catch{currentSession=null}
+function setSession(v){
+ currentSession=v;
+ try{if(v)localStorage.setItem(AUTH_STORAGE,JSON.stringify(v));else localStorage.removeItem(AUTH_STORAGE)}catch{}
+ for(const cb of authEvents){try{cb(v?'SIGNED_IN':'SIGNED_OUT',v)}catch(e){console.warn(e)}}
+}
+async function authFetch(path,options={}){
+ const headers={'apikey':KEY,'content-type':'application/json',...(options.headers||{})};
+ const resp=await fetch(ROOT+'/auth/v1/'+path,{...options,headers});
+ let result={};try{result=await resp.json()}catch{}
+ if(!resp.ok)throw Error(result.msg||result.error_description||result.message||result.error||'Authentication request failed');
+ return result;
+}
+async function refreshSession(){
+ if(!currentSession?.refresh_token)return null;
+ try{
+  const result=await authFetch('token?grant_type=refresh_token',{method:'POST',body:JSON.stringify({refresh_token:currentSession.refresh_token})});
+  const next={access_token:result.access_token,refresh_token:result.refresh_token||currentSession.refresh_token,expires_at:Math.floor(Date.now()/1000)+(Number(result.expires_in)||3600),user:result.user||currentSession.user};
+  setSession(next);return next;
+ }catch(error){console.warn('Sign-in expired',error);setSession(null);return null}
+}
+async function getSession(){
+ if(!currentSession?.access_token)return {data:{session:null}};
+ if(currentSession.expires_at && currentSession.expires_at<(Date.now()/1000+90))await refreshSession();
+ return {data:{session:currentSession?.access_token?currentSession:null}};
+}
+async function acceptRedirect(){
+ const hash=new URLSearchParams(location.hash.replace(/^#/,''));
+ if(!hash.get('access_token'))return;
+ const token=hash.get('access_token');
+ const newSession={
+  access_token:token,
+  refresh_token:hash.get('refresh_token')||'',
+  expires_at:Number(hash.get('expires_at'))||Math.floor(Date.now()/1000)+Number(hash.get('expires_in')||3600),
+  user:null
+ };
+ try{
+  newSession.user=await authFetch('user',{method:'GET',headers:{authorization:'Bearer '+token}});
+  setSession(newSession);
+  history.replaceState(null,'',location.pathname+location.search);
+ }catch(e){console.error('Magic link invalid',e);setSession(null);return}
+}
+const db={auth:{
+ getSession,
+ async signInWithOtp({email,options}){
+  try{
+   const redirect=(options?.emailRedirectTo||location.origin+location.pathname);
+   await authFetch('otp?redirect_to='+encodeURIComponent(redirect),{method:'POST',body:JSON.stringify({email,create_user:true})});
+   return {error:null};
+  }catch(error){return {error}}
+ },
+ async signOut(){
+  const {data:{session}}=await getSession();
+  if(session){try{await authFetch('logout',{method:'POST',headers:{authorization:'Bearer '+session.access_token}})}catch{}}
+  setSession(null);
+  return {error:null};
+ },
+ onAuthStateChange(cb){authEvents.add(cb);return {data:{subscription:{unsubscribe(){authEvents.delete(cb)}}}}}
+}};
 const $=id=>document.getElementById(id);
 const all=(q,p=document)=>[...p.querySelectorAll(q)];
 const fmt=s=>s?new Date(s).toLocaleString('en-US',{timeZone:'America/Los_Angeles',dateStyle:'medium',timeStyle:'short'}):'—';
@@ -260,4 +298,4 @@ $('save-links').onclick=async()=>{
  try{await api('settings-save',{key:'public_email_links',value:$('email-links').value});toast('Email links saved')}catch(e){toast(e.message,true)}
 };
 window.divisionAppReady = true;
-init();
+acceptRedirect().finally(init);
