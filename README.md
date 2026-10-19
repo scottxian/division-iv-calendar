@@ -42,7 +42,7 @@ Supabase's built-in email sending is rate-limited. Configure appropriate SMTP be
 
 The `division-jobs` Supabase Edge Function expects *server-side* secrets:
 - `GOOGLE_SERVICE_ACCOUNT_JSON`: Google Cloud service account credentials
-- `GOOGLE_CALENDAR_ID`: AGL-owned separate Division IV events calendar
+- Calendar ID: saved under Supabase `system_settings.calendar_id` (the existing AGL-owned Division IV Masonic Events calendar); this is **not** a secret or an Edge Function environment variable.
 - `RESEND_API_KEY` and `MAIL_FROM`: transactional email account with a verified sender
 - `PUBLIC_APP_URL`: `https://scottxian.github.io/division-iv-calendar/`
 - `JOB_RUNNER_SECRET`: random strong secret for a trusted background scheduler
