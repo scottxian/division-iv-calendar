@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css"><script defer src="bootstrap.js"></script><script defer src="app.js?v=3"></script>
+<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css"><script defer src="bootstrap.js"></script><script defer src="app.js?v=4"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -24,18 +24,27 @@
 <form id="new-form">
 <div class="form-title">Event details</div>
 <div class="form-grid">
-<label class="wide">Event title <span class="req">*</span><input name="title" maxlength="180" required placeholder="Example: Entered Apprentice Degree"></label>
-<label>Event type <span class="req">*</span><select id="event-type" name="event_type" required><option value="">Choose event type</option></select></label>
-<label>Hosting lodge or organization <span class="req">*</span><input name="hosted_by" required placeholder="Example Lodge No. 123"></label>
-<label>Start date and time <span class="req">*</span><input name="start_local" type="datetime-local" required></label>
-<label>End date and time <span class="req">*</span><input name="end_local" type="datetime-local" required></label>
-<label>Event format <select name="event_mode"><option value="in_person">In person</option><option value="hybrid">Hybrid (in person and online)</option><option value="online">Online only</option></select></label>
-<label>District (optional)<input name="district" placeholder="District number"></label>
-<label class="wide">Location name <input name="location_name" placeholder="Lodge hall, restaurant, or other venue"></label>
-<label class="wide">Location address <input name="location_address" placeholder="Full street address, if available"></label>
-<label class="wide checkline"><input type="checkbox" name="location_tbd"> Location to be announced (TBD)</label>
-<label class="wide">Public description <textarea name="public_description" rows="3" placeholder="What should attendees know?"></textarea></label>
+<label class="wide"><span class="field-caption">Event title <span class="req" aria-label="required">*</span></span><input name="title" maxlength="180" required placeholder="Example: Entered Apprentice Degree"></label>
+<label><span class="field-caption">Event type <span class="req" aria-label="required">*</span></span><select id="event-type" name="event_type" required><option value="">Choose event type</option></select></label>
+<label><span class="field-caption">Hosting lodge or organization <span class="req" aria-label="required">*</span></span><input name="hosted_by" required placeholder="Example Lodge No. 123"></label>
+<label><span class="field-caption">District <span class="req" aria-label="required">*</span></span><select name="district" id="new-district" required><option value="">Choose district</option></select></label>
+<label><span class="field-caption">Event format <span class="req" aria-label="required">*</span></span><select name="event_mode" required><option value="in_person">In person</option><option value="hybrid">Hybrid (in person and online)</option><option value="online">Online only</option></select></label>
+<label><span class="field-caption">Start date and time <span class="req" aria-label="required">*</span></span><input name="start_local" type="datetime-local" required></label>
+<label><span class="field-caption">End date and time <span class="req" aria-label="required">*</span></span><input name="end_local" type="datetime-local" required></label>
+<label class="wide"><span class="field-caption">Public event description <span class="req" aria-label="required">*</span></span><textarea name="public_description" rows="4" maxlength="4000" required placeholder="Describe the event for the public calendar."></textarea></label>
 </div>
+<details id="new-location-details" class="location-details"><summary>Location Details <span class="location-hint">— Required unless Location TBD</span></summary>
+<p class="help">Check the box if the event's location has not been decided. Otherwise, complete the venue and address.</p>
+<label class="checkline location-tbd-toggle"><input id="new-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD — to be announced</strong></label>
+<div class="form-grid location-inputs">
+<label class="wide"><span class="field-caption">Location / Venue Name <span class="req" aria-label="required">*</span></span><input name="location_name" required placeholder="Example: Lodge Hall"></label>
+<label class="wide"><span class="field-caption">Address Line 1 <span class="req" aria-label="required">*</span></span><input name="location_address1" required placeholder="Street address"></label>
+<label class="wide"><span class="field-caption">Address Line 2 (optional)</span><input name="location_address2" placeholder="Suite, floor, building, etc."></label>
+<label><span class="field-caption">City <span class="req" aria-label="required">*</span></span><input name="location_city" required></label>
+<label><span class="field-caption">State <span class="req" aria-label="required">*</span></span><select name="location_state" required><option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA" selected>California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="DC">District of Columbia</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option></select></label>
+<label><span class="field-caption">ZIP Code <span class="req" aria-label="required">*</span></span><input name="location_zip" required inputmode="numeric" autocomplete="postal-code" maxlength="10" pattern="[0-9]{5}(-[0-9]{4})?" title="Enter a 5-digit ZIP code or ZIP+4"></label>
+</div>
+</details>
 <details><summary>More event information (optional)</summary>
 <div class="form-grid">
 <label>Dress / attire <input name="attire"></label><label>Who is invited? <input name="invited_audience"></label>
@@ -45,8 +54,8 @@
 </div></details>
 <div class="form-title">Your contact information (not published)</div>
 <div class="form-grid">
-<label>Name <span class="req">*</span><input name="contact_name" autocomplete="name" maxlength="150" required></label>
-<label>Email <span class="req">*</span><input name="contact_email" type="email" autocomplete="email" required></label>
+<label><span class="field-caption">Name <span class="req" aria-label="required">*</span></span><input name="contact_name" autocomplete="name" maxlength="150" required></label>
+<label><span class="field-caption">Email <span class="req" aria-label="required">*</span></span><input name="contact_email" type="email" autocomplete="email" required></label>
 <label>Telephone (optional)<input name="contact_phone" type="tel" autocomplete="tel"></label>
 <label class="wide">Message for inspector (optional)<textarea name="contact_message" rows="2"></textarea></label>
 </div>
@@ -58,21 +67,34 @@
 <h2 id="lookup-title">Change an Event</h2>
 <p>Enter the <strong>original Request ID</strong> from your submission confirmation or approval email. If you cannot find it, ask an inspector.</p>
 <div class="form-grid">
-<label>Original Request ID <span class="req">*</span><input id="lookup-code" placeholder="DIV4-20261018-..." autocapitalize="characters"></label>
-<label>Original contact email <span class="req">*</span><input type="email" id="lookup-email" placeholder="name@example.com"></label>
+<label><span class="field-caption">Original Request ID <span class="req" aria-label="required">*</span></span><input id="lookup-code" placeholder="DIV4-20261018-..." autocapitalize="characters"></label>
+<label><span class="field-caption">Original contact email <span class="req" aria-label="required">*</span></span><input type="email" id="lookup-email" placeholder="name@example.com"></label>
 </div><p class="help">We'll verify the original email before displaying the event.</p>
 <button type="button" class="primary" id="lookup-button">Verify &amp; Find Event →</button>
 <div id="existing-editor" class="hidden"><hr><h3 id="event-being-edited"></h3><p class="muted" id="event-summary"></p>
 <form id="modify-form">
-<div id="edit-fields" class="form-grid">
+<div id="edit-fields">
+<div class="form-grid">
 <label class="wide">Event title <input name="title"></label>
 <label>Event type <select name="event_type" id="edit-event-type"><option value="">Choose event type</option></select></label>
+<label>Hosting lodge or organization <input name="hosted_by"></label>
+<label>District <select name="district" id="edit-district"><option value="">Choose district</option></select></label>
+<label>Event format <select name="event_mode"><option value="in_person">In person</option><option value="hybrid">Hybrid</option><option value="online">Online only</option></select></label>
 <label>Start date and time <input type="datetime-local" name="start_local"></label>
 <label>End date and time <input type="datetime-local" name="end_local"></label>
-<label>Location name <input name="location_name"></label>
-<label>Location address <input name="location_address"></label>
-<label class="wide">Event description <textarea name="public_description" rows="3"></textarea></label>
-<label class="wide checkline"><input type="checkbox" name="location_tbd"> Location TBD</label>
+<label class="wide">Public event description <textarea name="public_description" rows="4"></textarea></label>
+</div>
+<details id="edit-location-details" class="location-details"><summary>Location Details</summary>
+<label class="checkline location-tbd-toggle"><input id="edit-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD — to be announced</strong></label>
+<div class="form-grid location-inputs">
+<label class="wide">Location / Venue Name <input name="location_name"></label>
+<label class="wide">Address Line 1 <input name="location_address1"></label>
+<label class="wide">Address Line 2 (optional) <input name="location_address2"></label>
+<label>City <input name="location_city"></label>
+<label>State <select name="location_state"><option value="">Choose state</option><option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="DC">District of Columbia</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option></select></label>
+<label>ZIP Code <input name="location_zip" inputmode="numeric" maxlength="10" pattern="[0-9]{5}(-[0-9]{4})?"></label>
+</div>
+</details>
 </div>
 <label id="cancel-label" class="wide hidden">Cancellation reason <textarea id="cancel-reason" rows="3" placeholder="Why should this event be cancelled?"></textarea></label>
 <label class="wide">Message for inspector (optional) <textarea id="modify-message" rows="2"></textarea></label>
