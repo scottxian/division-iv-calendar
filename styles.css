@@ -13,3 +13,16 @@ a.nav-btn{text-decoration:none;display:inline-flex;align-items:center}
 .tbd-selected .location-inputs{opacity:.48}
 .location-inputs input:disabled,.location-inputs select:disabled{background:#eef0f3;color:#69737d;cursor:not-allowed}
 @media(max-width:760px){.location-details{padding:0 14px 16px}.location-hint{display:block;margin-left:15px}}
+
+/* Inspector review: clear, compact before-and-after revisions. */
+.review-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.revision-comparison{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0 20px}
+.revision-row{display:flex;flex-direction:column;gap:4px;padding:12px 14px;background:#f5f8fb;border:1px solid var(--border);border-radius:9px;overflow-wrap:anywhere}
+.revision-row b{color:var(--navy)}
+.revision-row span{font-size:13px}
+.revision-row span:last-child{font-weight:700;color:var(--green)}
+.inspector-edit-form{border:1px solid #9db2c7;background:#fbfdff;padding:18px;border-radius:12px;margin:18px 0}
+.inspector-edit-form>.form-title:first-child{margin-top:0}
+.inspector-edit-form>details{background:#fff}
+.inspector-edit-form>.form-actions{padding-top:12px;border-top:1px solid var(--border)}
+@media(max-width:760px){.inspector-edit-form{padding:13px}.review-title .chip{align-self:flex-start}}
