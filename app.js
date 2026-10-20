@@ -243,7 +243,7 @@ let page=0,historyPage=0;
 async function loadRequests(p=0){
  page=Math.max(0,p);const out=$('request-list');out.textContent='Loading requests…';
  try{
-  const filters={page,status:$('filter-status').value,from:$('filter-from').value,to:$('filter-to').value,type:$('filter-type').value,lodge:$('filter-lodge').value,event_from:$('filter-event-from').value,event_to:$('filter-event-to').value};
+  const filters={page,search:$('filter-search').value,status:$('filter-status').value,from:$('filter-from').value,to:$('filter-to').value,type:$('filter-type').value,lodge:$('filter-lodge').value,event_from:$('filter-event-from').value,event_to:$('filter-event-to').value};
   const data=await api('requests',null,filters);
   $('count').textContent=data.total+' request'+(data.total===1?'':'s');
   $('page-label').textContent='Page '+(page+1);
@@ -348,7 +348,7 @@ async function detail(id){
   const submitted={...eventFormValues(event),...p};
   const effective={...eventFormValues(event),...(r.inspector_edits??p)};
   const address=[effective.location_address1,effective.location_address2,effective.location_city,effective.location_state,effective.location_zip].filter(Boolean).join(', ')||effective.location_address||'—';
-  const pairs=[['Request ID',r.request_code],['Request type',nice(r.request_type)],['Submitted',fmt(r.submitted_at)],['Status',nice(r.status)],['Title',effective.title],['Event type',effective.event_type],['Hosting lodge',effective.hosted_by],['District',effective.district?('No. '+effective.district):'—'],['Start',effective.start_local],['End',effective.end_local],['Description',effective.public_description],['Event format',nice(effective.event_mode||'in_person')],['Venue',effective.location_tbd?'Location TBD':effective.location_name],['Address',effective.location_tbd?'Location TBD':address],['Contact',r.requester_name],['Email',r.requester_email],['Message',r.requester_message]];
+  const pairs=[['Request ID',r.request_code],['Request type',nice(r.request_type)],['Submitted',fmt(r.submitted_at)],['Status',nice(r.status)],['Title',effective.title],['Event type',effective.event_type],['Hosting lodge',effective.hosted_by],['District',effective.district?('No. '+effective.district):'—'],['Start',effective.start_local],['End',effective.end_local],['Description',effective.public_description],['Event format',nice(effective.event_mode||'in_person')],['Venue',effective.location_tbd?'Location TBD':effective.location_name],['Address',effective.location_tbd?'Location TBD':address],['Attire',effective.attire],['Audience',effective.invited_audience],['Registration URL',effective.registration_url],['Payment URL',effective.payment_url],['Flyer / invitation URL',effective.flyer_url],['Cancellation reason',effective.reason],['Contact',r.requester_name],['Email',r.requester_email],['Telephone',r.requester_phone],['Message',r.requester_message]];
   target.innerHTML='<div class="review-title"><div><h2>'+safe(effective.title||nice(r.request_type))+'</h2><p class="muted">'+safe(r.request_code)+'</p></div><span class="chip '+safe(r.status)+'">'+safe(nice(r.status))+'</span></div><div class="detail-grid">'+pairs.map(([k,v])=>'<div><small>'+safe(k)+'</small>'+safe(v??'—')+'</div>').join('')+'</div><h3>Inspector revisions</h3><p class="help">The submitted details remain unchanged. Saved inspector corrections are recorded separately.</p><div id="request-diff"></div><div id="inspector-editor-host"></div><hr><h3>Review &amp; delivery</h3><label>Message to submitter (optional)<textarea id="review-note" rows="2"></textarea></label><div class="review-actions" id="review-actions"></div><div id="delivery-summary"></div><h3>Request history</h3><div class="timeline" id="item-history"></div>';
   showDifferences($('request-diff'),submitted,effective);
   const actions=$('review-actions');
@@ -361,7 +361,7 @@ async function detail(id){
     });
     actions.append(edit);
    }
-   for(const [decision,label,style] of [['approved','Approve & Publish','primary'],['needs_correction','Request clarification','secondary'],['rejected','Reject','danger']]){
+   for(const [decision,label,style] of [['approved','Approve & Publish','primary'],['needs_correction','Hold — Needs Correction','secondary'],['rejected','Reject','danger']]){
     const button=document.createElement('button');button.className=style;button.textContent=label;
     button.onclick=()=>{
       if($('inspector-editor-host')?.querySelector('form')){toast('Save or discard your edits before reviewing.',true);return;}
@@ -372,14 +372,28 @@ async function detail(id){
   }else actions.textContent='Decision recorded. This request cannot be edited.';
   $('delivery-summary').innerHTML='<p><b>Google Calendar:</b> '+safe((d.calendar||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p><p><b>Notifications:</b> '+safe((d.email||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p>';
   const hist=$('item-history');
-  for(const h of d.history||[]){const box=document.createElement('div');box.innerHTML='<b>'+safe(nice(h.action))+'</b><br><small>'+safe(fmt(h.occurred_at))+' · '+safe(h.actor_email||'System')+'</small>';hist.append(box)}
+  for(const h of d.history||[]){
+   const box=document.createElement('div');
+   box.innerHTML='<b>'+safe(nice(h.action))+'</b><br><small>'+safe(fmt(h.occurred_at))+' · '+safe(h.actor_email||'System')+'</small>';
+   if(h.action==='inspector_edited'&&h.before_data?.fields&&h.after_data?.fields){
+    const details=document.createElement('details');
+    const label=document.createElement('summary');label.textContent='View changes in revision '+(h.after_data.revision||'');
+    details.append(label);
+    const changes=document.createElement('div');
+    showDifferences(changes,h.before_data.fields,h.after_data.fields);
+    details.append(changes);box.append(details);
+   }
+   hist.append(box)
+  }
   target.scrollIntoView({block:'start',behavior:'smooth'});
  }catch(e){target.textContent=e.message;toast(e.message,true)}
 }
 async function review(id,decision,version){
  if(['approved','rejected'].includes(decision)&&!confirm(decision==='approved'?'Approve this request and queue Google Calendar publication?':'Reject this request?'))return;
  try{
-  const result=await api('review',{id,decision,note:$('review-note')?.value||'',expected_version:version});
+  const note=$('review-note')?.value||'';
+  if(decision==='needs_correction'&&!note.trim())throw Error('Explain what needs correction in the message to the submitter');
+  const result=await api('review',{id,decision,note,expected_version:version});
   toast(result.notice||'Decision saved');await loadRequests(page);await detail(id);
  }catch(e){toast(e.message,true)}
 }
