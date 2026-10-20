@@ -102,6 +102,27 @@ function mode(k){
  $('lookup-title').textContent=k==='cancel'?'Cancel an event':'Change an event';
 }
 function values(form){const f=Object.fromEntries(new FormData(form));all('[type=checkbox]',form).forEach(x=>{if(x.name)f[x.name]=x.checked});return f}
+const locationNames=['location_name','location_address1','location_address2','location_city','location_state','location_zip'];
+function locationControls(form){
+ const toggle=form.elements.location_tbd;
+ const inputs=locationNames.map(name=>form.elements[name]).filter(Boolean);
+ const details=toggle.closest('details');
+ function update(){
+  if(toggle.checked){
+   for(const field of inputs){field.value='';field.disabled=true;field.required=false;}
+  }else{
+   for(const field of inputs){field.disabled=false;field.required=form.id==='new-form'&&field.name!=='location_address2';}
+   if(form.id==='new-form'&&!form.elements.location_state.value)form.elements.location_state.value='CA';
+  }
+  details.classList.toggle('tbd-selected',toggle.checked);
+ }
+ toggle.addEventListener('change',update);
+ form.addEventListener('invalid',e=>{if(details.contains(e.target))details.open=true;},true);
+ update();
+ return update;
+}
+const syncNewLocation=locationControls($('new-form'));
+const syncEditLocation=locationControls($('modify-form'));
 async function identity(){
  const m=await api('me');state.user=m.email;state.staff=m.staff;
  $('nav-admin').classList.toggle('hidden',!m.staff);
@@ -119,6 +140,14 @@ async function init(){
   for(const id of ['event-type','edit-event-type','filter-type']){
    const el=$(id);
    for(const type of conf.event_types||[]){const op=document.createElement('option');op.value=type;op.textContent=type;el.append(op)}
+  }
+  for(const id of ['new-district','edit-district']){
+   const el=$(id);
+   for(const value of conf.districts||[]){
+    const option=document.createElement('option');
+    option.value=String(value);option.textContent='District No. '+value;
+    el.append(option);
+   }
   }
   $('banner').classList.toggle('hidden',conf.public_submissions_enabled);
   if(conf.turnstile_site_key){
@@ -151,10 +180,10 @@ $('new-form').onsubmit=async e=>{
  e.preventDefault();const btn=e.submitter;busy(btn,true);
  try{
   const f=values(e.target),event={};
-  for(const k of ['title','event_type','hosted_by','district','start_local','end_local','event_mode','location_name','location_address','location_tbd','public_description','attire','invited_audience','registration_url','payment_url','flyer_url'])event[k]=f[k]??'';
+  for(const k of ['title','event_type','hosted_by','district','start_local','end_local','event_mode','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','public_description','attire','invited_audience','registration_url','payment_url','flyer_url'])event[k]=f[k]??'';
   const result=await api('submit',{kind:'new',name:f.contact_name,email:f.contact_email,phone:f.contact_phone,message:f.contact_message,website:f.website||'',turnstile_token:turnstileToken,event});
   notify('Request received.\nRequest ID: '+result.request_code+'\nSave this number. Your event is pending inspector review, not yet published.');
-  e.target.reset();turnstileToken='';if(window.turnstile)window.turnstile.reset();
+  e.target.reset();syncNewLocation();turnstileToken='';if(window.turnstile)window.turnstile.reset();
  }catch(ex){notify(ex.message,true)}finally{busy(btn,false)}
 };
 $('lookup-button').onclick=async e=>{
