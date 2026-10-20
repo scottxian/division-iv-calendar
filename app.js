@@ -260,37 +260,192 @@ async function loadRequests(p=0){
 $('refresh-requests').onclick=()=>loadRequests(0);
 $('prev-page').onclick=()=>loadRequests(page-1);
 $('next-page').onclick=()=>loadRequests(page+1);
+
+/* Inspector review and published-event management. The original submission is never overwritten. */
+const editorFields=['title','event_type','hosted_by','district','start_local','end_local','event_mode','public_description',
+ 'location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd',
+ 'attire','invited_audience','registration_url','payment_url','flyer_url'];
+function eventFormValues(e={}){
+ const output={};
+ for(const key of editorFields)output[key]=e[key]??'';
+ if(e.starts_at)output.start_local=local(e.starts_at);
+ if(e.ends_at)output.end_local=local(e.ends_at);
+ if(!output.location_address1&&e.location_address)output.location_address1=e.location_address;
+ if(!output.location_state&& !e.id)output.location_state='CA';
+ return output;
+}
+function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revision'){
+ const f=document.createElement('form');
+ f.id='inspector-form';f.className='inspector-edit-form';
+ f.addEventListener('invalid',e=>{const d=e.target.closest('details');if(d)d.open=true;},true);
+ const source=$('new-form');
+ for(const child of [...source.children]){
+  if(child.classList.contains('form-title')&&child.textContent.includes('Your contact'))break;
+  if(child.classList.contains('form-title')||child.classList.contains('form-grid')||child.matches('details')){
+   const node=child.cloneNode(true);
+   node.removeAttribute('id');
+   node.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));
+   f.appendChild(node);
+  }
+ }
+ for(const key of editorFields){
+  const field=f.elements[key];if(!field)continue;
+  if(key==='location_tbd')field.checked=initial[key]===true;
+  else field.value=initial[key]??(key==='location_state'?'CA':'');
+ }
+ const details=f.querySelector('.location-details');
+ if(details)details.open=false;
+ function toggleLocation(){
+  const tbd=!!f.elements.location_tbd.checked;
+  for(const key of locationNames){
+   const field=f.elements[key];if(!field)continue;
+   field.required=!tbd&&key!=='location_address2';
+   field.disabled=tbd;
+   if(tbd)field.value='';
+  }
+  details?.classList.toggle('tbd-selected',tbd);
+ }
+ f.elements.location_tbd.addEventListener('change',toggleLocation);
+ toggleLocation();
+ const controls=document.createElement('div');controls.className='form-actions';
+ const caption=document.createElement('span');caption.textContent='Changes stay in review until an inspector approves them.';
+ const submit=document.createElement('button');submit.type='submit';submit.className='primary';submit.textContent=buttonLabel;
+ const discard=document.createElement('button');discard.type='button';discard.className='secondary';discard.textContent='Discard';
+ discard.onclick=()=>host.replaceChildren();
+ controls.append(caption,discard,submit);f.append(controls);
+ f.onsubmit=async e=>{
+  e.preventDefault();busy(submit,true);
+  try{
+   const data=values(f);
+   const obj={};for(const key of editorFields)obj[key]=data[key]??(key==='location_tbd'?false:'');
+   await save(obj);
+  }catch(error){toast(error.message,true)}finally{busy(submit,false)}
+ };
+ host.replaceChildren(f);
+ host.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+function showDifferences(host, before, after){
+ const diff=[];
+ for(const key of editorFields){
+  if(String(before[key]??'')!==String(after[key]??''))diff.push([key,before[key],after[key]]);
+ }
+ host.replaceChildren();
+ if(!diff.length){host.textContent='No inspector modifications have been saved.';return}
+ const table=document.createElement('div');table.className='revision-comparison';
+ for(const [key,oldValue,newValue] of diff){
+  const row=document.createElement('div');row.className='revision-row';
+  const name=document.createElement('b');name.textContent=nice(key);
+  const from=document.createElement('span');from.textContent='Submitted: '+(oldValue===true?'Yes':oldValue===false?'No':oldValue||'—');
+  const to=document.createElement('span');to.textContent='Revised: '+(newValue===true?'Yes':newValue===false?'No':newValue||'—');
+  row.append(name,from,to);table.append(row);
+ }
+ host.append(table);
+}
 async function detail(id){
  const target=$('request-detail');target.classList.remove('hidden');target.textContent='Loading…';
  try{
   const d=await api('detail',null,{id}),r=d.request,p=r.proposed_fields||{},event=d.event||{};
-  const fullAddress=[p.location_address1??event.location_address1,p.location_address2??event.location_address2,p.location_city??event.location_city,p.location_state??event.location_state,p.location_zip??event.location_zip].filter(Boolean).join(', ')||(p.location_address??event.location_address??'');
-   const locTbd=p.location_tbd??event.location_tbd;
-   const pairs=[['Request',r.request_code],['Request type',nice(r.request_type)],['Submitted',fmt(r.submitted_at)],['Status',nice(r.status)],['Title',p.title||event.title],['Event type',p.event_type||event.event_type],['Lodge',p.hosted_by||event.hosted_by],['District',p.district??event.district],['Date / start',p.start_local||fmt(event.starts_at)],['Date / end',p.end_local||fmt(event.ends_at)],['Description',p.public_description??event.public_description],['Location',locTbd?'Location TBD':(p.location_name??event.location_name)],['Address',locTbd?'Location TBD':fullAddress],['Contact',r.requester_name],['Email',r.requester_email]];
-  target.innerHTML='<h2>'+safe(p.title||event.title||nice(r.request_type))+'</h2><p class="muted">'+safe(r.request_code)+'</p><div class="detail-grid">'+pairs.map(([k,v])=>'<div><small>'+safe(k)+'</small>'+safe(v||'—')+'</div>').join('')+'</div><hr><h3>Review &amp; delivery</h3><label>Message to submitter (optional)<textarea id="review-note" rows="2"></textarea></label><div class="review-actions" id="review-actions"></div><div id="delivery-summary"></div><h3>History</h3><div class="timeline" id="item-history"></div>';
+  const submitted={...eventFormValues(event),...p};
+  const effective={...eventFormValues(event),...(r.inspector_edits??p)};
+  const address=[effective.location_address1,effective.location_address2,effective.location_city,effective.location_state,effective.location_zip].filter(Boolean).join(', ')||effective.location_address||'—';
+  const pairs=[['Request ID',r.request_code],['Request type',nice(r.request_type)],['Submitted',fmt(r.submitted_at)],['Status',nice(r.status)],['Title',effective.title],['Event type',effective.event_type],['Hosting lodge',effective.hosted_by],['District',effective.district?('No. '+effective.district):'—'],['Start',effective.start_local],['End',effective.end_local],['Description',effective.public_description],['Event format',nice(effective.event_mode||'in_person')],['Venue',effective.location_tbd?'Location TBD':effective.location_name],['Address',effective.location_tbd?'Location TBD':address],['Contact',r.requester_name],['Email',r.requester_email],['Message',r.requester_message]];
+  target.innerHTML='<div class="review-title"><div><h2>'+safe(effective.title||nice(r.request_type))+'</h2><p class="muted">'+safe(r.request_code)+'</p></div><span class="chip '+safe(r.status)+'">'+safe(nice(r.status))+'</span></div><div class="detail-grid">'+pairs.map(([k,v])=>'<div><small>'+safe(k)+'</small>'+safe(v??'—')+'</div>').join('')+'</div><h3>Inspector revisions</h3><p class="help">The submitted details remain unchanged. Saved inspector corrections are recorded separately.</p><div id="request-diff"></div><div id="inspector-editor-host"></div><hr><h3>Review &amp; delivery</h3><label>Message to submitter (optional)<textarea id="review-note" rows="2"></textarea></label><div class="review-actions" id="review-actions"></div><div id="delivery-summary"></div><h3>Request history</h3><div class="timeline" id="item-history"></div>';
+  showDifferences($('request-diff'),submitted,effective);
   const actions=$('review-actions');
   if(['pending','needs_correction'].includes(r.status)){
-   for(const [decision,text,style] of [['approved','Approve & queue publication','primary'],['needs_correction','Request correction','secondary'],['rejected','Reject','danger']]){
-    const b=document.createElement('button');b.className=style;b.textContent=text;b.onclick=()=>review(id,decision);actions.append(b);
+   if(['new','change'].includes(r.request_type)){
+    const edit=document.createElement('button');edit.className='secondary';edit.textContent=r.inspector_edits?'Edit Saved Revision':'Edit Request';
+    edit.onclick=()=>inspectorEditor($('inspector-editor-host'),effective,async fields=>{
+      const result=await api('inspector-edit',{id,expected_version:r.edit_version,fields});
+      toast(result.notice||'Revision saved');await detail(id);
+    });
+    actions.append(edit);
    }
-  }else actions.textContent='Decision recorded. No further action required.';
-  $('delivery-summary').innerHTML='<p><b>Calendar:</b> '+safe((d.calendar||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p><p><b>Emails:</b> '+safe((d.email||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p>';
-  const hist=$('item-history');for(const h of d.history||[]){const div=document.createElement('div');div.innerHTML='<b>'+safe(nice(h.action))+'</b><br><small>'+safe(fmt(h.occurred_at))+' · '+safe(h.actor_email||'System')+'</small>';hist.append(div)}
+   for(const [decision,label,style] of [['approved','Approve & Publish','primary'],['needs_correction','Request clarification','secondary'],['rejected','Reject','danger']]){
+    const button=document.createElement('button');button.className=style;button.textContent=label;
+    button.onclick=()=>{
+      if($('inspector-editor-host')?.querySelector('form')){toast('Save or discard your edits before reviewing.',true);return;}
+      review(id,decision,r.edit_version);
+    };
+    actions.append(button);
+   }
+  }else actions.textContent='Decision recorded. This request cannot be edited.';
+  $('delivery-summary').innerHTML='<p><b>Google Calendar:</b> '+safe((d.calendar||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p><p><b>Notifications:</b> '+safe((d.email||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p>';
+  const hist=$('item-history');
+  for(const h of d.history||[]){const box=document.createElement('div');box.innerHTML='<b>'+safe(nice(h.action))+'</b><br><small>'+safe(fmt(h.occurred_at))+' · '+safe(h.actor_email||'System')+'</small>';hist.append(box)}
   target.scrollIntoView({block:'start',behavior:'smooth'});
  }catch(e){target.textContent=e.message;toast(e.message,true)}
 }
-async function review(id,decision){
- if(['approved','rejected'].includes(decision)&&!confirm(decision==='approved'?'Approve request and queue publication?':'Reject this request?'))return;
+async function review(id,decision,version){
+ if(['approved','rejected'].includes(decision)&&!confirm(decision==='approved'?'Approve this request and queue Google Calendar publication?':'Reject this request?'))return;
  try{
-  const result=await api('review',{id,decision,note:$('review-note')?.value||''});
+  const result=await api('review',{id,decision,note:$('review-note')?.value||'',expected_version:version});
   toast(result.notice||'Decision saved');await loadRequests(page);await detail(id);
  }catch(e){toast(e.message,true)}
+}
+let eventPage=0;
+async function loadEvents(p=0){
+ eventPage=Math.max(0,p);
+ const list=$('event-list');list.textContent='Loading events…';$('event-detail').classList.add('hidden');
+ try{
+  const data=await api('events',null,{page:eventPage,status:$('event-status').value,search:$('event-search').value});
+  $('event-count').textContent=data.total+' event'+(data.total===1?'':'s');
+  $('event-page').textContent='Page '+(eventPage+1);
+  $('event-prev').disabled=eventPage===0;$('event-next').disabled=(eventPage+1)*50>=data.total;
+  list.replaceChildren();
+  if(!data.items.length){list.textContent='No events match your search.';return}
+  for(const item of data.items){
+   const btn=document.createElement('button');btn.type='button';btn.className='request-row';
+   const sync=item.status==='cancelled'?'Cancelled':item.calendar_last_synced_at?'Published':'Awaiting sync';
+   btn.innerHTML='<span><strong>'+safe(item.title)+'</strong><small>'+safe(item.event_code)+' · '+safe(item.hosted_by||'')+'</small></span><small class="date">'+safe(fmt(item.starts_at))+'</small><span class="chip '+(item.status==='active'?'approved':'rejected')+'">'+safe(sync)+'</span>';
+   btn.onclick=()=>eventDetail(item.id);list.append(btn);
+  }
+ }catch(e){list.textContent=e.message;toast(e.message,true)}
+}
+$('event-search-go').onclick=()=>loadEvents(0);
+$('event-search').onkeydown=e=>{if(e.key==='Enter')loadEvents(0)};
+$('event-prev').onclick=()=>loadEvents(eventPage-1);
+$('event-next').onclick=()=>loadEvents(eventPage+1);
+async function eventDetail(id){
+ const host=$('event-detail');host.classList.remove('hidden');host.textContent='Loading event…';
+ try{
+  const d=await api('event-detail',null,{id}),ev=d.event,initial=eventFormValues(ev);
+  host.innerHTML='<h2>'+safe(ev.title)+'</h2><p class="muted">'+safe(ev.event_code)+' · '+safe(nice(ev.status))+'</p><p><b>Starts:</b> '+safe(fmt(ev.starts_at))+' · <b>Location:</b> '+safe(ev.location_name||'Location TBD')+'</p><p><b>Google Calendar:</b> '+safe((d.calendar||[]).map(x=>nice(x.status)).join(', ')||'No sync job')+'</p><div class="review-actions" id="event-actions"></div><div id="event-editor-host"></div><h3>Recent history</h3><div id="event-history" class="timeline"></div>';
+  const actions=$('event-actions');
+  if(ev.status==='active'){
+   const edit=document.createElement('button');edit.className='secondary';edit.textContent='Create Change Request';
+   edit.onclick=()=>inspectorEditor($('event-editor-host'),initial,async fields=>{
+    const changes={};
+    for(const key of editorFields){
+     if(key==='location_tbd'||String(fields[key]??'')!==String(initial[key]??'')){
+      if(String(fields[key]??'')!==String(initial[key]??''))changes[key]=fields[key];
+     }
+    }
+    if(!Object.keys(changes).length)throw Error('Change at least one field before submitting');
+    const data=await api('submit',{kind:'change',name:state.staff?.display_name||state.user,email:state.user,request_code:ev.event_code,changes});
+    $('event-editor-host').replaceChildren();
+    toast('Change request '+data.request_code+' created. Review and approve it under Review Requests.');
+    await loadEvents(eventPage);
+   },'Submit Change for Review');
+   const cancel=document.createElement('button');cancel.className='danger';cancel.textContent='Request Cancellation';
+   cancel.onclick=async()=>{
+    const reason=prompt('Why should this event be cancelled?');
+    if(!reason?.trim())return;
+    if(!confirm('Create a cancellation request for '+ev.title+'? The event will remain published until the request is approved.'))return;
+    try{const data=await api('submit',{kind:'cancel',name:state.staff?.display_name||state.user,email:state.user,request_code:ev.event_code,reason});toast('Cancellation request '+data.request_code+' created. Approve it under Review Requests.');}catch(ex){toast(ex.message,true)}
+   };
+   actions.append(edit,cancel);
+  }
+  for(const h of d.history||[]){const node=document.createElement('div');node.innerHTML='<b>'+safe(nice(h.action))+'</b> · '+safe(fmt(h.occurred_at))+'<br><small>'+safe(h.actor_email||'System')+'</small>';host.querySelector('#event-history').append(node)}
+  host.scrollIntoView({block:'start',behavior:'smooth'});
+ }catch(e){host.textContent=e.message;toast(e.message,true)}
 }
 all('.tab').forEach(t=>t.onclick=async()=>{
  all('.tab').forEach(x=>x.classList.toggle('active',x===t));
  const key=t.dataset.tab;
- for(const k of ['requests','history','staff','settings'])$('tab-'+k).classList.toggle('hidden',k!==key);
+ for(const k of ['requests','events','history','staff','settings'])$('tab-'+k).classList.toggle('hidden',k!==key);
  if(key==='requests')await loadRequests(0);
+ if(key==='events')await loadEvents(0);
  if(key==='history')await loadHistory(0);
  if(key==='staff')await loadStaff();
  if(key==='settings')await loadSettings();
