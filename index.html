@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css"><script defer src="bootstrap.js"></script><script defer src="app.js?v=4"></script>
+<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css"><script defer src="bootstrap.js"></script><script defer src="app.js?v=5"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -111,6 +111,7 @@
 <div class="admin-head"><div><div class="eyebrow">Inspector Desk</div><h2 id="welcome">Review Requests</h2></div><span class="chip" id="staff-role">Inspector</span></div>
 <div class="tabs">
 <button class="tab active" data-tab="requests" type="button">Review Requests</button>
+<button class="tab" data-tab="events" type="button">All Events</button>
 <button class="tab" data-tab="history" type="button">Status Log</button>
 <button class="tab admin-only hidden" data-tab="staff" type="button">Inspectors</button>
 <button class="tab admin-only hidden" data-tab="settings" type="button">Settings</button>
@@ -132,6 +133,24 @@
 <div class="pagination"><button type="button" class="secondary" id="prev-page">← Previous</button><span id="page-label">Page 1</span><button type="button" class="secondary" id="next-page">Next →</button></div>
 </section><section id="request-detail" class="panel hidden" aria-live="polite"></section>
 </div>
+<section id="tab-events" class="hidden">
+<section class="panel">
+<h3>Manage Published Events</h3>
+<p class="muted">Search the live event records, check Google synchronization, or prepare an inspector change or cancellation request. Changes still require approval.</p>
+<div class="filters">
+<label>Search events<input id="event-search" placeholder="Title, lodge, or event ID"></label>
+<label>Status<select id="event-status"><option value="active">Active</option><option value="all">All</option><option value="cancelled">Cancelled</option></select></label>
+<button type="button" id="event-search-go" class="secondary">Search</button>
+</div>
+<div class="list-head"><strong id="event-count">Events</strong><small>Select an event to manage it</small></div>
+<div id="event-list" class="request-list"></div>
+<div class="pagination">
+<button type="button" id="event-prev" class="secondary">← Previous</button><span id="event-page">Page 1</span>
+<button type="button" id="event-next" class="secondary">Next →</button>
+</div>
+</section>
+<section id="event-detail" class="panel hidden" aria-live="polite"></section>
+</section>
 <section id="tab-history" class="panel hidden"><h3>Status Log</h3><p class="muted">Timestamped changes made by applicants and reviewers.</p><button id="refresh-history" class="secondary" type="button">Refresh</button><div id="history-content" class="timeline"></div><div class="pagination"><button id="history-prev" type="button" class="secondary">← Previous</button><span id="history-page">Page 1</span><button id="history-next" type="button" class="secondary">Next →</button></div></section>
 <section id="tab-staff" class="panel hidden"><h3>Inspectors</h3><div id="staff-list"></div><hr><h3>Add or Update Inspector</h3>
 <form id="staff-form" class="form-grid">
