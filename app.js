@@ -200,14 +200,17 @@ $('lookup-button').onclick=async e=>{
   const result=await api('locate',null,{code});
   state.event=result.event;state.original={};
   const form=$('modify-form');
-  for(const k of ['title','event_type','location_name','location_address','public_description','location_tbd']){
-   const v=result.event[k]??'';state.original[k]=v;
-   if(form.elements[k]){
-     if(k==='location_tbd')form.elements[k].checked=!!v;
-     else form.elements[k].value=v;
+  for(const k of ['title','event_type','hosted_by','district','event_mode','location_name','location_address1','location_address2','location_city','location_state','location_zip','public_description','location_tbd']){
+    const v=k==='location_address1'?(result.event.location_address1||result.event.location_address||''):(result.event[k]??'');
+    state.original[k]=v;
+    if(form.elements[k]){
+      if(k==='location_tbd')form.elements[k].checked=!!v;
+      else form.elements[k].value=v;
+    }
    }
-  }
-  for(const k of ['start_local','end_local']){
+   syncEditLocation();
+   $('edit-location-details').open=false;
+   for(const k of ['start_local','end_local']){
    const v=local(result.event[k==='start_local'?'starts_at':'ends_at']);state.original[k]=v;form.elements[k].value=v;
   }
   $('event-being-edited').textContent=result.event.title;
@@ -261,7 +264,9 @@ async function detail(id){
  const target=$('request-detail');target.classList.remove('hidden');target.textContent='Loading…';
  try{
   const d=await api('detail',null,{id}),r=d.request,p=r.proposed_fields||{},event=d.event||{};
-  const pairs=[['Request',r.request_code],['Request type',nice(r.request_type)],['Submitted',fmt(r.submitted_at)],['Status',nice(r.status)],['Title',p.title||event.title],['Event type',p.event_type||event.event_type],['Lodge',p.hosted_by||event.hosted_by],['Date / start',p.start_local||fmt(event.starts_at)],['Date / end',p.end_local||fmt(event.ends_at)],['Location',p.location_name??event.location_name??'TBD'],['Address',p.location_address??event.location_address??''],['Contact',r.requester_name],['Email',r.requester_email]];
+  const fullAddress=[p.location_address1??event.location_address1,p.location_address2??event.location_address2,p.location_city??event.location_city,p.location_state??event.location_state,p.location_zip??event.location_zip].filter(Boolean).join(', ')||(p.location_address??event.location_address??'');
+   const locTbd=p.location_tbd??event.location_tbd;
+   const pairs=[['Request',r.request_code],['Request type',nice(r.request_type)],['Submitted',fmt(r.submitted_at)],['Status',nice(r.status)],['Title',p.title||event.title],['Event type',p.event_type||event.event_type],['Lodge',p.hosted_by||event.hosted_by],['District',p.district??event.district],['Date / start',p.start_local||fmt(event.starts_at)],['Date / end',p.end_local||fmt(event.ends_at)],['Description',p.public_description??event.public_description],['Location',locTbd?'Location TBD':(p.location_name??event.location_name)],['Address',locTbd?'Location TBD':fullAddress],['Contact',r.requester_name],['Email',r.requester_email]];
   target.innerHTML='<h2>'+safe(p.title||event.title||nice(r.request_type))+'</h2><p class="muted">'+safe(r.request_code)+'</p><div class="detail-grid">'+pairs.map(([k,v])=>'<div><small>'+safe(k)+'</small>'+safe(v||'—')+'</div>').join('')+'</div><hr><h3>Review &amp; delivery</h3><label>Message to submitter (optional)<textarea id="review-note" rows="2"></textarea></label><div class="review-actions" id="review-actions"></div><div id="delivery-summary"></div><h3>History</h3><div class="timeline" id="item-history"></div>';
   const actions=$('review-actions');
   if(['pending','needs_correction'].includes(r.status)){
