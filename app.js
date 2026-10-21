@@ -403,7 +403,7 @@ async function detail(id){
        async fields=>createPublishedEventRevision(event,fields,$('inspector-editor-host')),
        'Submit Change for Approval');
     };
-    actions.prepend(edit);
+    target.querySelector('.review-title').append(edit);
    }
   }
   $('delivery-summary').innerHTML='<p><b>Google Calendar:</b> '+safe((d.calendar||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p><p><b>Notifications:</b> '+safe((d.email||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p>';
