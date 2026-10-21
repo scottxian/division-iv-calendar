@@ -495,7 +495,20 @@ async function eventDetail(id){
    };
    actions.append(edit,cancel);
   }
-  for(const h of d.history||[]){const node=document.createElement('div');node.innerHTML='<b>'+safe(nice(h.action))+'</b> · '+safe(fmt(h.occurred_at))+'<br><small>'+safe(h.actor_email||'System')+'</small>';host.querySelector('#event-history').append(node)}
+  for(const h of d.history||[]){
+   const node=document.createElement('div');
+   const title=document.createElement('b');title.textContent=auditAction(h);
+   const meta=document.createElement('small');
+   meta.textContent=[fmt(h.occurred_at),h.actor_email||'System',h.request_code||''].filter(Boolean).join(' · ');
+   node.append(title,document.createElement('br'),meta);
+   if(h.action==='inspector_updated_published'&&h.before_data?.fields&&h.after_data?.fields){
+    const disclosure=document.createElement('details');disclosure.className='audit-diff';
+    const summary=document.createElement('summary');summary.textContent='See corrections';
+    const changes=document.createElement('div');showDifferences(changes,h.before_data.fields,h.after_data.fields);
+    disclosure.append(summary,changes);node.append(disclosure);
+   }
+   host.querySelector('#event-history').append(node);
+  }
   host.scrollIntoView({block:'start',behavior:'smooth'});
  }catch(e){host.textContent=e.message;toast(e.message,true)}
 }
