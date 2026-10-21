@@ -99,3 +99,27 @@ details.form-section.tbd-selected .location-inputs .req{display:none}
 .staff-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
 .staff-actions button{white-space:nowrap}
 @media(max-width:760px){.staff-row{align-items:flex-start;flex-direction:column}.staff-actions{justify-content:flex-start}.staff-actions button{max-width:100%}}
+
+/* Inspector dashboard: compact priority overview. */
+.dashboard-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0 25px}
+.dashboard-stat{display:flex;flex-direction:column;text-align:left;gap:8px;padding:20px 16px;border-radius:12px;border:1px solid var(--border);background:#f7fafc;color:var(--ink);cursor:pointer;min-height:100px}
+.dashboard-stat:hover{border-color:#7a9bb7;background:#f0f6fb}
+.dashboard-stat:focus-visible,.dashboard-entry:focus-visible{outline:3px solid #6398c0;outline-offset:2px}
+.dashboard-number{font-size:30px;line-height:1;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums}
+.dashboard-stat span{font-size:13px;font-weight:700}
+.dashboard-columns{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.dashboard-columns>section,.dashboard-activity{min-width:0}
+.dashboard-columns h3,.dashboard-activity h3{font-size:17px;margin:10px 0 12px}
+.dashboard-activity{margin-top:24px}
+.dashboard-list{display:flex;flex-direction:column;gap:8px}
+.dashboard-entry{display:flex;flex-direction:column;gap:5px;width:100%;padding:13px 15px;text-align:left;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--ink);overflow-wrap:anywhere}
+button.dashboard-entry{cursor:pointer}
+button.dashboard-entry:hover{background:#f3f7fa;border-color:#a1bbd0}
+.dashboard-entry strong{font-size:14px}
+.dashboard-entry span,.dashboard-entry small{font-size:12px}
+.dashboard-error{border-left:4px solid #b83b50}
+.dashboard-error-text{font-size:12px;margin:4px 0;color:var(--muted)}
+.dashboard-entry-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.dashboard-entry-actions button{font-size:12px;padding:8px 12px}
+@media(max-width:920px){.dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-columns{grid-template-columns:1fr}}
+@media(max-width:540px){.dashboard-stats{gap:8px}.dashboard-stat{padding:13px 11px}.dashboard-number{font-size:26px}}
