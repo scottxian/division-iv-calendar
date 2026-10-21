@@ -93,6 +93,72 @@ function show(view){
  $('notice').classList.add('hidden');window.scrollTo({top:0});
  if(view==='admin')activateInspectorTab('dashboard');
 }
+
+// Branded, accessible confirmation dialogs (rather than browser-name alerts).
+function divisionQuestion(message,options={}){
+ return new Promise(resolve=>{
+  const dlg=$('division-confirm-dialog');
+  if(!dlg||typeof dlg.showModal!=='function'){toast('Confirmation dialog could not open. Please refresh the page.',true);resolve(options.input?null:false);return}
+  if(dlg.open){toast('Finish the current confirmation first.',true);resolve(options.input?null:false);return}
+  const title=$('division-dialog-title'),text=$('division-dialog-message'),
+        inputLabel=$('division-dialog-input-label'),input=$('division-dialog-input'),
+        err=$('division-dialog-error'),no=$('division-dialog-no'),yes=$('division-dialog-yes');
+  title.textContent=options.title||'Please confirm';
+  text.textContent=message;
+  inputLabel.classList.toggle('hidden',!options.input);
+  input.value='';
+  err.textContent='';err.classList.add('hidden');
+  no.textContent=options.cancelLabel||'Go back';
+  yes.textContent=options.confirmLabel||'Confirm';
+  yes.className=options.danger?'danger':'primary';
+  let answer=options.input?null:false;
+  function cleanup(){
+   dlg.removeEventListener('close',onClose);
+   no.removeEventListener('click',onNo);
+   yes.removeEventListener('click',onYes);
+   dlg.removeEventListener('cancel',onCancel);
+   resolve(answer);
+  }
+  function onClose(){cleanup()}
+  function onNo(){answer=options.input?null:false;dlg.close()}
+  function onCancel(){answer=options.input?null:false}
+  function onYes(){
+   if(options.input){
+    const value=input.value.trim();
+    if(!value){err.textContent='Please provide a reason before continuing.';err.classList.remove('hidden');input.focus();return}
+    answer=value;
+   }else answer=true;
+   dlg.close();
+  }
+  dlg.addEventListener('close',onClose,{once:true});
+  dlg.addEventListener('cancel',onCancel);
+  no.addEventListener('click',onNo);
+  yes.addEventListener('click',onYes);
+  dlg.showModal();
+  if(options.input)input.focus();else no.focus();
+ });
+}
+// Date chosen first; use a useful 6 PM–10 PM default without imposing any date.
+function setupEventTimeDefaults(form){
+ const start=form.elements.start_local,end=form.elements.end_local;
+ if(!start||!end)return;
+ let generatedEnd=false,initializedStart=false;
+ start.addEventListener('change',()=>{
+  if(!start.value)return;
+  const date=start.value.slice(0,10);
+  if(!initializedStart){
+   initializedStart=true;
+   start.value=date+'T18:00';
+  }
+  if(!end.value||generatedEnd){
+   end.value=date+'T22:00';
+   generatedEnd=true;
+  }
+ });
+ end.addEventListener('change',()=>{generatedEnd=false});
+ form.addEventListener('reset',()=>{generatedEnd=false;initializedStart=false});
+}
+setupEventTimeDefaults($('new-form'));
 function mode(k){
  state.mode=k;state.event=null;state.original=null;
  all('.choice').forEach(b=>b.classList.toggle('selected',b.dataset.mode===k));
@@ -116,7 +182,15 @@ function locationControls(form){
   }
   details.classList.toggle('tbd-selected',toggle.checked);
  }
- toggle.addEventListener('change',update);
+ const headerToggle=toggle.closest('.location-header-toggle');
+ if(headerToggle){
+  headerToggle.addEventListener('click',e=>e.stopPropagation());
+  headerToggle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.stopPropagation()}});
+ }
+ toggle.addEventListener('change',()=>{
+  update();
+  if(!toggle.checked)details.open=true;
+ });
  form.addEventListener('invalid',e=>{if(details.contains(e.target))details.open=true;},true);
  update();
  return update;
@@ -305,7 +379,15 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
   }
   details?.classList.toggle('tbd-selected',tbd);
  }
- f.elements.location_tbd.addEventListener('change',toggleLocation);
+ const headerToggle=f.elements.location_tbd.closest('.location-header-toggle');
+ if(headerToggle){
+  headerToggle.addEventListener('click',e=>e.stopPropagation());
+  headerToggle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')e.stopPropagation()});
+ }
+ f.elements.location_tbd.addEventListener('change',()=>{
+  toggleLocation();
+  if(!f.elements.location_tbd.checked)details.open=true;
+ });
  toggleLocation();
  const controls=document.createElement('div');controls.className='form-actions';
  const caption=document.createElement('span');caption.textContent=buttonLabel==='Save & Update Calendar'?'Saving updates the published event and queues Google Calendar synchronization.':'Changes stay in review until an inspector approves them.';
@@ -329,7 +411,7 @@ async function savePublishedInspectorEdit(ev,fields){
  const before=eventFormValues(ev),changes=[];
  for(const key of editorFields)if(String(fields[key]??'')!==String(before[key]??''))changes.push(key.replaceAll('_',' '));
  if(!changes.length)throw Error('Change at least one field before saving.');
- if(!confirm('Save changes directly to the approved event?\n\n'+changes.join(', ')+'\n\nThe existing Google Calendar entry will be updated. Your edit is recorded.'))return false;
+ if(!await divisionQuestion('Save these changes to the published event?\n\n'+changes.join(', ')+'\n\nThe existing Google Calendar event will be updated. Your edit is recorded.',{title:'Update published event',confirmLabel:'Save changes'}))return false;
  const response=await api('inspector-publish-edit',{id:ev.id,expected_version:ev.version,fields});
  toast('Saved. Google Calendar update queued.');
  return response;
@@ -445,7 +527,7 @@ async function detail(id){
  }catch(e){target.textContent=e.message;toast(e.message,true)}
 }
 async function review(id,decision,version){
- if(['approved','rejected'].includes(decision)&&!confirm(decision==='approved'?'Approve this request and queue Google Calendar publication?':'Reject this request?'))return;
+ if(['approved','rejected'].includes(decision)&&!await divisionQuestion(decision==='approved'?'Approve this request and queue Google Calendar publication?':'Reject this request?',{title:decision==='approved'?'Approve request':'Reject request',confirmLabel:decision==='approved'?'Approve & publish':'Reject request',danger:decision==='rejected'}))return;
  try{
   const note=$('review-note')?.value||'';
   if(decision==='needs_correction'&&!note.trim())throw Error('Explain what needs correction in the message to the submitter');
@@ -575,9 +657,9 @@ async function eventDetail(id){
      'Save & Update Calendar');
    const cancel=document.createElement('button');cancel.className='danger';cancel.textContent='Request Cancellation';
    cancel.onclick=async()=>{
-    const reason=prompt('Why should this event be cancelled?');
-    if(!reason?.trim())return;
-    if(!confirm('Create a cancellation request for '+ev.title+'? The event will remain published until the request is approved.'))return;
+    const reason=await divisionQuestion('Why should this event be cancelled?',{title:'Cancellation — step 1 of 2',input:true,confirmLabel:'Continue'});
+    if(!reason)return;
+    if(!await divisionQuestion('Submit a cancellation request for '+ev.title+'?\n\nReason: '+reason+'\n\nThe event remains published until the cancellation is approved.',{title:'Cancellation — step 2 of 2',confirmLabel:'Submit cancellation',danger:true}))return;
     try{const data=await api('submit',{kind:'cancel',name:state.staff?.display_name||state.user,email:state.user,request_code:ev.event_code,reason});toast('Cancellation request '+data.request_code+' created. Approve it under Review Requests.');}catch(ex){toast(ex.message,true)}
    };
    actions.append(edit,cancel);
@@ -602,9 +684,9 @@ async function eventDetail(id){
     const fields=lastEditor.before_data.fields||{},present=lastEditor.after_data?.fields||{};
     const changed=editorFields.filter(k=>String(fields[k]??'')!==String(present[k]??''));
     const lines=changed.slice(0,12).map(k=>nice(k)+': '+String(present[k]??'—')+' → '+String(fields[k]??'—'));
-    if(!confirm('Undo the most recent inspector edit to '+ev.title+'?\n\n'+lines.join('\n')+
+    if(!await divisionQuestion('Undo the most recent inspector edit to '+ev.title+'?\n\n'+lines.join('\n')+
       (changed.length>12?'\n… and '+(changed.length-12)+' additional fields':'')+
-      '\n\nThis restores the previous details, records the reversal, and queues another Google Calendar update.'))return;
+      '\n\nThis restores the previous details, records the reversal, and queues another Google Calendar update.',{title:'Undo last inspector edit',confirmLabel:'Undo edit',danger:true}))return;
     undo.disabled=true;
     try{
      const result=await api('event-undo',{id:ev.id,history_id:lastEditor.id,expected_version:ev.version});
@@ -710,7 +792,7 @@ async function loadStaff(){
     const restore=document.createElement('button');restore.type='button';restore.className='secondary';
     restore.textContent='Restore access';
     restore.onclick=async()=>{
-     if(!confirm('Restore inspector access for '+(s.display_name||s.email)+'?'))return;
+     if(!await divisionQuestion('Restore inspector access for '+(s.display_name||s.email)+'?',{title:'Restore inspector',confirmLabel:'Restore access'}))return;
      try{const result=await api('staff-restore',{id:s.id});toast(result.message);await loadStaff();}
      catch(ex){toast(ex.message,true);}
     };
@@ -728,7 +810,7 @@ async function loadStaff(){
      const remove=document.createElement('button');remove.type='button';remove.className='danger';
      remove.textContent='Remove inspector';
      remove.onclick=async()=>{
-      if(!confirm('Remove inspector access for '+(s.display_name||s.email)+'?\n\nThis immediately disables inspector permissions and hides them from the active list. Past approvals and activity remain on file. You can restore the account later.'))return;
+      if(!await divisionQuestion('Remove access for '+(s.display_name||s.email)+'?\n\nTheir past approvals and history will be preserved. Access can be restored later.',{title:'Remove inspector',confirmLabel:'Remove access',danger:true}))return;
       try{const result=await api('staff-remove',{id:s.id});toast(result.message);await loadStaff();}
       catch(ex){toast(ex.message,true);}
      };
