@@ -582,13 +582,45 @@ async function eventDetail(id){
    };
    actions.append(edit,cancel);
   }
+  if(job&&job.event_version===ev.version&&job.status==='failed'&&
+     job.action===(ev.status==='cancelled'?'cancel':'upsert')){
+   const retry=document.createElement('button');retry.type='button';
+   retry.className='primary';retry.textContent='Retry Google Calendar';
+   retry.onclick=async()=>{
+    retry.disabled=true;
+    await retryEventSync(ev,async()=>{await loadEvents(eventPage);await eventDetail(ev.id)});
+    retry.disabled=false;
+   };
+   actions.prepend(retry);
+  }
+  const lastEditor=(d.history||[]).find(h=>['inspector_updated_published','inspector_undo_published'].includes(h.action));
+  if(state.staff?.role==='admin'&&ev.status==='active'&&lastEditor&&
+     Number(lastEditor.after_data?.version)===ev.version&&lastEditor.before_data?.fields){
+   const undo=document.createElement('button');undo.type='button';
+   undo.className='secondary';undo.textContent='Undo last inspector edit';
+   undo.onclick=async()=>{
+    const fields=lastEditor.before_data.fields||{},present=lastEditor.after_data?.fields||{};
+    const changed=editorFields.filter(k=>String(fields[k]??'')!==String(present[k]??''));
+    const lines=changed.slice(0,12).map(k=>nice(k)+': '+String(present[k]??'—')+' → '+String(fields[k]??'—'));
+    if(!confirm('Undo the most recent inspector edit to '+ev.title+'?\n\n'+lines.join('\n')+
+      (changed.length>12?'\n… and '+(changed.length-12)+' additional fields':'')+
+      '\n\nThis restores the previous details, records the reversal, and queues another Google Calendar update.'))return;
+    undo.disabled=true;
+    try{
+     const result=await api('event-undo',{id:ev.id,history_id:lastEditor.id,expected_version:ev.version});
+     toast(result.notice||'Previous version restored.');
+     await loadEvents(eventPage);await eventDetail(ev.id);
+    }catch(ex){toast(ex.message,true);undo.disabled=false;}
+   };
+   actions.append(undo);
+  }
   for(const h of d.history||[]){
    const node=document.createElement('div');
    const title=document.createElement('b');title.textContent=auditAction(h);
    const meta=document.createElement('small');
    meta.textContent=[fmt(h.occurred_at),h.actor_email||'System',h.request_code||''].filter(Boolean).join(' · ');
    node.append(title,document.createElement('br'),meta);
-   if(h.action==='inspector_updated_published'&&h.before_data?.fields&&h.after_data?.fields){
+   if(['inspector_updated_published','inspector_undo_published'].includes(h.action)&&h.before_data?.fields&&h.after_data?.fields){
     const disclosure=document.createElement('details');disclosure.className='audit-diff';
     const summary=document.createElement('summary');summary.textContent='See corrections';
     const changes=document.createElement('div');showDifferences(changes,h.before_data.fields,h.after_data.fields);
