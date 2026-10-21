@@ -123,3 +123,61 @@ button.dashboard-entry:hover{background:#f3f7fa;border-color:#a1bbd0}
 .dashboard-entry-actions button{font-size:12px;padding:8px 12px}
 @media(max-width:920px){.dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-columns{grid-template-columns:1fr}}
 @media(max-width:540px){.dashboard-stats{gap:8px}.dashboard-stat{padding:13px 11px}.dashboard-number{font-size:26px}}
+
+/* Location TBD stays accessible in the heading, even when the section is collapsed. */
+details.location-details.form-section>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+  list-style:none;
+}
+details.location-details.form-section>summary::-webkit-details-marker{display:none}
+details.location-details.form-section>summary .location-summary-title{
+  display:inline-flex;align-items:center;gap:7px;
+}
+details.location-details.form-section>summary .location-summary-title:before{
+  content:"▸";color:var(--navy);font-size:13px;
+}
+details.location-details.form-section[open]>summary .location-summary-title:before{content:"▾"}
+details.location-details.form-section>summary .location-header-toggle{
+  display:inline-flex;flex-direction:row;align-items:center;
+  gap:7px;background:#f0f5f9;border-radius:8px;
+  padding:8px 10px;margin:0;cursor:pointer;font-size:13px;
+  color:var(--ink);font-weight:700;
+}
+details.location-details.form-section>summary .location-header-toggle input{
+  margin:0;cursor:pointer;accent-color:#174b6d;
+}
+details.location-details.form-section .location-tbd-toggle{margin:0}
+@media(max-width:520px){
+ details.location-details.form-section>summary{align-items:flex-start;flex-direction:column;gap:8px}
+}
+/* Site-owned confirmation dialog: avoids browser "website says" popups. */
+.division-dialog{
+ width:min(92vw,520px);max-height:min(85vh,740px);
+ padding:0;border:1px solid var(--border);border-radius:15px;
+ box-shadow:0 24px 90px rgba(0,0,0,.25);
+ background:#fff;color:var(--ink);overflow:auto;
+}
+.division-dialog::backdrop{background:rgba(17,37,57,.58)}
+.division-dialog form{padding:0}
+.division-dialog-heading{
+ padding:20px 25px 17px;background:var(--navy);color:white;
+}
+.division-dialog-brand{font-size:12px;font-weight:800;color:#e4c58a;letter-spacing:.06em}
+.division-dialog-heading h3{margin:6px 0 0;font-size:21px;color:white}
+.division-dialog #division-dialog-message{
+ white-space:pre-line;overflow-wrap:anywhere;
+ line-height:1.55;padding:20px 25px 5px;margin:0;max-height:40vh;overflow:auto;
+}
+.division-dialog #division-dialog-input-label{margin:14px 25px 0;font-size:14px}
+.division-dialog #division-dialog-input{margin-top:5px;min-height:95px}
+.division-dialog .division-dialog-error{margin:6px 25px;color:#a12d43;font-size:13px}
+.division-dialog-buttons{
+ padding:20px 25px 25px;display:flex;justify-content:flex-end;
+ align-items:center;gap:10px;flex-wrap:wrap;
+}
+.division-dialog-buttons button{padding:10px 17px;min-width:112px}
+@media(max-width:520px){.division-dialog-buttons button{flex:1}}
