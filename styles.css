@@ -26,3 +26,15 @@ a.nav-btn{text-decoration:none;display:inline-flex;align-items:center}
 .inspector-edit-form>details{background:#fff}
 .inspector-edit-form>.form-actions{padding-top:12px;border-top:1px solid var(--border)}
 @media(max-width:760px){.inspector-edit-form{padding:13px}.review-title .chip{align-self:flex-start}}
+
+/* Uniform collapsible sections across all event request and editing forms. */
+details.form-section{border:1px solid var(--border);border-radius:12px;background:#fbfdff;padding:0 20px;margin:18px 0;overflow:visible}
+details.form-section>summary{padding:18px 2px;font-size:16px;font-weight:800;cursor:pointer;list-style-position:inside;color:var(--ink)}
+details.form-section[open]{padding-bottom:18px}
+details.form-section[open]>summary{margin-bottom:16px;border-bottom:1px solid var(--border)}
+details.form-section>.form-grid{margin-top:8px}
+details.form-section>.help{margin-top:0}
+details.form-section .location-hint{font-weight:500;color:var(--muted);font-size:12px}
+details.tbd-selected .location-inputs .req{display:none}
+.inspector-edit-form details.form-section{background:#fff}
+@media(max-width:760px){details.form-section{padding:0 14px}details.form-section[open]{padding-bottom:16px}details.form-section .location-hint{display:block;margin-left:15px}}
