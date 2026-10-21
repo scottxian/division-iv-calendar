@@ -94,3 +94,8 @@ details.form-section.tbd-selected .location-inputs .req{display:none}
 .audit-diff>summary{font-size:13px;padding:8px 0;color:var(--navy)}
 .audit-diff .revision-comparison{margin-top:10px}
 @media(max-width:760px){.audit-top{align-items:flex-start;flex-direction:column}.audit-top button{width:auto}}
+
+/* Inspector management controls */
+.staff-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.staff-actions button{white-space:nowrap}
+@media(max-width:760px){.staff-row{align-items:flex-start;flex-direction:column}.staff-actions{justify-content:flex-start}.staff-actions button{max-width:100%}}
