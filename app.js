@@ -138,27 +138,6 @@ function divisionQuestion(message,options={}){
   if(options.input)input.focus();else no.focus();
  });
 }
-// Date chosen first; use a useful 6 PM–10 PM default without imposing any date.
-function setupEventTimeDefaults(form){
- const start=form.elements.start_local,end=form.elements.end_local;
- if(!start||!end)return;
- let generatedEnd=false,initializedStart=false;
- start.addEventListener('change',()=>{
-  if(!start.value)return;
-  const date=start.value.slice(0,10);
-  if(!initializedStart){
-   initializedStart=true;
-   start.value=date+'T18:00';
-  }
-  if(!end.value||generatedEnd){
-   end.value=date+'T22:00';
-   generatedEnd=true;
-  }
- });
- end.addEventListener('change',()=>{generatedEnd=false});
- form.addEventListener('reset',()=>{generatedEnd=false;initializedStart=false});
-}
-setupEventTimeDefaults($('new-form'));
 function mode(k){
  state.mode=k;state.event=null;state.original=null;
  all('.choice').forEach(b=>b.classList.toggle('selected',b.dataset.mode===k));
