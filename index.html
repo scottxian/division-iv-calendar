@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css?v=5"><script defer src="bootstrap.js"></script><script defer src="app.js?v=11"></script>
+<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css?v=6"><script defer src="bootstrap.js"></script><script defer src="app.js?v=12"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -110,13 +110,25 @@
 <section id="admin-view" class="hidden">
 <div class="admin-head"><div><div class="eyebrow">Inspector Desk</div><h2 id="welcome">Review Requests</h2></div><span class="chip" id="staff-role">Inspector</span></div>
 <div class="tabs">
-<button class="tab active" data-tab="requests" type="button">Review Requests</button>
+<button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
+<button class="tab" data-tab="requests" type="button">Review Requests</button>
 <button class="tab" data-tab="events" type="button">All Events</button>
 <button class="tab" data-tab="history" type="button">Status Log</button>
 <button class="tab admin-only hidden" data-tab="staff" type="button">Inspectors</button>
 <button class="tab admin-only hidden" data-tab="settings" type="button">Settings</button>
 </div>
-<div id="tab-requests">
+<section id="tab-dashboard" class="panel">
+<div class="review-title"><div><h3>Inspector Dashboard</h3>
+<p class="muted">Requests, calendar delivery problems, and recent changes—all in one place.</p></div>
+<button class="secondary" id="dashboard-refresh" type="button">Refresh</button></div>
+<div class="dashboard-stats" id="dashboard-stats" aria-live="polite"></div>
+<div class="dashboard-columns">
+<section><h3>Requests needing attention</h3><div id="dashboard-requests" class="dashboard-list"></div></section>
+<section><h3>Calendar delivery failures</h3><div id="dashboard-failures" class="dashboard-list"></div></section>
+</div>
+<section class="dashboard-activity"><h3>Recent activity</h3><div id="dashboard-recent" class="dashboard-list"></div></section>
+</section>
+<div id="tab-requests" class="hidden">
 <section class="panel">
 <div class="filters">
 <label>Request ID / submitter <input id="filter-search" placeholder="Search request or name"></label>
