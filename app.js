@@ -729,9 +729,9 @@ async function loadHistory(p=0){
  historyPage=Math.max(0,p);
  const el=$('history-content');el.textContent='Loading activity…';
  try{
-  const d=await api('audit',null,{page:historyPage,action:$('log-action').value});
+  const d=await api('audit',null,{page:historyPage,activity:$('log-action').value});
   el.replaceChildren();
-  for(const h of d.items){
+  for(const h of (Array.isArray(d.items)?d.items:[])){
    const box=document.createElement('article');box.className='audit-item';
    const row=document.createElement('div');row.className='audit-top';
    const left=document.createElement('div');
@@ -744,14 +744,13 @@ async function loadHistory(p=0){
     const navigate=document.createElement('button');navigate.type='button';navigate.className='secondary';navigate.textContent=h.request_id?'View Request':'View Event';
     navigate.onclick=async()=>{
      const key=h.request_id?'requests':'events';
-     all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
-     for(const k of ['requests','events','history','staff','settings'])$('tab-'+k).classList.toggle('hidden',k!==key);
+     await activateInspectorTab(key);
      if(h.request_id)await detail(h.request_id);else await eventDetail(h.event_id);
     };
     row.append(navigate);
    }
    box.append(row);
-   if(h.action==='inspector_edited'||h.action==='inspector_updated_published'){
+   if(['inspector_edited','inspector_updated_published','inspector_undo_published'].includes(h.action)){
     const before=h.before_data?.fields,after=h.after_data?.fields;
     if(before&&after){
      const disclosure=document.createElement('details');disclosure.className='audit-diff';
@@ -763,7 +762,7 @@ async function loadHistory(p=0){
    if(h.notes){const note=document.createElement('p');note.className='help';note.textContent=h.notes;box.append(note)}
    el.append(box);
   }
-  if(!d.items.length)el.textContent='No matching activity.';
+  if(!Array.isArray(d.items)||!d.items.length)el.textContent='No matching activity.';
   $('history-page').textContent='Page '+(p+1)+' · '+d.total+' activities';
   $('history-prev').disabled=p===0;$('history-next').disabled=(p+1)*50>=d.total;
  }catch(e){el.textContent=e.message;toast(e.message,true)}
