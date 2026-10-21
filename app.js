@@ -91,7 +91,7 @@ function show(view){
  for(const k of ['public','signin','admin'])$(k+'-view').classList.toggle('hidden',k!==view);
  for(const k of ['public','signin','admin'])$('nav-'+k).classList.toggle('active',k===view);
  $('notice').classList.add('hidden');window.scrollTo({top:0});
- if(view==='admin')loadRequests(0);
+ if(view==='admin')activateInspectorTab('dashboard');
 }
 function mode(k){
  state.mode=k;state.event=null;state.original=null;
@@ -308,7 +308,7 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
  f.elements.location_tbd.addEventListener('change',toggleLocation);
  toggleLocation();
  const controls=document.createElement('div');controls.className='form-actions';
- const caption=document.createElement('span');caption.textContent='Changes stay in review until an inspector approves them.';
+ const caption=document.createElement('span');caption.textContent=buttonLabel==='Save & Update Calendar'?'Saving updates the published event and queues Google Calendar synchronization.':'Changes stay in review until an inspector approves them.';
  const submit=document.createElement('button');submit.type='submit';submit.className='primary';submit.textContent=buttonLabel;
  const discard=document.createElement('button');discard.type='button';discard.className='secondary';discard.textContent='Discard';
  discard.onclick=()=>host.replaceChildren();
@@ -358,6 +358,8 @@ function auditAction(h){
   case 'needs_correction':return 'Correction requested';
   case 'inspector_edited':return 'Inspector revised request';
   case 'inspector_updated_published':return 'Inspector updated published event';
+  case 'inspector_undo_published':return 'Administrator undid inspector edit';
+  case 'calendar_retry_requested':return 'Google Calendar retry requested';
   default:return nice(h.action);
  }
 }
@@ -451,6 +453,91 @@ async function review(id,decision,version){
   toast(result.notice||'Decision saved');await loadRequests(page);await detail(id);
  }catch(e){toast(e.message,true)}
 }
+
+async function retryEventSync(event,after){
+ try{
+  const result=await api('calendar-retry',{id:event.id,expected_version:event.version});
+  toast(result.notice||'Calendar retry queued.');
+  if(after)await after();
+ }catch(ex){toast(ex.message,true);}
+}
+function dashboardElement(tag,className,textValue){
+ const n=document.createElement(tag);
+ if(className)n.className=className;
+ if(textValue!==undefined)n.textContent=String(textValue);
+ return n;
+}
+async function loadDashboard(){
+ const stats=$('dashboard-stats'),requests=$('dashboard-requests'),failures=$('dashboard-failures'),recent=$('dashboard-recent');
+ stats.textContent='Loading dashboard…';requests.replaceChildren();failures.replaceChildren();recent.replaceChildren();
+ try{
+  const d=await api('dashboard'),counts=d.counts||{};
+  stats.replaceChildren();
+  const cards=[
+    {name:'Pending requests',value:counts.pending||0,kind:'requests',filter:'pending'},
+    {name:'Needs correction',value:counts.corrections||0,kind:'requests',filter:'needs_correction'},
+    {name:'Calendar failures',value:counts.failed||0,kind:'events',filter:null},
+    {name:'Syncing / queued',value:counts.queued||0,kind:'events',filter:null}
+  ];
+  for(const card of cards){
+   const button=dashboardElement('button','dashboard-stat');
+   button.type='button';
+   button.append(dashboardElement('strong','dashboard-number',card.value),
+     dashboardElement('span','',card.name));
+   button.onclick=async()=>{
+    if(card.kind==='requests')$('filter-status').value=card.filter;
+    if(card.kind==='events')$('event-status').value='all';
+    await activateInspectorTab(card.kind);
+   };
+   stats.append(button);
+  }
+  for(const req of d.requests||[]){
+   const btn=dashboardElement('button','dashboard-entry');
+   btn.type='button';
+   btn.append(dashboardElement('strong','',req.title||'Event request'),
+     dashboardElement('small','muted',(req.code||'')+' · '+nice(req.status)+' · '+fmt(req.submitted_at)));
+   btn.onclick=async()=>{await activateInspectorTab('requests');await detail(req.id)};
+   requests.append(btn);
+  }
+  if(!d.requests?.length)requests.append(dashboardElement('p','muted','No requests waiting for review.'));
+  for(const item of d.failures||[]){
+   const box=dashboardElement('div','dashboard-entry dashboard-error');
+   box.append(dashboardElement('strong','',item.title||'Event'),
+     dashboardElement('small','muted',item.code||''),
+     dashboardElement('p','dashboard-error-text',item.error||'Google Calendar did not accept the last update.'));
+   const actions=dashboardElement('div','dashboard-entry-actions');
+   const open=dashboardElement('button','secondary','Open Event');open.type='button';
+   open.onclick=async()=>{await activateInspectorTab('events');await eventDetail(item.id)};
+   const retry=dashboardElement('button','primary','Retry now');retry.type='button';
+   retry.onclick=async()=>{
+    retry.disabled=true;
+    try{
+     const current=await api('event-detail',null,{id:item.id});
+     if(calendarState(current.event,current.calendar?.[0]).label!=='Sync failed' && calendarState(current.event,current.calendar?.[0]).label!=='Removal failed')
+      throw Error('The event status changed. Refresh the dashboard.');
+     await retryEventSync(current.event,loadDashboard);
+    }catch(e){toast(e.message,true)}
+    finally{retry.disabled=false}
+   };
+   actions.append(open,retry);box.append(actions);failures.append(box);
+  }
+  if(!d.failures?.length)failures.append(dashboardElement('p','muted','No current Google Calendar failures.'));
+  for(const item of d.recent||[]){
+   const btn=dashboardElement('button','dashboard-entry');
+   btn.type='button';
+   btn.append(dashboardElement('strong','',item.event_title||'Event request'),
+     dashboardElement('span','',auditAction(item)),
+     dashboardElement('small','muted',fmt(item.at)+' · '+(item.actor||'System')));
+   btn.onclick=async()=>{
+    if(item.event_id){await activateInspectorTab('events');await eventDetail(item.event_id)}
+    else if(item.request_id){await activateInspectorTab('requests');await detail(item.request_id)}
+   };
+   recent.append(btn);
+  }
+  if(!d.recent?.length)recent.append(dashboardElement('p','muted','No recent activity.'));
+ }catch(ex){stats.textContent='Unable to load dashboard: '+ex.message;toast(ex.message,true)}
+}
+$('dashboard-refresh').onclick=loadDashboard;
 let eventPage=0;
 async function loadEvents(p=0){
  eventPage=Math.max(0,p);
@@ -512,16 +599,18 @@ async function eventDetail(id){
   host.scrollIntoView({block:'start',behavior:'smooth'});
  }catch(e){host.textContent=e.message;toast(e.message,true)}
 }
-all('.tab').forEach(t=>t.onclick=async()=>{
- all('.tab').forEach(x=>x.classList.toggle('active',x===t));
- const key=t.dataset.tab;
- for(const k of ['requests','events','history','staff','settings'])$('tab-'+k).classList.toggle('hidden',k!==key);
+async function activateInspectorTab(key){
+ all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
+ for(const k of ['dashboard','requests','events','history','staff','settings'])
+  $('tab-'+k).classList.toggle('hidden',k!==key);
+ if(key==='dashboard')await loadDashboard();
  if(key==='requests')await loadRequests(0);
  if(key==='events')await loadEvents(0);
  if(key==='history')await loadHistory(0);
  if(key==='staff')await loadStaff();
  if(key==='settings')await loadSettings();
-});
+}
+all('.tab').forEach(t=>t.onclick=()=>activateInspectorTab(t.dataset.tab));
 async function loadHistory(p=0){
  historyPage=Math.max(0,p);
  const el=$('history-content');el.textContent='Loading activity…';
