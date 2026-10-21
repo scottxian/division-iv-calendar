@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css?v=3"><script defer src="bootstrap.js"></script><script defer src="app.js?v=8"></script>
+<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css?v=4"><script defer src="bootstrap.js"></script><script defer src="app.js?v=9"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -137,7 +137,7 @@
 <section id="tab-events" class="hidden">
 <section class="panel">
 <h3>Manage Published Events</h3>
-<p class="muted">Search the live event records, check Google synchronization, or prepare an inspector change or cancellation request. Changes still require approval.</p>
+<p class="muted">Find active and cancelled events, check calendar delivery, and edit an approved event directly. Inspector edits are recorded and automatically synchronized.</p>
 <div class="filters">
 <label>Search events<input id="event-search" placeholder="Title, lodge, or event ID"></label>
 <label>Status<select id="event-status"><option value="active">Active</option><option value="all">All</option><option value="cancelled">Cancelled</option></select></label>
@@ -152,7 +152,23 @@
 </section>
 <section id="event-detail" class="panel hidden" aria-live="polite"></section>
 </section>
-<section id="tab-history" class="panel hidden"><h3>Status Log</h3><p class="muted">Timestamped changes made by applicants and reviewers.</p><button id="refresh-history" class="secondary" type="button">Refresh</button><div id="history-content" class="timeline"></div><div class="pagination"><button id="history-prev" type="button" class="secondary">← Previous</button><span id="history-page">Page 1</span><button id="history-next" type="button" class="secondary">Next →</button></div></section>
+<section id="tab-history" class="panel hidden">
+<h3>Status Log</h3>
+<p class="muted">See which event changed, who made the change, and when. Open a request or event to see its full record.</p>
+<div class="filters">
+<label>Activity type
+<select id="log-action">
+<option value="">All activity</option>
+<option value="submitted">Submissions</option>
+<option value="approved">Approvals and cancellations</option>
+<option value="inspector_edited">Inspector draft corrections</option>
+<option value="inspector_updated_published">Published event edits</option>
+<option value="needs_correction">Needs correction</option>
+<option value="rejected">Rejections</option>
+</select>
+</label>
+<button id="refresh-history" class="secondary" type="button">Refresh</button>
+</div><div id="history-content" class="timeline"></div><div class="pagination"><button id="history-prev" type="button" class="secondary">← Previous</button><span id="history-page">Page 1</span><button id="history-next" type="button" class="secondary">Next →</button></div></section>
 <section id="tab-staff" class="panel hidden"><h3>Inspectors</h3><div id="staff-list"></div><hr><h3>Add or Update Inspector</h3>
 <form id="staff-form" class="form-grid">
 <label>Email <input type="email" name="email" required></label>
