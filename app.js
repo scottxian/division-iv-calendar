@@ -510,16 +510,50 @@ all('.tab').forEach(t=>t.onclick=async()=>{
  if(key==='settings')await loadSettings();
 });
 async function loadHistory(p=0){
- historyPage=Math.max(0,p);const el=$('history-content');el.textContent='Loading…';
+ historyPage=Math.max(0,p);
+ const el=$('history-content');el.textContent='Loading activity…';
  try{
-  const d=await api('audit',null,{page:historyPage});el.replaceChildren();
-  for(const h of d.items){const x=document.createElement('div');x.innerHTML='<b>'+safe(nice(h.action))+'</b><br><small>'+safe(fmt(h.occurred_at))+' · '+safe(h.actor_email||'System')+'</small>';el.append(x)}
-  if(!d.items.length)el.textContent='No events recorded.';
-  $('history-page').textContent='Page '+(p+1)+' · '+d.total+' actions';
+  const d=await api('audit',null,{page:historyPage,action:$('log-action').value});
+  el.replaceChildren();
+  for(const h of d.items){
+   const box=document.createElement('article');box.className='audit-item';
+   const row=document.createElement('div');row.className='audit-top';
+   const left=document.createElement('div');
+   const title=document.createElement('strong');title.textContent=h.event_title||'Event request';
+   const action=document.createElement('div');action.className='audit-action';action.textContent=auditAction(h);
+   const meta=document.createElement('small');meta.className='muted';meta.textContent=[h.request_code||h.event_code,fmt(h.occurred_at),h.actor_email||'System'].filter(Boolean).join(' · ');
+   left.append(title,action,meta);
+   row.append(left);
+   if(h.request_id||h.event_id){
+    const navigate=document.createElement('button');navigate.type='button';navigate.className='secondary';navigate.textContent=h.request_id?'View Request':'View Event';
+    navigate.onclick=async()=>{
+     const key=h.request_id?'requests':'events';
+     all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
+     for(const k of ['requests','events','history','staff','settings'])$('tab-'+k).classList.toggle('hidden',k!==key);
+     if(h.request_id)await detail(h.request_id);else await eventDetail(h.event_id);
+    };
+    row.append(navigate);
+   }
+   box.append(row);
+   if(h.action==='inspector_edited'||h.action==='inspector_updated_published'){
+    const before=h.before_data?.fields,after=h.after_data?.fields;
+    if(before&&after){
+     const disclosure=document.createElement('details');disclosure.className='audit-diff';
+     const summary=document.createElement('summary');summary.textContent='View fields changed';
+     const diffs=document.createElement('div');showDifferences(diffs,before,after);
+     disclosure.append(summary,diffs);box.append(disclosure);
+    }
+   }
+   if(h.notes){const note=document.createElement('p');note.className='help';note.textContent=h.notes;box.append(note)}
+   el.append(box);
+  }
+  if(!d.items.length)el.textContent='No matching activity.';
+  $('history-page').textContent='Page '+(p+1)+' · '+d.total+' activities';
   $('history-prev').disabled=p===0;$('history-next').disabled=(p+1)*50>=d.total;
- }catch(e){el.textContent=e.message}
+ }catch(e){el.textContent=e.message;toast(e.message,true)}
 }
 $('refresh-history').onclick=()=>loadHistory(0);
+$('log-action').onchange=()=>loadHistory(0);
 $('history-prev').onclick=()=>loadHistory(historyPage-1);
 $('history-next').onclick=()=>loadHistory(historyPage+1);
 async function loadStaff(){
