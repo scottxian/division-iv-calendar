@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css?v=7"><script defer src="bootstrap.js"></script><script defer src="app.js?v=13"></script>
+<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css?v=8"><script defer src="bootstrap.js"></script><script defer src="app.js?v=14"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -33,9 +33,8 @@
 <label><span class="field-caption">End date and time <span class="req" aria-label="required">*</span></span><input name="end_local" type="datetime-local" required></label>
 <label class="wide"><span class="field-caption">Public event description <span class="req" aria-label="required">*</span></span><textarea name="public_description" rows="4" maxlength="4000" required placeholder="Describe the event for the public calendar."></textarea></label>
 </div>
-<details id="new-location-details" class="location-details form-section"><summary>Location details <span class="location-hint">— Required unless Location TBD</span></summary>
+<details id="new-location-details" class="location-details form-section"><summary><span class="location-summary-title">Location details</span><label class="checkline location-tbd-toggle location-header-toggle"><input id="new-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD</strong></label></summary>
 <p class="help">Check the box if the event's location has not been decided. Otherwise, complete the venue and address.</p>
-<label class="checkline location-tbd-toggle"><input id="new-location-tbd" type="checkbox" name="location_tbd"> <strong>Location to be determined (TBD)</strong></label>
 <div class="form-grid location-inputs">
 <label class="wide"><span class="field-caption">Location / Venue Name <span class="req" aria-label="required">*</span></span><input name="location_name" required placeholder="Example: Lodge Hall"></label>
 <label class="wide"><span class="field-caption">Address Line 1 <span class="req" aria-label="required">*</span></span><input name="location_address1" required placeholder="Street address"></label>
@@ -84,8 +83,7 @@
 <label>End date and time <input type="datetime-local" name="end_local"></label>
 <label class="wide">Public event description <textarea name="public_description" rows="4"></textarea></label>
 </div>
-<details id="edit-location-details" class="location-details form-section"><summary>Location details <span class="location-hint">— Required unless Location TBD</span></summary>
-<label class="checkline location-tbd-toggle"><input id="edit-location-tbd" type="checkbox" name="location_tbd"> <strong>Location to be determined (TBD)</strong></label>
+<details id="edit-location-details" class="location-details form-section"><summary><span class="location-summary-title">Location details</span><label class="checkline location-tbd-toggle location-header-toggle"><input id="edit-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD</strong></label></summary>
 <div class="form-grid location-inputs">
 <label class="wide">Location / Venue Name <input name="location_name"></label>
 <label class="wide">Address Line 1 <input name="location_address1"></label>
@@ -112,7 +110,7 @@
 <div class="tabs">
 <button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
 <button class="tab" data-tab="requests" type="button">Review Requests</button>
-<button class="tab" data-tab="events" type="button">All Events</button>
+<button class="tab" data-tab="events" type="button">Manage Published Events</button>
 <button class="tab" data-tab="history" type="button">Status Log</button>
 <button class="tab admin-only hidden" data-tab="staff" type="button">Inspectors</button>
 <button class="tab admin-only hidden" data-tab="settings" type="button">Settings</button>
@@ -201,5 +199,13 @@
 </section>
 </main>
 <footer><div class="container">Division IV Calendar Requests · All event submissions require inspector approval · Times are Pacific · <a href="calendar.html">View public calendar</a></div></footer>
+<dialog id="division-confirm-dialog" class="division-dialog" aria-labelledby="division-dialog-title" aria-describedby="division-dialog-message">
+<form method="dialog">
+<div class="division-dialog-heading"><div class="division-dialog-brand">Division IV Calendar</div><h3 id="division-dialog-title">Please confirm</h3></div>
+<p id="division-dialog-message"></p>
+<label id="division-dialog-input-label" class="hidden">Reason <textarea id="division-dialog-input" rows="3" maxlength="2000"></textarea></label>
+<p class="division-dialog-error hidden" id="division-dialog-error" role="alert"></p>
+<div class="division-dialog-buttons"><button type="button" class="secondary" id="division-dialog-no">Go back</button><button type="button" class="primary" id="division-dialog-yes">Confirm</button></div>
+</form></dialog>
 <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
 </body></html>
