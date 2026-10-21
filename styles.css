@@ -38,3 +38,59 @@ details.form-section .location-hint{font-weight:500;color:var(--muted);font-size
 details.tbd-selected .location-inputs .req{display:none}
 .inspector-edit-form details.form-section{background:#fff}
 @media(max-width:760px){details.form-section{padding:0 14px}details.form-section[open]{padding-bottom:16px}details.form-section .location-hint{display:block;margin-left:15px}}
+
+/* Minimal open-section styling: no boxes around Location or More information. */
+details.form-section,
+details.location-details.form-section,
+.inspector-edit-form details.form-section{
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  padding:0;
+  margin:16px 0 22px;
+}
+details.form-section[open]{padding-bottom:0}
+details.form-section>summary{
+  border:0;
+  border-bottom:1px solid var(--border);
+  border-radius:0;
+  padding:12px 0;
+  background:transparent;
+  font-size:15px;
+  font-weight:800;
+  color:var(--ink);
+}
+details.form-section[open]>summary{
+  border-bottom:1px solid var(--border);
+  margin-bottom:17px;
+}
+details.form-section>.form-grid{margin:15px 0 5px}
+details.form-section>summary:focus{outline:none}
+details.form-section>summary:focus-visible{
+  outline:2px solid #7ba5cf;
+  outline-offset:2px;
+  border-radius:3px;
+}
+details.form-section.tbd-selected .location-inputs .req{display:none}
+@media(max-width:760px){
+ details.form-section,
+ details.location-details.form-section,
+ .inspector-edit-form details.form-section{padding:0;margin:16px 0}
+ details.form-section[open]{padding-bottom:0}
+}
+.audit-item{
+ border-bottom:1px solid var(--border);
+ padding:17px 0;
+ overflow-wrap:anywhere;
+}
+.audit-item:first-child{border-top:1px solid var(--border)}
+.audit-top{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.audit-top strong{display:block;font-size:16px;color:var(--navy)}
+.audit-action{margin:4px 0;font-weight:750;color:var(--ink)}
+.audit-top small{display:block;margin-top:4px}
+.audit-top button{white-space:nowrap;font-size:13px}
+.audit-diff{border:0;margin:10px 0}
+.audit-diff>summary{font-size:13px;padding:8px 0;color:var(--navy)}
+.audit-diff .revision-comparison{margin-top:10px}
+@media(max-width:760px){.audit-top{align-items:flex-start;flex-direction:column}.audit-top button{width:auto}}
