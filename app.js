@@ -324,6 +324,29 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
  host.replaceChildren(f);
  host.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
+async function createPublishedEventRevision(ev,fields,host){
+ if(ev.status!=='active')throw Error('This event has been cancelled and cannot be changed.');
+ const original=eventFormValues(ev);
+ const changes={};
+ for(const key of editorFields){
+  if(String(fields[key]??'')!==String(original[key]??''))changes[key]=fields[key];
+ }
+ if(!Object.keys(changes).length)throw Error('Change at least one field before submitting.');
+ const result=await api('submit',{
+  kind:'change',
+  name:state.staff?.display_name||state.user,
+  email:state.user,
+  request_code:ev.event_code,
+  changes
+ });
+ host.replaceChildren();
+ const success=document.createElement('p');
+ success.className='notice';
+ success.textContent='Change request '+result.request_code+' was created. Open Review Requests and approve it before the published Google Calendar event changes.';
+ host.append(success);
+ toast('Change request created: '+result.request_code);
+ return result;
+}
 function showDifferences(host, before, after){
  const diff=[];
  for(const key of editorFields){
@@ -369,7 +392,20 @@ async function detail(id){
     };
     actions.append(button);
    }
-  }else actions.textContent='Decision recorded. This request cannot be edited.';
+  }else{
+   actions.textContent='Decision recorded. The original approval remains in the history.';
+   if(r.status==='approved'&&r.approved_event_id&&d.event?.status==='active'){
+    const edit=document.createElement('button');
+    edit.type='button';edit.className='primary';edit.textContent='Edit Approved Event';
+    edit.onclick=()=>{
+     const event=d.event;
+     inspectorEditor($('inspector-editor-host'),eventFormValues(event),
+       async fields=>createPublishedEventRevision(event,fields,$('inspector-editor-host')),
+       'Submit Change for Approval');
+    };
+    actions.prepend(edit);
+   }
+  }
   $('delivery-summary').innerHTML='<p><b>Google Calendar:</b> '+safe((d.calendar||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p><p><b>Notifications:</b> '+safe((d.email||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p>';
   const hist=$('item-history');
   for(const h of d.history||[]){
@@ -428,19 +464,9 @@ async function eventDetail(id){
   const actions=$('event-actions');
   if(ev.status==='active'){
    const edit=document.createElement('button');edit.className='secondary';edit.textContent='Create Change Request';
-   edit.onclick=()=>inspectorEditor($('event-editor-host'),initial,async fields=>{
-    const changes={};
-    for(const key of editorFields){
-     if(key==='location_tbd'||String(fields[key]??'')!==String(initial[key]??'')){
-      if(String(fields[key]??'')!==String(initial[key]??''))changes[key]=fields[key];
-     }
-    }
-    if(!Object.keys(changes).length)throw Error('Change at least one field before submitting');
-    const data=await api('submit',{kind:'change',name:state.staff?.display_name||state.user,email:state.user,request_code:ev.event_code,changes});
-    $('event-editor-host').replaceChildren();
-    toast('Change request '+data.request_code+' created. Review and approve it under Review Requests.');
-    await loadEvents(eventPage);
-   },'Submit Change for Review');
+   edit.onclick=()=>inspectorEditor($('event-editor-host'),initial,
+     async fields=>createPublishedEventRevision(ev,fields,$('event-editor-host')),
+     'Submit Change for Approval');
    const cancel=document.createElement('button');cancel.className='danger';cancel.textContent='Request Cancellation';
    cancel.onclick=async()=>{
     const reason=prompt('Why should this event be cancelled?');
