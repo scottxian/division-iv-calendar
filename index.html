@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css?v=2"><script defer src="bootstrap.js"></script><script defer src="app.js?v=6"></script>
+<meta name="theme-color" content="#142d46"><link rel="stylesheet" href="styles.css?v=3"><script defer src="bootstrap.js"></script><script defer src="app.js?v=7"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -33,7 +33,7 @@
 <label><span class="field-caption">End date and time <span class="req" aria-label="required">*</span></span><input name="end_local" type="datetime-local" required></label>
 <label class="wide"><span class="field-caption">Public event description <span class="req" aria-label="required">*</span></span><textarea name="public_description" rows="4" maxlength="4000" required placeholder="Describe the event for the public calendar."></textarea></label>
 </div>
-<details id="new-location-details" class="location-details"><summary>Location Details <span class="location-hint">— Required unless Location TBD</span></summary>
+<details id="new-location-details" class="location-details form-section"><summary>Location details <span class="location-hint">— Required unless Location TBD</span></summary>
 <p class="help">Check the box if the event's location has not been decided. Otherwise, complete the venue and address.</p>
 <label class="checkline location-tbd-toggle"><input id="new-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD — to be announced</strong></label>
 <div class="form-grid location-inputs">
@@ -45,7 +45,7 @@
 <label><span class="field-caption">ZIP Code <span class="req" aria-label="required">*</span></span><input name="location_zip" required inputmode="numeric" autocomplete="postal-code" maxlength="10" pattern="[0-9]{5}(-[0-9]{4})?" title="Enter a 5-digit ZIP code or ZIP+4"></label>
 </div>
 </details>
-<details><summary>More event information (optional)</summary>
+<details class="form-section"><summary>More event information <span class="location-hint">— Optional</span></summary>
 <div class="form-grid">
 <label>Dress / attire <input name="attire"></label><label>Who is invited? <input name="invited_audience"></label>
 <label class="wide">Registration link <input name="registration_url" type="url" placeholder="https://"></label>
@@ -84,7 +84,7 @@
 <label>End date and time <input type="datetime-local" name="end_local"></label>
 <label class="wide">Public event description <textarea name="public_description" rows="4"></textarea></label>
 </div>
-<details id="edit-location-details" class="location-details"><summary>Location Details</summary>
+<details id="edit-location-details" class="location-details form-section"><summary>Location details <span class="location-hint">— Required unless Location TBD</span></summary>
 <label class="checkline location-tbd-toggle"><input id="edit-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD — to be announced</strong></label>
 <div class="form-grid location-inputs">
 <label class="wide">Location / Venue Name <input name="location_name"></label>
