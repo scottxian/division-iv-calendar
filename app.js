@@ -324,28 +324,42 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
  host.replaceChildren(f);
  host.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
-async function createPublishedEventRevision(ev,fields,host){
- if(ev.status!=='active')throw Error('This event has been cancelled and cannot be changed.');
- const original=eventFormValues(ev);
- const changes={};
- for(const key of editorFields){
-  if(String(fields[key]??'')!==String(original[key]??''))changes[key]=fields[key];
+async function savePublishedInspectorEdit(ev,fields){
+ if(ev.status!=='active')throw Error('Cancelled events cannot be edited.');
+ const before=eventFormValues(ev),changes=[];
+ for(const key of editorFields)if(String(fields[key]??'')!==String(before[key]??''))changes.push(key.replaceAll('_',' '));
+ if(!changes.length)throw Error('Change at least one field before saving.');
+ if(!confirm('Save changes directly to the approved event?\n\n'+changes.join(', ')+'\n\nThe existing Google Calendar entry will be updated. Your edit is recorded.'))return false;
+ const response=await api('inspector-publish-edit',{id:ev.id,expected_version:ev.version,fields});
+ toast('Saved. Google Calendar update queued.');
+ return response;
+}
+function calendarState(ev,job){
+ if(ev.status==='cancelled'){
+  if(job?.action==='cancel'){
+   if(job.status==='failed')return {label:'Removal failed',tone:'rejected'};
+   if(job.status==='pending'||job.status==='running')return {label:'Removing from calendar',tone:'pending'};
+  }
+  return {label:'Cancelled',tone:'rejected'};
  }
- if(!Object.keys(changes).length)throw Error('Change at least one field before submitting.');
- const result=await api('submit',{
-  kind:'change',
-  name:state.staff?.display_name||state.user,
-  email:state.user,
-  request_code:ev.event_code,
-  changes
- });
- host.replaceChildren();
- const success=document.createElement('p');
- success.className='notice';
- success.textContent='Change request '+result.request_code+' was created. Open Review Requests and approve it before the published Google Calendar event changes.';
- host.append(success);
- toast('Change request created: '+result.request_code);
- return result;
+ if(!job)return {label:ev.calendar_last_synced_at?'Previously synced':'Not published',tone:'pending'};
+ if(job.event_version!==ev.version)return {label:'Sync status unknown',tone:'pending'};
+ if(job.status==='failed')return {label:'Sync failed',tone:'rejected'};
+ if(job.status==='pending')return {label:'Sync queued',tone:'pending'};
+ if(job.status==='running')return {label:'Syncing',tone:'pending'};
+ if(job.status==='succeeded')return {label:'Published',tone:'approved'};
+ return {label:'Sync status unknown',tone:'pending'};
+}
+function auditAction(h){
+ switch(h.action){
+  case 'submitted':return h.request_type==='cancel'?'Cancellation requested':h.request_type==='change'?'Change requested':'Event submitted';
+  case 'approved':return h.request_type==='cancel'?'Cancellation approved':h.request_type==='change'?'Change approved':'Event approved';
+  case 'rejected':return 'Request rejected';
+  case 'needs_correction':return 'Correction requested';
+  case 'inspector_edited':return 'Inspector revised request';
+  case 'inspector_updated_published':return 'Inspector updated published event';
+  default:return nice(h.action);
+ }
 }
 function showDifferences(host, before, after){
  const diff=[];
@@ -396,12 +410,12 @@ async function detail(id){
    actions.textContent='Decision recorded. The original approval remains in the history.';
    if(r.status==='approved'&&r.approved_event_id&&d.event?.status==='active'){
     const edit=document.createElement('button');
-    edit.type='button';edit.className='primary';edit.textContent='Edit Approved Event';
+    edit.type='button';edit.className='primary';edit.textContent='Edit & Update Calendar';
     edit.onclick=()=>{
      const event=d.event;
      inspectorEditor($('inspector-editor-host'),eventFormValues(event),
-       async fields=>createPublishedEventRevision(event,fields,$('inspector-editor-host')),
-       'Submit Change for Approval');
+       async fields=>{if(await savePublishedInspectorEdit(event,fields))await detail(id);},
+       'Save & Update Calendar');
     };
     target.querySelector('.review-title').append(edit);
    }
@@ -463,10 +477,10 @@ async function eventDetail(id){
   host.innerHTML='<h2>'+safe(ev.title)+'</h2><p class="muted">'+safe(ev.event_code)+' · '+safe(nice(ev.status))+'</p><p><b>Starts:</b> '+safe(fmt(ev.starts_at))+' · <b>Location:</b> '+safe(ev.location_name||'Location TBD')+'</p><p><b>Google Calendar:</b> '+safe((d.calendar||[]).map(x=>nice(x.status)).join(', ')||'No sync job')+'</p><div class="review-actions" id="event-actions"></div><div id="event-editor-host"></div><h3>Recent history</h3><div id="event-history" class="timeline"></div>';
   const actions=$('event-actions');
   if(ev.status==='active'){
-   const edit=document.createElement('button');edit.className='secondary';edit.textContent='Create Change Request';
+   const edit=document.createElement('button');edit.className='secondary';edit.textContent='Edit Published Event';
    edit.onclick=()=>inspectorEditor($('event-editor-host'),initial,
-     async fields=>createPublishedEventRevision(ev,fields,$('event-editor-host')),
-     'Submit Change for Approval');
+     async fields=>{if(await savePublishedInspectorEdit(ev,fields)){await loadEvents(eventPage);await eventDetail(ev.id);}},
+     'Save & Update Calendar');
    const cancel=document.createElement('button');cancel.className='danger';cancel.textContent='Request Cancellation';
    cancel.onclick=async()=>{
     const reason=prompt('Why should this event be cancelled?');
