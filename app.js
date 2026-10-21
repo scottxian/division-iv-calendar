@@ -569,19 +569,59 @@ $('refresh-history').onclick=()=>loadHistory(0);
 $('log-action').onchange=()=>loadHistory(0);
 $('history-prev').onclick=()=>loadHistory(historyPage-1);
 $('history-next').onclick=()=>loadHistory(historyPage+1);
+let showRemovedInspectors=false;
 async function loadStaff(){
- const root=$('staff-list');root.textContent='Loading…';
+ const root=$('staff-list');root.textContent='Loading inspectors…';
  try{
-  const r=await api('staff');root.replaceChildren();
-  for(const s of r.items){
-   const row=document.createElement('div');row.className='staff-row';const info=document.createElement('div');
-   info.innerHTML='<strong>'+safe(s.display_name||s.email)+'</strong><br><small>'+safe(s.email)+' · '+safe(s.role)+' · '+(s.enabled?'Enabled':'Disabled')+'</small>';
-   const b=document.createElement('button');b.className='secondary';b.textContent='Edit';
-   b.onclick=()=>{const f=$('staff-form');for(const k of ['email','display_name','phone','role'])f.elements[k].value=s[k]||'';f.elements.enabled.checked=s.enabled;f.scrollIntoView({behavior:'smooth'})};
-   row.append(info,b);root.append(row);
+  const r=await api('staff');
+  root.replaceChildren();
+  const list=(r.items||[]).filter(x=>showRemovedInspectors||!x.removed_at);
+  for(const s of list){
+   const row=document.createElement('div');row.className='staff-row';
+   const info=document.createElement('div');
+   const name=document.createElement('strong');name.textContent=s.display_name||s.email;
+   const meta=document.createElement('small');
+   const access=s.removed_at?'Removed on '+new Date(s.removed_at).toLocaleDateString():s.enabled?'Active':'Disabled';
+   meta.textContent=s.email+' · '+nice(s.role)+' · '+access;
+   info.append(name,document.createElement('br'),meta);
+   const buttons=document.createElement('div');buttons.className='staff-actions';
+   if(s.removed_at){
+    const restore=document.createElement('button');restore.type='button';restore.className='secondary';
+    restore.textContent='Restore access';
+    restore.onclick=async()=>{
+     if(!confirm('Restore inspector access for '+(s.display_name||s.email)+'?'))return;
+     try{const result=await api('staff-restore',{id:s.id});toast(result.message);await loadStaff();}
+     catch(ex){toast(ex.message,true);}
+    };
+    buttons.append(restore);
+   }else{
+    const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='Edit';
+    edit.onclick=()=>{
+     const form=$('staff-form');
+     for(const key of ['email','display_name','phone','role'])form.elements[key].value=s[key]||'';
+     form.elements.enabled.checked=s.enabled;
+     form.scrollIntoView({behavior:'smooth',block:'start'});
+    };
+    buttons.append(edit);
+    if(s.role==='inspector'){
+     const remove=document.createElement('button');remove.type='button';remove.className='danger';
+     remove.textContent='Remove inspector';
+     remove.onclick=async()=>{
+      if(!confirm('Remove inspector access for '+(s.display_name||s.email)+'?\n\nThis immediately disables inspector permissions and hides them from the active list. Past approvals and activity remain on file. You can restore the account later.'))return;
+      try{const result=await api('staff-remove',{id:s.id});toast(result.message);await loadStaff();}
+      catch(ex){toast(ex.message,true);}
+     };
+     buttons.append(remove);
+    }
+   }
+   row.append(info,buttons);root.append(row);
   }
- }catch(e){root.textContent=e.message}
+  if(!list.length)root.textContent='No inspectors to display.';
+  const removedCount=(r.items||[]).filter(x=>x.removed_at).length;
+  $('toggle-removed').textContent=showRemovedInspectors?'Hide removed inspectors':'Show removed inspectors'+(removedCount?' ('+removedCount+')':'');
+ }catch(e){root.textContent=e.message;toast(e.message,true)}
 }
+$('toggle-removed').onclick=()=>{showRemovedInspectors=!showRemovedInspectors;loadStaff();};
 $('staff-form').onsubmit=async e=>{
  e.preventDefault();const b=e.submitter;busy(b,true);
  try{await api('staff-save',values(e.target));toast('Inspector saved');e.target.reset();await loadStaff()}catch(ex){toast(ex.message,true)}finally{busy(b,false)}
