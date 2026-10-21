@@ -420,7 +420,11 @@ async function detail(id){
     target.querySelector('.review-title').append(edit);
    }
   }
-  $('delivery-summary').innerHTML='<p><b>Google Calendar:</b> '+safe((d.calendar||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p><p><b>Notifications:</b> '+safe((d.email||[]).map(x=>nice(x.status)).join(', ')||'Not queued')+'</p>';
+  const jobs=d.calendar||[],job=jobs[0],status=d.event?calendarState(d.event,job):null;
+  const sent=(d.email||[]).filter(x=>x.status==='sent').length;
+  const pending=(d.email||[]).filter(x=>['pending','sending'].includes(x.status)).length;
+  const failures=(d.email||[]).filter(x=>x.status==='failed').length;
+  $('delivery-summary').innerHTML='<p><b>Google Calendar:</b> '+safe(status?.label||(r.status==='approved'?'Queued':'Not scheduled'))+'</p>'+(job?.last_error?'<p class="notice error">'+safe(job.last_error)+'</p>':'')+'<p><b>Email notifications:</b> '+sent+' sent'+(pending?', '+pending+' queued':'')+(failures?', '+failures+' failed':'')+'</p>';
   const hist=$('item-history');
   for(const h of d.history||[]){
    const box=document.createElement('div');
@@ -460,8 +464,8 @@ async function loadEvents(p=0){
   if(!data.items.length){list.textContent='No events match your search.';return}
   for(const item of data.items){
    const btn=document.createElement('button');btn.type='button';btn.className='request-row';
-   const sync=item.status==='cancelled'?'Cancelled':item.calendar_last_synced_at?'Published':'Awaiting sync';
-   btn.innerHTML='<span><strong>'+safe(item.title)+'</strong><small>'+safe(item.event_code)+' · '+safe(item.hosted_by||'')+'</small></span><small class="date">'+safe(fmt(item.starts_at))+'</small><span class="chip '+(item.status==='active'?'approved':'rejected')+'">'+safe(sync)+'</span>';
+   const sync=calendarState(item,item.latest_job);
+   btn.innerHTML='<span><strong>'+safe(item.title)+'</strong><small>'+safe(item.event_code)+' · '+safe(item.hosted_by||'')+'</small></span><small class="date">'+safe(fmt(item.starts_at))+'</small><span class="chip '+sync.tone+'">'+safe(sync.label)+'</span>';
    btn.onclick=()=>eventDetail(item.id);list.append(btn);
   }
  }catch(e){list.textContent=e.message;toast(e.message,true)}
@@ -474,7 +478,8 @@ async function eventDetail(id){
  const host=$('event-detail');host.classList.remove('hidden');host.textContent='Loading event…';
  try{
   const d=await api('event-detail',null,{id}),ev=d.event,initial=eventFormValues(ev);
-  host.innerHTML='<h2>'+safe(ev.title)+'</h2><p class="muted">'+safe(ev.event_code)+' · '+safe(nice(ev.status))+'</p><p><b>Starts:</b> '+safe(fmt(ev.starts_at))+' · <b>Location:</b> '+safe(ev.location_name||'Location TBD')+'</p><p><b>Google Calendar:</b> '+safe((d.calendar||[]).map(x=>nice(x.status)).join(', ')||'No sync job')+'</p><div class="review-actions" id="event-actions"></div><div id="event-editor-host"></div><h3>Recent history</h3><div id="event-history" class="timeline"></div>';
+  const job=d.calendar?.[0],status=calendarState(ev,job);
+  host.innerHTML='<h2>'+safe(ev.title)+'</h2><p class="muted">'+safe(ev.event_code)+' · '+safe(nice(ev.status))+'</p><p><b>Starts:</b> '+safe(fmt(ev.starts_at))+' · <b>Location:</b> '+safe(ev.location_name||'Location TBD')+'</p><p><b>Google Calendar:</b> <span class="chip '+status.tone+'">'+safe(status.label)+'</span></p>'+(job?.last_error?'<p class="notice error">Sync issue: '+safe(job.last_error)+'</p>':'')+'<div class="review-actions" id="event-actions"></div><div id="event-editor-host"></div><h3>Recent history</h3><div id="event-history" class="timeline"></div>';
   const actions=$('event-actions');
   if(ev.status==='active'){
    const edit=document.createElement('button');edit.className='secondary';edit.textContent='Edit Published Event';
