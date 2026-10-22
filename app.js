@@ -69,7 +69,7 @@ const fmt=s=>s?new Date(s).toLocaleString('en-US',{timeZone:'America/Los_Angeles
 const local=s=>s?new Date(s).toLocaleString('sv-SE',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(' ','T'):'';
 const safe=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const nice=s=>String(s??'').replaceAll('_',' ').replace(/\b\w/g,x=>x.toUpperCase());
-const state={view:'public',mode:'new',staff:null,user:null,config:null,event:null,original:null,page:0,historyPage:0,total:0};
+const state={view:'public',mode:null,staff:null,user:null,config:null,event:null,original:null,page:0,historyPage:0,total:0};
 let toastTimer,turnstileToken='';
 function toast(t,error=false){const x=$('toast');x.textContent=t;x.className='toast'+(error?' error':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.add('hidden'),6500)}
 function notify(t,error=false){const x=$('notice');x.textContent=t;x.className='notice'+(error?' error':'');x.scrollIntoView({block:'center',behavior:'smooth'})}
