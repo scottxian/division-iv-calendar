@@ -181,3 +181,12 @@ details.location-details.form-section .location-tbd-toggle{margin:0}
 }
 .division-dialog-buttons button{padding:10px 17px;min-width:112px}
 @media(max-width:520px){.division-dialog-buttons button{flex:1}}
+
+/* Division IV gold-on-blue identity, applied to all public and inspector views. */
+header{background:var(--navy);border-bottom:3px solid var(--gold)}
+.brand{color:#f2ca70}.brand b{color:#f2ca70}.brand small{color:#f3e3b7}
+.brand-emblem{height:54px;width:54px;object-fit:cover;border:1px solid #d8b76f;border-radius:9px;flex-shrink:0}
+header .nav-btn{color:#f0e0b8}header .nav-btn:hover,header .nav-btn.active{background:#254764;color:#ffe3a0}
+header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
+.eyebrow{color:#906622}.primary{border-color:var(--navy)}.primary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media(max-width:760px){.brand-emblem{height:46px;width:46px}.brand b{font-size:21px}}
