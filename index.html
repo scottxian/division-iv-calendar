@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=9"><script defer src="bootstrap.js"></script><script defer src="app.js?v=17"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=9"><script defer src="bootstrap.js"></script><script defer src="app.js?v=18"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -19,6 +19,7 @@
 <button type="button" class="choice" data-mode="change"><span class="symbol">✎</span><strong>Change an Event</strong><small>Change only the details you need</small></button>
 <button type="button" class="choice" data-mode="cancel"><span class="symbol">×</span><strong>Cancel an Event</strong><small>Request cancellation of an existing event</small></button>
 </div>
+<datalist id="host-choices"></datalist>
 <section id="new-panel" class="panel hidden">
 <h2>New Event</h2><p class="muted">Fields marked * are required. Optional information can be added below.</p>
 <form id="new-form">
@@ -26,7 +27,7 @@
 <div class="form-grid">
 <label class="wide"><span class="field-caption">Event title <span class="req" aria-label="required">*</span></span><input name="title" maxlength="180" required placeholder="Example: Entered Apprentice Degree"></label>
 <label><span class="field-caption">Event type <span class="req" aria-label="required">*</span></span><select id="event-type" name="event_type" required><option value="">Choose event type</option></select></label>
-<label><span class="field-caption">Hosting lodge or organization <span class="req" aria-label="required">*</span></span><input name="hosted_by" required placeholder="Example Lodge No. 123"></label>
+<label><span class="field-caption">Hosting lodge or organization <span class="req" aria-label="required">*</span></span><input name="hosted_by" list="host-choices" maxlength="180" autocomplete="off" required placeholder="Type or choose a lodge (e.g., Lodge No. 123)"></label>
 <label><span class="field-caption">District <span class="req" aria-label="required">*</span></span><select name="district" id="new-district" required><option value="">Choose district</option></select></label>
 <label><span class="field-caption">Event format <span class="req" aria-label="required">*</span></span><select name="event_mode" required><option value="in_person">In person</option><option value="hybrid">Hybrid (in person and online)</option><option value="online">Online only</option></select></label>
 <label><span class="field-caption">Start date and time <span class="req" aria-label="required">*</span></span><input name="start_local" type="datetime-local" required></label>
@@ -46,6 +47,7 @@
 </details>
 <details class="form-section"><summary>More event information <span class="location-hint">— Optional</span></summary>
 <div class="form-grid">
+<label>Cost (optional) <input name="cost_details" maxlength="180" placeholder="Free, $20, dinner $25, donation, etc."></label>
 <label>Dress / attire <input name="attire"></label><label>Who is invited? <input name="invited_audience"></label>
 <label class="wide">Registration link <input name="registration_url" type="url" placeholder="https://"></label>
 <label class="wide">Payment link <input name="payment_url" type="url" placeholder="https://"></label>
@@ -56,6 +58,7 @@
 <div class="form-grid">
 <label><span class="field-caption">POC name <span class="req" aria-label="required">*</span></span><input name="poc_name" maxlength="150" autocomplete="off" required placeholder="Contact person's full name"></label>
 <label><span class="field-caption">POC phone <span class="req" aria-label="required">*</span></span><input name="poc_phone" type="tel" maxlength="50" autocomplete="off" required placeholder="Phone number to publish"></label>
+<label><span class="field-caption">POC email <span class="req" aria-label="required">*</span></span><input name="poc_email" type="email" maxlength="250" autocomplete="off" required placeholder="Email address to publish"></label>
 </div>
 <div class="form-title">Your contact information (not published)</div>
 <div class="form-grid">
@@ -82,7 +85,7 @@
 <div class="form-grid">
 <label class="wide">Event title <input name="title"></label>
 <label>Event type <select name="event_type" id="edit-event-type"><option value="">Choose event type</option></select></label>
-<label>Hosting lodge or organization <input name="hosted_by"></label>
+<label>Hosting lodge or organization <input name="hosted_by" list="host-choices" maxlength="180" autocomplete="off"></label>
 <label>District <select name="district" id="edit-district"><option value="">Choose district</option></select></label>
 <label>Event format <select name="event_mode"><option value="in_person">In person</option><option value="hybrid">Hybrid</option><option value="online">Online only</option></select></label>
 <label>Start date and time <input type="datetime-local" name="start_local"></label>
@@ -90,6 +93,8 @@
 <label class="wide">Public event description <textarea name="public_description" rows="4"></textarea></label>
 <label>Event POC name (public) <input name="poc_name" maxlength="150"></label>
 <label>Event POC phone (public) <input name="poc_phone" type="tel" maxlength="50"></label>
+<label>Event POC email (public) <input name="poc_email" type="email" maxlength="250"></label>
+<label>Cost (optional) <input name="cost_details" maxlength="180" placeholder="Free, $20, donation, etc."></label>
 </div>
 <details id="edit-location-details" class="location-details form-section"><summary><span class="location-summary-title">Location details</span><label class="checkline location-tbd-toggle location-header-toggle"><input id="edit-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD</strong></label></summary>
 <div class="form-grid location-inputs">
