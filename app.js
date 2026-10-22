@@ -629,7 +629,7 @@ async function eventDetail(id){
  try{
   const d=await api('event-detail',null,{id}),ev=d.event,initial=eventFormValues(ev);
   const job=d.calendar?.[0],status=calendarState(ev,job);
-  host.innerHTML='<h2>'+safe(ev.title)+'</h2><p class="muted">'+safe(ev.event_code)+' · '+safe(nice(ev.status))+'</p><p><b>Starts:</b> '+safe(fmt(ev.starts_at))+' · <b>Location:</b> '+safe(ev.location_name||'Location TBD')+'</p><p><b>Google Calendar:</b> <span class="chip '+status.tone+'">'+safe(status.label)+'</span></p>'+(job?.last_error?'<p class="notice error">Sync issue: '+safe(job.last_error)+'</p>':'')+'<div class="review-actions" id="event-actions"></div><div id="event-editor-host"></div><h3>Recent history</h3><div id="event-history" class="timeline"></div>';
+  host.innerHTML='<h2>'+safe(ev.title)+'</h2><p class="muted">'+safe(ev.event_code)+' · '+safe(nice(ev.status))+'</p><p><b>Starts:</b> '+safe(fmt(ev.starts_at))+' · <b>Location:</b> '+safe(ev.location_name||'Location TBD')+'</p><p><b>Event point of contact:</b> '+safe(ev.poc_name||'Not provided')+(ev.poc_phone?' · '+safe(ev.poc_phone):'')+'</p><p><b>Google Calendar:</b> <span class="chip '+status.tone+'">'+safe(status.label)+'</span></p>'+(job?.last_error?'<p class="notice error">Sync issue: '+safe(job.last_error)+'</p>':'')+'<div class="review-actions" id="event-actions"></div><div id="event-editor-host"></div><h3>Recent history</h3><div id="event-history" class="timeline"></div>';
   const actions=$('event-actions');
   if(ev.status==='active'){
    const edit=document.createElement('button');edit.className='secondary';edit.textContent='Edit Published Event';
