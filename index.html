@@ -12,6 +12,12 @@
 <noscript><div class="container banner">JavaScript must be enabled to sign in or submit an event.</div></noscript><main class="container" id="content">
 <div class="hero"><div class="eyebrow">Division IV · Masonic Events</div><h1>Calendar requests, made simple.</h1><p>Submit an event, change the details, or request a cancellation. An authorized inspector reviews each request before it reaches the public calendar.</p><p><a href="calendar.html" class="secondary" style="display:inline-block;text-decoration:none;font-size:15px">View the Public Calendar →</a></p></div>
 <div id="notice" class="notice hidden" role="status" aria-live="polite"></div>
+<datalist id="host-choices"></datalist>
+<datalist id="venue-choices"><option value="Lodge Hall"></option><option value="Masonic Temple"></option></datalist>
+<datalist id="city-choices"></datalist>
+<datalist id="cost-choices"><option value="Free"></option><option value="Donation"></option><option value="No charge"></option><option value="Pay at the door"></option></datalist>
+<datalist id="attire-choices"><option value="Business attire"></option><option value="Coat and tie"></option><option value="Tuxedo"></option><option value="Masonic regalia"></option><option value="Casual"></option></datalist>
+<datalist id="audience-choices"><option value="All Masons"></option><option value="Master Masons"></option><option value="Members and guests"></option><option value="Family and friends"></option><option value="Open to the public"></option></datalist>
 <section id="public-view">
 <div id="banner" class="banner hidden" role="status">Public event submissions are currently unavailable. Please contact a Division IV inspector.</div>
 <div class="choices" role="group" aria-label="What would you like to do?">
@@ -19,12 +25,7 @@
 <button type="button" class="choice" data-mode="change"><span class="symbol">✎</span><strong>Change an Event</strong><small>Change only the details you need</small></button>
 <button type="button" class="choice" data-mode="cancel"><span class="symbol">×</span><strong>Cancel an Event</strong><small>Request cancellation of an existing event</small></button>
 </div>
-<datalist id="host-choices"></datalist>
-<datalist id="venue-choices"><option value="Lodge Hall"></option><option value="Masonic Temple"></option></datalist>
-<datalist id="city-choices"></datalist>
-<datalist id="cost-choices"><option value="Free"></option><option value="Donation"></option><option value="No charge"></option><option value="Pay at the door"></option></datalist>
-<datalist id="attire-choices"><option value="Business attire"></option><option value="Coat and tie"></option><option value="Tuxedo"></option><option value="Masonic regalia"></option><option value="Casual"></option></datalist>
-<datalist id="audience-choices"><option value="All Masons"></option><option value="Master Masons"></option><option value="Members and guests"></option><option value="Family and friends"></option><option value="Open to the public"></option></datalist>
+
 <section id="new-panel" class="panel hidden">
 <h2>New Event</h2><p class="muted">Fields marked * are required. Optional information can be added below.</p>
 <form id="new-form">
