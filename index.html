@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=9"><script defer src="bootstrap.js"></script><script defer src="app.js?v=16"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=9"><script defer src="bootstrap.js"></script><script defer src="app.js?v=17"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -51,6 +51,12 @@
 <label class="wide">Payment link <input name="payment_url" type="url" placeholder="https://"></label>
 <label class="wide">Flyer or invitation link <input name="flyer_url" type="url" placeholder="https://"></label>
 </div></details>
+<div class="form-title">Event point of contact (published on calendar)</div>
+<p class="help">Enter the person members should call with questions about the event. This may be different from the person submitting the request. Both fields will be visible on the public Google Calendar.</p>
+<div class="form-grid">
+<label><span class="field-caption">POC name <span class="req" aria-label="required">*</span></span><input name="poc_name" maxlength="150" autocomplete="off" required placeholder="Contact person's full name"></label>
+<label><span class="field-caption">POC phone <span class="req" aria-label="required">*</span></span><input name="poc_phone" type="tel" maxlength="50" autocomplete="off" required placeholder="Phone number to publish"></label>
+</div>
 <div class="form-title">Your contact information (not published)</div>
 <div class="form-grid">
 <label><span class="field-caption">Name <span class="req" aria-label="required">*</span></span><input name="contact_name" autocomplete="name" maxlength="150" required></label>
@@ -82,6 +88,8 @@
 <label>Start date and time <input type="datetime-local" name="start_local"></label>
 <label>End date and time <input type="datetime-local" name="end_local"></label>
 <label class="wide">Public event description <textarea name="public_description" rows="4"></textarea></label>
+<label>Event POC name (public) <input name="poc_name" maxlength="150"></label>
+<label>Event POC phone (public) <input name="poc_phone" type="tel" maxlength="50"></label>
 </div>
 <details id="edit-location-details" class="location-details form-section"><summary><span class="location-summary-title">Location details</span><label class="checkline location-tbd-toggle location-header-toggle"><input id="edit-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD</strong></label></summary>
 <div class="form-grid location-inputs">
