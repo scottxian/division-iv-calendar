@@ -199,6 +199,17 @@ async function init(){
   const hostNames=[...new Set((conf.hosts||[]).map(canonicalHost).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
   const hostList=$('host-choices');hostList.replaceChildren();
   for(const name of hostNames){const opt=document.createElement('option');opt.value=name;hostList.append(opt)}
+  // Only suggest public event details or general examples; never reuse submitted private contact information.
+  const suggestionLists={venue:'venue-choices',city:'city-choices',cost:'cost-choices',attire:'attire-choices',audience:'audience-choices'};
+  for(const [field,listId] of Object.entries(suggestionLists)){
+   const list=$(listId);
+   if(!list)continue;
+   const existing=new Set([...list.options].map(opt=>opt.value.toLocaleLowerCase()));
+   for(const raw of conf.suggestions?.[field]||[]){
+    const value=String(raw||'').trim();if(!value||existing.has(value.toLocaleLowerCase()))continue;
+    existing.add(value.toLocaleLowerCase());const option=document.createElement('option');option.value=value;list.append(option);
+   }
+  }
   for(const id of ['event-type','edit-event-type','filter-type']){
    const el=$(id);
    for(const type of conf.event_types||[]){const op=document.createElement('option');op.value=type;op.textContent=type;el.append(op)}
