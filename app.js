@@ -716,12 +716,13 @@ async function eventDetail(id){
 }
 async function activateInspectorTab(key){
  all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
- for(const k of ['dashboard','requests','events','history','staff','settings'])
+ for(const k of ['dashboard','requests','events','history','lodges','staff','settings'])
   $('tab-'+k).classList.toggle('hidden',k!==key);
  if(key==='dashboard')await loadDashboard();
  if(key==='requests')await loadRequests(0);
  if(key==='events')await loadEvents(0);
  if(key==='history')await loadHistory(0);
+ if(key==='lodges')await loadLodges();
  if(key==='staff')await loadStaff();
  if(key==='settings')await loadSettings();
 }
