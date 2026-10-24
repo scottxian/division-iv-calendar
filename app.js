@@ -720,11 +720,12 @@ async function activateInspectorTab(key){
   return;
  }
  all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
- for(const k of ['dashboard','requests','events','history','staff','settings'])
+ for(const k of ['dashboard','requests','events','resources','history','staff','settings'])
   $('tab-'+k).classList.toggle('hidden',k!==key);
  if(key==='dashboard'){await Promise.allSettled([loadDashboard(),loadLodges(),window.loadCalendarSync?.(),window.loadWebsitePreview?.()]);}
  if(key==='requests')await loadRequests(0);
  if(key==='events')await loadEvents(0);
+ if(key==='resources')await window.loadResources?.();
  if(key==='history')await loadHistory(0);
  if(key==='staff')await loadStaff();
  if(key==='settings')await Promise.allSettled([loadSettings(),window.loadWebsiteSettings?.()]);
