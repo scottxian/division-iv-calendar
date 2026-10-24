@@ -1,105 +1,142 @@
-/* Division IV Lodge Directory editor — authenticated Inspector Desk only. */
+/* Division IV: one authenticated lodge list on the Inspector Dashboard. */
 (()=>{
- const endpoint='https://lxvceqshpjnjjlllbpaq.supabase.co/functions/v1/division-lodges';
+ const apiRoot='https://lxvceqshpjnjjlllbpaq.supabase.co/functions/v1/division-lodges';
  const el=id=>document.getElementById(id);
  const fields=['lodge_name','lodge_number','district','state','address_line1','city','county','meeting_day','meeting_time','meeting_notes','official_url'];
- let rows=[],selected=null;
+ let rows=[],districts=[],selected=null,loading=false;
+ const container=el('lodge-admin-list'),form=el('lodge-edit-form'),panel=el('lodge-edit-panel');
+ if(!container||!form||!panel)return;
  function message(text,isError=false){
-  const node=el('lodge-admin-message');if(!node)return;
-  node.textContent=text;node.style.color=isError?'#a53226':'';
+  const node=el('lodge-admin-message');
+  node.textContent=text;
+  node.style.color=isError?'#9c3343':'';
  }
- async function request(action,body=null,query=''){
-  const current=await db.auth.getSession();
-  const token=current.data?.session?.access_token;
-  if(!token)throw Error('Inspector sign-in required');
-  const params=new URLSearchParams({action});
-  if(query)params.set('id',query);
-  const headers={'apikey':KEY,'Authorization':'Bearer '+token};
+ async function call(action,body=null,id=''){
+  const {data:{session}}=await db.auth.getSession();
+  if(!session?.access_token)throw Error('Inspector sign-in required');
+  const query=new URLSearchParams({action});
+  if(id)query.set('id',id);
+  const headers={'apikey':KEY,'Authorization':'Bearer '+session.access_token};
   if(body!==null)headers['content-type']='application/json';
-  const response=await fetch(endpoint+'?'+params.toString(),{method:body===null?'GET':'POST',headers,
-    ...(body!==null?{body:JSON.stringify(body)}:{})});
-  const json=await response.json().catch(()=>({error:'Unexpected server response'}));
-  if(!response.ok||json.error)throw Error(json.error||'Unable to complete lodge request');
-  return json;
+  const response=await fetch(apiRoot+'?'+query,{method:body===null?'GET':'POST',headers,
+   ...(body===null?{}:{body:JSON.stringify(body)})});
+  const result=await response.json().catch(()=>({error:'The server did not return a valid response.'}));
+  if(!response.ok||result.error)throw Error(result.error||'The request failed.');
+  return result;
  }
- function renderOptions(){
-  const select=el('lodge-select');
-  if(!select)return;
-  const term=el('lodge-find').value.toLowerCase().trim();
-  const previous=select.value||selected?.id||'';
-  select.replaceChildren(new Option('Select a lodge to edit',''));
-  for(const lodge of rows){
-   const haystack=[lodge.lodge_name,lodge.lodge_number,lodge.district,lodge.city,lodge.county].join(' ').toLowerCase();
-   if(term&&!haystack.includes(term))continue;
-   select.add(new Option(lodge.lodge_name+' Lodge No. '+lodge.lodge_number+' · District '+lodge.district,lodge.id));
+ function inspectorNames(code){
+  return districts.find(x=>x.code===code)?.inspectors?.join(', ')||'Not assigned';
+ }
+ function cell(tag,text,classname=''){
+  const node=document.createElement(tag);
+  if(classname)node.className=classname;
+  node.textContent=text;
+  return node;
+ }
+ function render(){
+  container.replaceChildren();
+  const list=rows.slice().sort((a,b)=>Number(a.district)-Number(b.district)||a.lodge_name.localeCompare(b.lodge_name));
+  for(const lodge of list){
+   const row=document.createElement('button');
+   row.type='button';row.className='lodge-admin-row';
+   if(lodge.id===selected?.id)row.classList.add('selected');
+   const name=document.createElement('span');
+   name.append(cell('strong',lodge.lodge_name),cell('small','Lodge No. '+lodge.lodge_number+' · '+(lodge.city||'')));
+   row.append(name,cell('span','District '+lodge.district,'lodge-district'),
+    cell('span',inspectorNames(lodge.district),'lodge-inspector'),cell('span','Edit →','lodge-edit-action'));
+   row.onclick=()=>choose(lodge.id);
+   container.append(row);
   }
-  if([...select.options].some(x=>x.value===previous))select.value=previous;
+  if(!list.length)container.textContent='No lodges found.';
  }
- function populate(){
-  const id=el('lodge-select').value;
+ function choose(id){
   selected=rows.find(x=>x.id===id)||null;
-  const form=el('lodge-edit-form');
-  if(!selected){form.classList.add('hidden');el('lodge-edit-history').replaceChildren();return;}
-  for(const key of fields){const input=form.elements.namedItem(key);if(input)input.value=selected[key]??'';}
+  if(!selected){panel.classList.add('hidden');return;}
+  for(const key of fields){
+   const input=form.elements.namedItem(key);
+   if(input)input.value=selected[key]??'';
+  }
+  el('lodge-edit-heading').textContent='Edit '+selected.lodge_name+' Lodge No. '+selected.lodge_number;
   el('lodge-record-version').textContent='Record version '+selected.record_version;
-  form.classList.remove('hidden');
-  showHistory(selected.id);
+  const history=el('lodge-edit-history');
+  history.classList.add('hidden');history.replaceChildren();
+  el('lodge-history-toggle').textContent='View Change History';
+  panel.classList.remove('hidden');
+  render();
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
  }
- async function showHistory(id){
+ function close(){
+  selected=null;panel.classList.add('hidden');render();
+ }
+ async function showHistory(){
   const root=el('lodge-edit-history');
-  root.textContent='Loading recent lodge edits…';
+  const toggle=el('lodge-history-toggle');
+  if(!selected)return;
+  if(!root.classList.contains('hidden')){
+   root.classList.add('hidden');toggle.textContent='View Change History';return;
+  }
+  root.classList.remove('hidden');toggle.textContent='Hide Change History';
+  root.textContent='Loading edit history…';
+  const id=selected.id;
   try{
-   const answer=await request('history',null,id);
+   const result=await call('history',null,id);
    if(selected?.id!==id)return;
    root.replaceChildren();
-   if(!(answer.items||[]).length){root.textContent='No inspector changes recorded yet.';return;}
-   const title=document.createElement('h4');title.textContent='Recent Changes';root.append(title);
-   for(const item of answer.items.slice(0,12)){
-    const changes=[];
-    for(const key of fields)if(String(item.before?.[key]??'')!==String(item.after?.[key]??''))changes.push(key.replaceAll('_',' '));
-    const row=document.createElement('div');row.className='audit-item';
-    const by=document.createElement('strong');by.textContent=(item.by||'Inspector')+' · '+new Date(item.created_at).toLocaleString();
-    const description=document.createElement('div');description.textContent=changes.join(', ')||'Record updated';
-    row.append(by,description);root.append(row);
+   const changes=result.items||[];
+   if(!changes.length){root.textContent='No inspector changes have been recorded for this lodge yet.';return;}
+   for(const change of changes.slice(0,30)){
+    const labels=[];
+    for(const key of fields){
+     if(String(change.before?.[key]??'')!==String(change.after?.[key]??'')){
+      labels.push(key.replaceAll('_',' '));
+     }
+    }
+    const item=cell('div','','audit-item');
+    item.append(cell('strong',(change.by||'Inspector')+' · '+new Date(change.created_at).toLocaleString()),
+     cell('div',labels.length?'Changed: '+labels.join(', '):'Lodge information updated'));
+    root.append(item);
    }
-  }catch(e){root.textContent='Change history unavailable: '+e.message;}
+  }catch(e){
+   root.textContent='Change history unavailable: '+e.message;
+  }
  }
  async function load(){
-  const select=el('lodge-select');
-  if(!select)return;
-  message('Loading lodge records…');
+  if(loading)return;
+  loading=true;message('Loading lodges…');
   try{
-   const answer=await request('all');
-   rows=(answer.lodges||[]).sort((a,b)=>Number(a.district)-Number(b.district)||a.lodge_name.localeCompare(b.lodge_name));
-   renderOptions();
-   if(selected&&rows.some(x=>x.id===selected.id))select.value=selected.id;
-   populate();
-   message(rows.length+' lodges available. Changes are recorded automatically.');
-  }catch(e){message(e.message,true);if(typeof toast==='function')toast(e.message,true);}
+   const data=await call('all');
+   rows=(data.lodges||[]).filter(l=>l.active!==false);
+   districts=data.districts||[];
+   if(selected)selected=rows.find(x=>x.id===selected.id)||null;
+   if(!selected)panel.classList.add('hidden');
+   render();
+   message(rows.length+' lodges · click a lodge to edit.');
+  }catch(e){message(e.message,true);}
+  finally{loading=false;}
  }
- const select=el('lodge-select'),search=el('lodge-find'),form=el('lodge-edit-form');
- if(!select||!search||!form)return;
  window.loadLodges=load;
- select.addEventListener('change',populate);
- search.addEventListener('input',renderOptions);
- el('lodge-reload').addEventListener('click',populate);
+ el('lodge-list-refresh').onclick=load;
+ el('lodge-close').onclick=close;
+ el('lodge-reload').onclick=()=>{if(selected)choose(selected.id);};
+ el('lodge-history-toggle').onclick=showHistory;
  form.addEventListener('submit',async event=>{
   event.preventDefault();
   if(!selected)return;
-  const changes={};
-  for(const name of fields){
-   const input=form.elements.namedItem(name);
-   const value=String(input?.value??'').trim();
-   if(value!==String(selected[name]??''))changes[name]=value;
+  const updates={};
+  for(const key of fields){
+   const input=form.elements.namedItem(key);
+   const next=String(input?.value??'').trim();
+   if(next!==String(selected[key]??''))updates[key]=next;
   }
-  if(!Object.keys(changes).length){message('No changes to save.');return;}
-  const submit=form.querySelector('button[type="submit"]');
+  if(!Object.keys(updates).length){message('There are no changes to save.');return;}
+  const submit=form.querySelector('[type="submit"]');
   submit.disabled=true;
   try{
-   const result=await request('save',{id:selected.id,expected_version:selected.record_version,fields:changes});
-   selected=result.lodge;rows=rows.map(x=>x.id===selected.id?selected:x);
-   renderOptions();select.value=selected.id;populate();
-   message('Saved. The public Wix directory will use the updated record when refreshed.');
+   const data=await call('save',{id:selected.id,expected_version:selected.record_version,fields:updates});
+   rows=rows.map(x=>x.id===selected.id?data.lodge:x);
+   selected=data.lodge;
+   choose(selected.id);
+   message('Lodge information saved. The Wix public directory will show the latest data when refreshed.');
    if(typeof toast==='function')toast('Lodge changes saved');
   }catch(e){message(e.message,true);if(typeof toast==='function')toast(e.message,true);}
   finally{submit.disabled=false;}
