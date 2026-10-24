@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=9"><script defer src="bootstrap.js"></script><script defer src="app.js?v=21"></script>
-<script defer src="lodges-admin.js?v=1"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=9"><script defer src="bootstrap.js"></script><script defer src="app.js?v=22"></script>
+<script defer src="lodges-admin.js?v=2"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -132,7 +132,6 @@
 <button class="tab" data-tab="requests" type="button">Review Requests</button>
 <button class="tab" data-tab="events" type="button">Manage Published Events</button>
 <button class="tab" data-tab="history" type="button">Status Log</button>
-<button class="tab" data-tab="lodges" type="button">Lodge Directory</button>
 <button class="tab admin-only hidden" data-tab="staff" type="button">Inspectors</button>
 <button class="tab admin-only hidden" data-tab="settings" type="button">Settings</button>
 </div>
@@ -146,6 +145,33 @@
 <section><h3>Calendar delivery failures</h3><div id="dashboard-failures" class="dashboard-list"></div></section>
 </div>
 <section class="dashboard-activity"><h3>Recent activity</h3><div id="dashboard-recent" class="dashboard-list"></div></section>
+<section class="dashboard-activity" id="dashboard-lodges">
+<div class="review-title"><div><h3>Lodges</h3>
+<p class="muted">Select a lodge to view or edit its information. District inspectors are linked automatically.</p></div>
+<button type="button" id="lodge-list-refresh" class="secondary">Refresh Lodges</button></div>
+<div id="lodge-admin-message" class="help" role="status" aria-live="polite"></div>
+<div class="lodge-admin-table-head"><strong>Lodge</strong><strong>District</strong><strong>Inspector</strong><span></span></div>
+<div id="lodge-admin-list" class="lodge-admin-list" aria-label="Division IV lodge list"></div>
+<div id="lodge-edit-panel" class="lodge-edit-panel hidden">
+<div class="review-title"><h3 id="lodge-edit-heading">Edit Lodge</h3><button type="button" id="lodge-close" class="secondary">Close</button></div>
+<form id="lodge-edit-form" class="form-grid hidden">
+<label>Lodge name <input name="lodge_name" maxlength="150" required></label>
+<label>Lodge number <input name="lodge_number" maxlength="12" required></label>
+<label>District <select name="district" required><option value="402">402</option><option value="404">404</option><option value="410">410</option><option value="414">414</option><option value="418">418</option><option value="422">422</option><option value="428">428</option><option value="438">438</option></select></label>
+<label>State <input name="state" maxlength="2" value="CA" required></label>
+<label class="wide">Meeting address <input name="address_line1" maxlength="240" required></label>
+<label>City <input name="city" maxlength="120" required></label>
+<label>County <input name="county" maxlength="100"></label>
+<label>Meeting day <input name="meeting_day" maxlength="100" placeholder="Example: 1st Thu"></label>
+<label>Meeting time <input name="meeting_time" maxlength="40" placeholder="Example: 7:30 PM"></label>
+<label class="wide">Schedule notes <input name="meeting_notes" maxlength="300" placeholder="Every month; or list exceptions"></label>
+<label class="wide">Official lodge listing URL <input name="official_url" type="url" maxlength="1000" placeholder="https://member.freemason.org/..."></label>
+<div class="wide form-actions"><span id="lodge-record-version" class="muted"></span><button type="submit" class="primary">Save Lodge Changes</button><button type="button" id="lodge-reload" class="secondary">Discard Changes</button></div>
+</form>
+<div class="form-actions"><button type="button" id="lodge-history-toggle" class="secondary">View Change History</button></div>
+<div id="lodge-edit-history" class="timeline hidden"></div>
+</div>
+</section>
 </section>
 <div id="tab-requests" class="hidden">
 <section class="panel">
@@ -202,30 +228,6 @@
 </label>
 <button id="refresh-history" class="secondary" type="button">Refresh</button>
 </div><div id="history-content" class="timeline"></div><div class="pagination"><button id="history-prev" type="button" class="secondary">← Previous</button><span id="history-page">Page 1</span><button id="history-next" type="button" class="secondary">Next →</button></div></section>
-<section id="tab-lodges" class="panel hidden">
-<h3>Manage the Lodge Directory</h3>
-<p class="muted">Authorized inspectors can edit lodge information. Changes appear on the Wix directory and are saved with an audit history. Please use lodge contact information, not personal home addresses.</p>
-<div class="form-grid">
-<label class="wide">Find a lodge <input id="lodge-find" type="search" placeholder="Search by name, number, district, or city"></label>
-<label class="wide">Select a lodge <select id="lodge-select"><option value="">Select a lodge to edit</option></select></label>
-</div>
-<div id="lodge-admin-message" class="help" role="status"></div>
-<form id="lodge-edit-form" class="form-grid hidden">
-<label>Lodge name <input name="lodge_name" maxlength="150" required></label>
-<label>Lodge number <input name="lodge_number" maxlength="12" required></label>
-<label>District <select name="district" required><option value="402">402</option><option value="404">404</option><option value="410">410</option><option value="414">414</option><option value="418">418</option><option value="422">422</option><option value="428">428</option><option value="438">438</option></select></label>
-<label>State <input name="state" maxlength="2" value="CA" required></label>
-<label class="wide">Meeting address <input name="address_line1" maxlength="240" required></label>
-<label>City <input name="city" maxlength="120" required></label>
-<label>County <input name="county" maxlength="100"></label>
-<label>Meeting day <input name="meeting_day" maxlength="100" placeholder="Example: 1st Thu"></label>
-<label>Meeting time <input name="meeting_time" maxlength="40" placeholder="Example: 7:30 PM"></label>
-<label class="wide">Schedule notes <input name="meeting_notes" maxlength="300" placeholder="Every month; or list exceptions"></label>
-<label class="wide">Official lodge listing URL <input name="official_url" type="url" maxlength="1000" placeholder="https://member.freemason.org/..."></label>
-<div class="wide form-actions"><span id="lodge-record-version" class="muted"></span><button type="submit" class="primary">Save Lodge Changes</button><button type="button" id="lodge-reload" class="secondary">Discard Changes</button></div>
-</form>
-<div id="lodge-edit-history" class="timeline"></div>
-</section>
 <section id="tab-staff" class="panel hidden"><h3>Inspectors</h3>
 <p class="muted">Administrators manage inspector sign-in, district assignments, and private contact records here. Removing access preserves earlier approvals and activity history.</p>
 <div id="staff-list"></div>
