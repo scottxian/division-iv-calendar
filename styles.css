@@ -212,3 +212,21 @@ header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
  .lodge-edit-action{grid-column:2;grid-row:1 / 4;align-self:center}
  .lodge-edit-panel{padding:15px}
 }
+
+
+/* Website settings, editable shared navigation and calendar sync view. */
+.website-menu-list{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.website-menu-row{display:grid;grid-template-columns:130px minmax(130px,.8fr) minmax(170px,1.3fr) auto;gap:8px;align-items:center;border:1px solid var(--border);border-radius:9px;padding:8px}
+.website-menu-row input,.website-menu-row select{padding:8px!important;font-size:13px!important}
+.website-menu-actions{display:flex;gap:5px}
+.website-menu-actions button{padding:6px 10px}
+.website-settings-error{color:var(--red)!important}
+.website-preview-links{display:flex;flex-wrap:wrap;gap:10px}
+.website-preview-links a{text-decoration:none;display:inline-flex;align-items:center;padding:10px 16px}
+.website-sync-count{cursor:default;min-height:90px}
+.website-sync-count:hover{background:#fff;box-shadow:none}
+#calendar-sync-checked{margin:12px 0 0}
+#website-settings-section{margin:10px 0 25px}
+#website-settings-section h3{margin:16px 0 7px}
+@media(max-width:890px){.website-menu-row{grid-template-columns:1fr 1fr}.website-menu-actions{justify-content:flex-start}}
+@media(max-width:600px){.website-menu-row{grid-template-columns:1fr}.website-preview-links a{flex:1;justify-content:center}}
