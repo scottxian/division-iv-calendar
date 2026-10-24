@@ -230,3 +230,39 @@ header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
 #website-settings-section h3{margin:16px 0 7px}
 @media(max-width:890px){.website-menu-row{grid-template-columns:1fr 1fr}.website-menu-actions{justify-content:flex-start}}
 @media(max-width:600px){.website-menu-row{grid-template-columns:1fr}.website-preview-links a{flex:1;justify-content:center}}
+
+
+/* Admin-only dropdown editor: guided fields, destination presets and help. */
+#website-menu-editor>.muted{max-width:940px}
+#website-menu-editor>.chip{font-size:11px}
+.website-menu-help{padding:0 17px;border:1px solid #cddbe8;border-radius:11px;background:#f7fafc;margin:17px 0 21px}
+.website-menu-help summary{padding:15px 2px;cursor:pointer;color:#153550;font-weight:750}
+.website-help-hint{font-size:12px;font-weight:400;color:var(--muted);margin-left:8px}
+.website-menu-help-body{padding:0 2px 17px;font-size:13px;line-height:1.7}
+.website-menu-help-body p{margin:11px 0}
+.website-menu-help-body code{font:12px ui-monospace,monospace;background:#ecf2f6;padding:2px 5px;border-radius:4px}
+.website-menu-examples{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:15px 0}
+.website-menu-examples>div{display:flex;flex-direction:column;gap:5px;background:white;border:1px solid var(--border);border-radius:8px;padding:12px}
+.website-menu-examples strong{font-size:12px}
+.website-menu-examples span{color:var(--muted);font-size:12px}
+.website-menu-intro{font-size:14px;margin:20px 0 12px}
+.website-menu-intro .muted{display:block;font-size:12px;margin-top:5px}
+.website-menu-row{grid-template-columns:minmax(110px,.85fr) minmax(150px,1.15fr) minmax(225px,1.6fr) minmax(130px,auto);align-items:start;padding:12px;gap:12px}
+.website-menu-field,.website-menu-target,.website-menu-buttons{min-width:0;font-size:12px;font-weight:700;color:var(--ink)}
+.website-menu-field-title,.website-menu-target>label{display:block;font-size:12px;font-weight:700;margin:0 0 7px;color:var(--ink)}
+.website-menu-field>select,.website-menu-field>input,.website-menu-target>select,.website-menu-target>input{margin-top:7px;width:100%;min-width:0}
+.website-menu-destination-hint{display:block;min-height:36px;font-size:11px;line-height:1.5;color:var(--muted);margin-top:7px;font-weight:400}
+.website-menu-actions{flex-wrap:wrap;justify-content:flex-start;margin-top:7px}
+.website-menu-preview{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border:1px solid #a6bacd;text-decoration:none;border-radius:8px;font-size:12px;white-space:nowrap;font-weight:700}
+.website-menu-preview:hover{background:#edf4fa}
+.website-menu-preview[aria-disabled="true"]{opacity:.55;pointer-events:none}
+.website-menu-tools{justify-content:flex-start;flex-wrap:wrap}
+@media(max-width:1050px){
+ .website-menu-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .website-menu-examples{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+ .website-menu-row{grid-template-columns:1fr}
+ .website-help-hint{display:block;margin-left:0;margin-top:5px}
+ .website-menu-actions{flex-wrap:wrap}
+}
