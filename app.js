@@ -715,6 +715,10 @@ async function eventDetail(id){
  }catch(e){host.textContent=e.message;toast(e.message,true)}
 }
 async function activateInspectorTab(key){
+ if((key==='staff'||key==='settings')&&state.staff?.role!=='admin'){
+  toast('Administrator access is required to manage inspectors or website settings.',true);
+  return;
+ }
  all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
  for(const k of ['dashboard','requests','events','history','staff','settings'])
   $('tab-'+k).classList.toggle('hidden',k!==key);
