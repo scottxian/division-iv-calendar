@@ -774,6 +774,25 @@ $('log-action').onchange=()=>loadHistory(0);
 $('history-prev').onclick=()=>loadHistory(historyPage-1);
 $('history-next').onclick=()=>loadHistory(historyPage+1);
 let showRemovedInspectors=false;
+const staffProfileFields=['email','display_name','phone','role','first_name','middle_name','last_name','office_title','district','member_number','home_phone','mobile_phone','home_address','home_address2','city','state','zip'];
+function staffFormRequirements(){
+ const form=$('staff-form');
+ const required=form.dataset.editing!=='1'&&form.elements.role.value==='inspector';
+ for(const key of ['member_number','first_name','last_name','district','mobile_phone','home_address','city','state','zip']){
+  form.elements[key].required=required;
+ }
+}
+function clearStaffForm(){
+ const form=$('staff-form');form.reset();
+ form.dataset.editing='0';form.elements.email.readOnly=false;
+ form.elements.state.value='CA';form.elements.office_title.value='Inspector';
+ $('staff-form-mode').textContent='Add Inspector';
+ staffFormRequirements();
+}
+$('staff-new').onclick=()=>{clearStaffForm();$('staff-form').scrollIntoView({behavior:'smooth',block:'start'})};
+$('staff-form-clear').onclick=clearStaffForm;
+$('staff-form').elements.role.addEventListener('change',staffFormRequirements);
+staffFormRequirements();
 async function loadStaff(){
  const root=$('staff-list');root.textContent='Loading inspectors…';
  try{
@@ -786,7 +805,7 @@ async function loadStaff(){
    const name=document.createElement('strong');name.textContent=s.display_name||s.email;
    const meta=document.createElement('small');
    const access=s.removed_at?'Removed on '+new Date(s.removed_at).toLocaleDateString():s.enabled?'Active':'Disabled';
-   meta.textContent=s.email+' · '+nice(s.role)+' · '+access;
+   meta.textContent=[s.email,nice(s.role),s.district?'District '+s.district:null,s.member_number?'Member '+s.member_number:null,access].filter(Boolean).join(' · ');
    info.append(name,document.createElement('br'),meta);
    const buttons=document.createElement('div');buttons.className='staff-actions';
    if(s.removed_at){
@@ -802,8 +821,12 @@ async function loadStaff(){
     const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='Edit';
     edit.onclick=()=>{
      const form=$('staff-form');
-     for(const key of ['email','display_name','phone','role'])form.elements[key].value=s[key]||'';
+     for(const key of staffProfileFields)form.elements[key].value=s[key]??'';
      form.elements.enabled.checked=s.enabled;
+     form.dataset.editing='1';
+     form.elements.email.readOnly=true;
+     $('staff-form-mode').textContent='Edit Inspector: '+(s.display_name||s.email);
+     staffFormRequirements();
      form.scrollIntoView({behavior:'smooth',block:'start'});
     };
     buttons.append(edit);
@@ -828,7 +851,15 @@ async function loadStaff(){
 $('toggle-removed').onclick=()=>{showRemovedInspectors=!showRemovedInspectors;loadStaff();};
 $('staff-form').onsubmit=async e=>{
  e.preventDefault();const b=e.submitter;busy(b,true);
- try{await api('staff-save',values(e.target));toast('Inspector saved');e.target.reset();await loadStaff()}catch(ex){toast(ex.message,true)}finally{busy(b,false)}
+ try{
+  const payload=values(e.target);
+  if(e.target.dataset.editing!=='1'&&payload.role==='inspector'&& !e.target.reportValidity())return;
+  await api('staff-save',payload);
+  toast('Inspector information saved');
+  clearStaffForm();
+  await loadStaff();
+ }catch(ex){toast(ex.message,true)}
+ finally{busy(b,false)}
 };
 async function loadSettings(){
  try{const s=await api('settings');$('email-links').value=s.settings.public_email_links||''}catch(e){toast(e.message,true)}
