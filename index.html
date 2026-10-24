@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=14"><script defer src="bootstrap.js"></script><script defer src="app.js?v=28"></script>
-<script defer src="lodges-admin.js?v=2"></script><script defer src="site-settings-admin.js?v=2"></script><script defer src="resources.js?v=2"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=15"><script defer src="bootstrap.js"></script><script defer src="app.js?v=29"></script>
+<script defer src="lodges-admin.js?v=3"></script><script defer src="site-settings-admin.js?v=2"></script><script defer src="resources.js?v=2"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -129,6 +129,7 @@
 <div class="admin-head"><div><div class="eyebrow">Inspector Desk</div><h2 id="welcome">Review Requests</h2></div><span class="chip" id="staff-role">Inspector</span></div>
 <div class="tabs">
 <button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
+<button class="tab" data-tab="lodges" type="button">Lodges</button>
 <button class="tab" data-tab="requests" type="button">Review Requests</button>
 <button class="tab" data-tab="events" type="button">Manage Published Events</button>
 <button class="tab" data-tab="resources" type="button">Resources</button>
@@ -159,15 +160,23 @@
 <a id="preview-site-lodges" class="secondary" href="https://headless-odfdmxtmddz-scottyjchristian-1410.wix-site-host.com/lodges.html" target="_blank" rel="noopener noreferrer">Lodge Directory ↗</a>
 </div></section>
 <section class="dashboard-activity"><h3>Recent activity</h3><div id="dashboard-recent" class="dashboard-list"></div></section>
-<section class="dashboard-activity" id="dashboard-lodges">
-<div class="review-title"><div><h3>Lodges</h3>
-<p class="muted">Select a lodge to view or edit its information. District inspectors are linked automatically.</p></div>
+</section>
+<section id="tab-lodges" class="panel hidden">
+
+<div class="review-title"><div><h3>Division IV Lodges</h3>
+<p class="muted">Select a lodge to view its details and district. Administrators can edit lodge records and assign lodges to districts.</p></div>
 <button type="button" id="lodge-list-refresh" class="secondary">Refresh Lodges</button></div>
+<div class="lodge-filters">
+<label>Find a lodge<input id="lodge-search" type="search" placeholder="Name, number, city or district" autocomplete="off"></label>
+<label>District<select id="lodge-district-filter"><option value="">All districts</option></select></label>
+</div>
 <div id="lodge-admin-message" class="help" role="status" aria-live="polite"></div>
-<div class="lodge-admin-table-head"><strong>Lodge</strong><strong>District</strong><strong>Inspector</strong><span></span></div>
+<div class="lodge-admin-table-head"><strong>Lodge</strong><strong>District</strong><strong>Assigned inspector</strong><span></span></div>
 <div id="lodge-admin-list" class="lodge-admin-list" aria-label="Division IV lodge list"></div>
-<div id="lodge-edit-panel" class="lodge-edit-panel hidden">
-<div class="review-title"><h3 id="lodge-edit-heading">Edit Lodge</h3><button type="button" id="lodge-close" class="secondary">Close</button></div>
+<div id="lodge-edit-panel" class="lodge-edit-panel hidden" aria-live="polite">
+<div class="review-title"><h3 id="lodge-edit-heading">Lodge Details</h3><button type="button" id="lodge-close" class="secondary">Close</button></div>
+<div id="lodge-view-summary" class="lodge-view-summary hidden"></div>
+<p id="lodge-admin-edit-note" class="help hidden">Only administrators can change lodge details and district assignments. All edits are saved with a change history.</p>
 <form id="lodge-edit-form" class="form-grid hidden">
 <label>Lodge name <input name="lodge_name" maxlength="150" required></label>
 <label>Lodge number <input name="lodge_number" maxlength="12" required></label>
@@ -185,7 +194,6 @@
 <div class="form-actions"><button type="button" id="lodge-history-toggle" class="secondary">View Change History</button></div>
 <div id="lodge-edit-history" class="timeline hidden"></div>
 </div>
-</section>
 </section>
 <div id="tab-requests" class="hidden">
 <section class="panel">
