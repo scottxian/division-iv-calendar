@@ -620,7 +620,7 @@ async function loadDashboard(){
   if(!d.recent?.length)recent.append(dashboardElement('p','muted','No recent activity.'));
  }catch(ex){stats.textContent='Unable to load dashboard: '+ex.message;toast(ex.message,true)}
 }
-$('dashboard-refresh').onclick=loadDashboard;
+$('dashboard-refresh').onclick=()=>Promise.allSettled([loadDashboard(),loadLodges()]);
 let eventPage=0;
 async function loadEvents(p=0){
  eventPage=Math.max(0,p);
@@ -716,13 +716,12 @@ async function eventDetail(id){
 }
 async function activateInspectorTab(key){
  all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
- for(const k of ['dashboard','requests','events','history','lodges','staff','settings'])
+ for(const k of ['dashboard','requests','events','history','staff','settings'])
   $('tab-'+k).classList.toggle('hidden',k!==key);
- if(key==='dashboard')await loadDashboard();
+ if(key==='dashboard'){await Promise.allSettled([loadDashboard(),loadLodges()]);}
  if(key==='requests')await loadRequests(0);
  if(key==='events')await loadEvents(0);
  if(key==='history')await loadHistory(0);
- if(key==='lodges')await loadLodges();
  if(key==='staff')await loadStaff();
  if(key==='settings')await loadSettings();
 }
