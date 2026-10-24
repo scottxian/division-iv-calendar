@@ -26,41 +26,119 @@
   if(!res.ok||result.error)throw Error(result.error||'Website settings request failed');
   return result.settings;
  }
+ const destinations=[
+  ['','Custom Wix page or HTTPS URL','Enter a Wix page such as calendar.html or an HTTPS URL.'],
+  ['index.html#about','Wix: About Division IV','About section on the Wix homepage'],
+  ['index.html#community','Wix: Community','Community section on the Wix homepage'],
+  ['index.html#contact','Wix: Contact','Contact section on the Wix homepage'],
+  ['index.html#inspectors','Wix: Inspector Area','Inspector information on the Wix homepage'],
+  ['index.html#home','Wix: Homepage','Home section of the Wix website'],
+  ['lodges.html','Wix: Lodge Directory','Public lodge directory'],
+  ['calendar.html','Wix: Public Calendar','Live embedded public calendar'],
+  ['@event_requests','Saved: Event Submission Link','Automatically uses the event request URL configured above'],
+  ['@inspector_desk','Saved: Inspector Desk Sign In','Automatically uses the inspector sign-in URL configured above'],
+  ['@grand_lodge','Saved: Grand Lodge Finder','Uses the official Grand Lodge directory address above'],
+  ['@calendar_fallback','Saved: Backup Calendar','Uses the backup public calendar URL above'],
+  ['@site_home','Saved: Website Homepage','Uses the Wix website URL above']
+ ];
+ const destinationMap=new Map(destinations.map(([value,label,description])=>[value,description]));
+ function previewURL(value){
+  const form=e('website-settings-form');
+  const field=name=>String(form?.elements[name]?.value||'').trim();
+  const savedAliases={
+   '@event_requests':field('website_event_request_url'),
+   '@inspector_desk':field('website_inspector_desk_url'),
+   '@grand_lodge':field('website_grand_lodge_url'),
+   '@calendar_fallback':field('website_calendar_fallback_url'),
+   '@site_home':field('website_site_url')
+  };
+  const raw=Object.hasOwn(savedAliases,value)?savedAliases[value]:value;
+  if(!raw)return '';
+  try{
+   const site=field('website_site_url');
+   const url=new URL(raw,site.replace(/\/+$/,'')+'/');
+   return url.protocol==='https:'&&!url.username&&!url.password?url.href:'';
+  }catch{return ''}
+ }
  function navRow(item){
   const box=document.createElement('div');box.className='website-menu-row';
+  const groupLabel=document.createElement('label');groupLabel.className='website-menu-field';
+  groupLabel.append(document.createTextNode('Top dropdown'));
   const group=document.createElement('select');group.className='website-menu-group';
-  group.setAttribute('aria-label','Dropdown section');
-  for(const [id,label] of groups)group.add(new Option(label,id));
-  group.value=item.group||'division';
-  const title=document.createElement('input');title.type='text';title.placeholder='Menu label';title.maxLength=65;
-  title.setAttribute('aria-label','Menu link label');title.value=item.label||'';
-  const href=document.createElement('input');href.type='text';href.placeholder='Destination URL or @saved_link';href.maxLength=1000;
-  href.setAttribute('aria-label','Menu link destination');href.value=item.href||'';
-  const buttons=document.createElement('div');buttons.className='website-menu-actions';
-  for(const [label,action] of [['↑','up'],['↓','down'],['×','remove']]){
-   const b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=label;
-   b.title=action==='up'?'Move link up':action==='down'?'Move link down':'Remove link';
-   b.setAttribute('aria-label',b.title);
-   b.onclick=()=>{
+  group.setAttribute('aria-label','Top dropdown');
+  for(const [key,label] of groups)group.add(new Option(label,key));
+  group.value=item.group||'division';groupLabel.append(group);
+  const titleLabel=document.createElement('label');titleLabel.className='website-menu-field';
+  titleLabel.append(document.createTextNode('Text visitors see'));
+  const title=document.createElement('input');title.type='text';title.className='website-menu-label';
+  title.maxLength=65;title.required=true;title.placeholder='Example: View Calendar';
+  title.value=item.label||'';title.setAttribute('aria-label','Menu link label');
+  titleLabel.append(title);
+  const destination=document.createElement('div');destination.className='website-menu-target';
+  const destTitle=document.createElement('label');destTitle.textContent='Where this link goes';
+  const choices=document.createElement('select');choices.className='website-menu-preset';
+  choices.setAttribute('aria-label','Choose link destination');
+  for(const [value,label] of destinations)choices.add(new Option(label,value));
+  const href=document.createElement('input');href.type='text';href.className='website-menu-href';
+  href.value=item.href||'';href.maxLength=1000;href.placeholder='calendar.html or https://...';
+  href.setAttribute('aria-label','Menu link destination');
+  choices.value=href.value!==''&&destinationMap.has(href.value)?href.value:'';
+  const help=document.createElement('small');help.className='website-menu-destination-hint';
+  const preview=document.createElement('a');preview.className='secondary website-menu-preview';
+  preview.target='_blank';preview.rel='noopener noreferrer';preview.textContent='Preview ↗';
+  preview.setAttribute('aria-label','Preview destination for this menu link');
+  const refresh=()=>{
+   const url=previewURL(href.value.trim());
+   if(url){preview.href=url;preview.removeAttribute('aria-disabled');preview.title=url;}
+   else{preview.removeAttribute('href');preview.setAttribute('aria-disabled','true');preview.title='Enter a valid destination';}
+  };
+  const showDest=()=>{
+   const v=choices.value;
+   if(v){href.value=v;href.classList.add('hidden');help.textContent=destinationMap.get(v);}
+   else{href.classList.remove('hidden');help.textContent='For custom links, type a Wix page (such as calendar.html) or a complete HTTPS URL.';}
+   refresh();
+  };
+  choices.addEventListener('change',()=>{
+   if(!choices.value)href.value='';
+   showDest();
+   if(!choices.value)href.focus();
+  });
+  href.addEventListener('input',refresh);
+  title.addEventListener('input',()=>preview.setAttribute('aria-label','Preview destination for '+(title.value||'this menu link')));
+  destination.append(destTitle,choices,href,help);
+  const controlWrap=document.createElement('div');controlWrap.className='website-menu-buttons';
+  const header=document.createElement('span');header.className='website-menu-field-title';
+  header.textContent='Order & preview';
+  const controls=document.createElement('div');controls.className='website-menu-actions';
+  for(const [text,action] of [['↑','up'],['↓','down'],['×','remove']]){
+   const button=document.createElement('button');button.type='button';button.className='secondary';
+   button.textContent=text;button.title=action==='up'?'Move up':action==='down'?'Move down':'Remove menu link';
+   button.setAttribute('aria-label',button.title);
+   button.onclick=()=>{
     const parent=e('website-menu-links');
-    if(action==='remove'){if(parent.children.length<=1){message('Keep at least one menu link.',true);return;}box.remove();}
-    else if(action==='up'&&box.previousElementSibling)parent.insertBefore(box,box.previousElementSibling);
+    if(action==='remove'){
+     if(parent.children.length===1){message('Keep at least one menu link.',true);return;}
+     box.remove();
+    }else if(action==='up'&&box.previousElementSibling)parent.insertBefore(box,box.previousElementSibling);
     else if(action==='down'&&box.nextElementSibling)parent.insertBefore(box.nextElementSibling,box);
    };
-   buttons.append(b);
+   controls.append(button);
   }
-  box.append(group,title,href,buttons);
+  controls.append(preview);controlWrap.append(header,controls);
+  box.append(groupLabel,titleLabel,destination,controlWrap);
+  showDest();
+  box.addEventListener('website-preview-refresh',refresh);
   return box;
  }
  function showNavigation(items){
-  const box=e('website-menu-links');box.replaceChildren();
-  (items||[]).forEach(x=>box.append(navRow(x)));
+  const root=e('website-menu-links');root.replaceChildren();
+  (items||[]).forEach(item=>root.append(navRow(item)));
  }
  function currentNavigation(){
   return [...e('website-menu-links').children].map(row=>({
-   group:row.querySelector('select').value,
-   label:row.querySelector('input[aria-label="Menu link label"]').value.trim(),
-   href:row.querySelector('input[aria-label="Menu link destination"]').value.trim()
+   group:row.querySelector('.website-menu-group').value,
+   label:row.querySelector('.website-menu-label').value.trim(),
+   href:row.querySelector('.website-menu-href').value.trim()
   }));
  }
  function readForm(settings){
@@ -73,6 +151,7 @@
  }
  async function loadWebsiteSettings(){
   const form=e('website-settings-form');if(!form)return;
+  if(state.staff?.role!=='admin'){message('Administrator access required.',true);return;}
   message('Loading website settings…');
   try{readForm(await request('admin'));}
   catch(ex){message(ex.message,true);}
@@ -80,10 +159,19 @@
  window.loadWebsiteSettings=loadWebsiteSettings;
  const form=e('website-settings-form');
  if(form){
-  e('website-menu-add').onclick=()=>{e('website-menu-links').append(navRow({group:'division',label:'',href:''}));};
+  e('website-menu-add').onclick=()=>{
+   const row=navRow({group:'division',label:'',href:''});
+   e('website-menu-links').append(row);
+   row.querySelector('.website-menu-label').focus();
+  };
+  for(const key of settingNames)form.elements[key].addEventListener('input',()=>{
+   e('website-menu-links').querySelectorAll('.website-menu-row').forEach(row=>
+    row.dispatchEvent(new Event('website-preview-refresh')));
+  });
   e('website-menu-reset').onclick=()=>{if(saved)showNavigation(saved.website_navigation);};
   form.addEventListener('submit',async ev=>{
    ev.preventDefault();
+   if(state.staff?.role!=='admin'){message('Only administrators can save website settings.',true);return;}
    const button=e('website-settings-save');button.disabled=true;
    try{
     const changes={};
