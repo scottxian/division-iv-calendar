@@ -266,3 +266,31 @@ header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
  .website-help-hint{display:block;margin-left:0;margin-top:5px}
  .website-menu-actions{flex-wrap:wrap}
 }
+
+
+/* Secure inspector Resources tab. */
+.resources-controls{display:flex;align-items:end;gap:14px;flex-wrap:wrap;margin:18px 0}
+.resources-controls label{flex:1;min-width:185px}
+.resources-admin-actions{display:flex;align-items:end}
+.resources-controls input,.resources-controls select{min-height:44px}
+.resources-count{font-size:12px;color:var(--muted);margin:17px 0 8px}
+.resources-list{border-top:1px solid var(--border)}
+.resources-row{display:flex;align-items:center;gap:16px;padding:18px 2px;border-bottom:1px solid var(--border)}
+.resources-file-icon{font-size:28px;color:var(--gold);width:42px;text-align:center;flex-shrink:0}
+.resources-row-info{flex:1;min-width:170px;overflow-wrap:anywhere}
+.resources-row-info strong{font-size:15px;display:block}
+.resources-row-info small{display:block;font-size:12px;color:var(--muted);line-height:1.6;margin-top:5px}
+.resources-row-description{margin:7px 0 0;font-size:13px;color:var(--muted)}
+.resources-row-actions{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;max-width:460px}
+.resources-row-actions button{padding:8px 11px;font-size:12px;white-space:nowrap}
+.resources-empty{padding:26px;text-align:center;color:var(--muted)}
+.resources-editor{margin-top:22px;padding:23px;border-radius:12px;border:1px solid #bdcfde;background:#f7f9fc}
+.resources-editor h3{margin-bottom:15px}
+.resources-editor-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-top:20px}
+.resources-history{padding:16px 20px;margin-top:20px;border:1px solid var(--border);border-radius:10px}
+.resources-history h4{margin:15px 0 10px}
+.resources-history-entry{font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)}
+.resources-history-entry:last-child{border:0}
+.resources-error{color:var(--red)}
+@media(max-width:850px){.resources-row{align-items:flex-start;flex-wrap:wrap}.resources-row-actions{width:100%;max-width:none;margin-left:55px;justify-content:flex-start}}
+@media(max-width:600px){.resources-row{gap:10px}.resources-file-icon{width:30px}.resources-row-actions{margin-left:0}.resources-row-actions button{flex:1}.resources-controls label{min-width:100%}.resources-admin-actions,.resources-admin-actions button{width:100%}.resources-editor{padding:15px}}
