@@ -326,3 +326,16 @@ header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
  .resources-category-actions{width:100%}
  .resources-category-add-form button{width:100%}
 }
+
+
+/* Dedicated lodges tab, with administrator editing and inspector read-only details. */
+.lodge-filters{display:flex;flex-wrap:wrap;gap:14px;align-items:end;margin:18px 0 12px}
+.lodge-filters label{flex:1;min-width:210px}
+.lodge-filters input,.lodge-filters select{min-height:43px;width:100%}
+.lodge-view-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 20px;margin-top:16px}
+.lodge-view-field{display:flex;flex-direction:column;gap:4px;border-bottom:1px solid var(--border);padding:9px 0;min-width:0;overflow-wrap:anywhere}
+.lodge-view-field strong{font-size:12px;color:var(--muted)}
+.lodge-view-field span,.lodge-view-field a{font-size:14px}
+#lodge-admin-edit-note{margin:8px 0 16px}
+#tab-lodges .lodge-admin-row:focus-visible{outline:3px solid var(--gold);outline-offset:-3px;position:relative;z-index:1}
+@media(max-width:650px){.lodge-view-summary{grid-template-columns:1fr}.lodge-filters label{flex-basis:100%}}
