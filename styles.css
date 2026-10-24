@@ -294,3 +294,35 @@ header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
 .resources-error{color:var(--red)}
 @media(max-width:850px){.resources-row{align-items:flex-start;flex-wrap:wrap}.resources-row-actions{width:100%;max-width:none;margin-left:55px;justify-content:flex-start}}
 @media(max-width:600px){.resources-row{gap:10px}.resources-file-icon{width:30px}.resources-row-actions{margin-left:0}.resources-row-actions button{flex:1}.resources-controls label{min-width:100%}.resources-admin-actions,.resources-admin-actions button{width:100%}.resources-editor{padding:15px}}
+
+
+/* One shared, administrator-managed Division IV document-category catalog. */
+.resources-admin-actions{gap:10px;flex-wrap:wrap}
+.resources-categories-panel{margin:20px 0;padding:22px;border:1px solid #bdd0de;border-radius:12px;background:#f7f9fc}
+.resources-categories-panel .review-title{margin-bottom:18px}
+.resources-categories-panel h3{margin:0 0 7px}
+.resources-categories-panel .muted{margin:0}
+.resources-category-add-form{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.resources-category-add-form label{flex:1;min-width:220px}
+.resources-category-add-form input{min-height:43px}
+.resources-category-add-form button{min-height:43px}
+.resources-category-list{margin-top:15px;border-top:1px solid var(--border)}
+.resources-category-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 3px;border-bottom:1px solid var(--border)}
+.resources-category-info{flex:1;min-width:0}
+.resources-category-info strong,.resources-category-info small{display:block}
+.resources-category-info strong{font-size:14px}
+.resources-category-info small{font-size:12px;color:var(--muted);margin-top:3px}
+.resources-category-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.resources-category-actions button{font-size:12px;padding:8px 12px}
+.resources-category-protected{font-size:12px;color:var(--muted)}
+.resources-category-rename-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.resources-category-rename-form input{max-width:300px;min-width:150px;flex:1}
+.resources-category-rename-form button{padding:8px 12px;font-size:12px}
+#resources-category-message{min-height:20px;margin:8px 0}
+@media(max-width:650px){
+ .resources-admin-actions,.resources-admin-actions button{width:100%}
+ .resources-categories-panel{padding:15px}
+ .resources-category-row{align-items:start;flex-direction:column;gap:10px}
+ .resources-category-actions{width:100%}
+ .resources-category-add-form button{width:100%}
+}
