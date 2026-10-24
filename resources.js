@@ -2,7 +2,7 @@
 (()=>{
 const endpoint=ROOT+'/functions/v1/division-resources',bucket='division-inspector-resources';
 const byId=id=>document.getElementById(id);
-let docs=[],manage=false,selected=null,busyNow=false;
+let docs=[],categories=[],manage=false,selected=null,busyNow=false,categoryBusy=false;
 const make=(tag,cls,label)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(label!==undefined)el.textContent=label;return el};
 const fmtDate=v=>v?new Date(v).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}):'—';
 const size=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(1)+' MB';
@@ -20,6 +20,93 @@ async function request(action,payload,params={}){
  if(!r.ok||o.error)throw Error(o.error||'Document request failed');
  return o;
 }
+
+function categoryNotice(message,bad=false){
+ const target=byId('resources-category-message');
+ if(target){target.textContent=message;target.classList.toggle('resources-error',bad);}
+}
+function displayCategories(){
+ const filter=byId('resources-category-filter');
+ const picker=byId('resources-document-category');
+ const oldFilter=filter.value,oldPicker=picker.value;
+ const options=categories.filter(c=>c.active).map(c=>c.name);
+ const assigned=[...new Set(docs.map(d=>d.category))];
+ const existing=[...new Set([...options,...assigned])].sort((a,b)=>a.localeCompare(b));
+ filter.replaceChildren(new Option('All categories','All categories'));
+ for(const name of existing)filter.add(new Option(name,name));
+ filter.value=existing.includes(oldFilter)?oldFilter:'All categories';
+ picker.replaceChildren();
+ for(const name of options.sort((a,b)=>a.localeCompare(b)))picker.add(new Option(name,name));
+ picker.value=options.includes(oldPicker)?oldPicker:options.includes('General')?'General':options[0]||'';
+}
+async function changeCategory(operation,category,name){
+ if(!manage||categoryBusy||busyNow)return;
+ if(operation==='archive'){
+  if(category.name==='General'){categoryNotice('General is the permanent default category.',true);return;}
+  if(category.file_count>0){categoryNotice('Move the '+category.file_count+' document(s) in '+category.name+' to another category before retiring it.',true);return;}
+  const yes=await divisionQuestion('Retire category "'+category.name+'"? It will no longer appear when assigning new files. You can restore it later.',
+    {title:'Retire document category',confirmLabel:'Retire category'});
+  if(!yes)return;
+ }
+ try{
+  categoryBusy=true;
+  byId('resources-category-add').disabled=true;
+  byId('resources-category-list').querySelectorAll('button').forEach(b=>b.disabled=true);
+  categoryNotice('Saving category…');
+  await request('category-save',{operation,id:category.id,name});
+  await load();
+  categoryNotice(operation==='create'?'Category added.':operation==='rename'?'Category renamed across the library.':operation==='archive'?'Category retired.':'Category restored.');
+ }catch(e){categoryNotice(e.message,true);renderCategoryManager();}
+ finally{categoryBusy=false;byId('resources-category-add').disabled=false;}
+}
+function renderCategoryManager(){
+ const root=byId('resources-category-list');
+ if(!root)return;
+ root.replaceChildren();
+ if(!manage)return;
+ for(const category of [...categories].sort((a,b)=>Number(b.active)-Number(a.active)||a.name.localeCompare(b.name))){
+  const row=make('div','resources-category-row');
+  const info=make('div','resources-category-info');
+  info.append(make('strong','',category.name));
+  info.append(make('small','',category.active?'Active · '+category.file_count+' document'+(category.file_count===1?'':'s'):'Retired · not available for new documents'));
+  const buttons=make('div','resources-category-actions');
+  if(category.active&&category.name!=='General'){
+   const rename=make('button','secondary','Rename');rename.type='button';
+   rename.onclick=()=>{
+    const renameForm=make('form','resources-category-rename-form');
+    const renameInput=make('input');renameInput.type='text';renameInput.value=category.name;renameInput.maxLength=50;
+    renameInput.minLength=2;renameInput.required=true;renameInput.setAttribute('aria-label','New category name');
+    const save=make('button','primary','Save Name');save.type='submit';
+    const cancel=make('button','secondary','Cancel');cancel.type='button';
+    cancel.onclick=renderCategoryManager;
+    renameForm.onsubmit=e=>{
+     e.preventDefault();
+     const name=renameInput.value.trim().replace(/\s+/g,' ');
+     if(name===category.name){renderCategoryManager();return;}
+     changeCategory('rename',category,name);
+    };
+    renameForm.append(renameInput,save,cancel);
+    info.replaceChildren(renameForm);
+    buttons.replaceChildren();
+    renameInput.focus();renameInput.select();
+   };
+   const retire=make('button','secondary','Retire');retire.type='button';
+   retire.disabled=category.file_count>0;
+   retire.title=category.file_count>0?'Reassign files before retiring this category':'Retire category';
+   retire.onclick=()=>changeCategory('archive',category,null);
+   buttons.append(rename,retire);
+  }else if(!category.active){
+   const restore=make('button','secondary','Restore');restore.type='button';
+   restore.onclick=()=>changeCategory('restore',category,null);
+   buttons.append(restore);
+  }else{
+   buttons.append(make('span','resources-category-protected','Default category'));
+  }
+  row.append(info,buttons);root.append(row);
+ }
+ if(!categories.length)root.append(make('p','muted','No categories available.'));
+}
+
 function locked(v){
  busyNow=v;
  for(const id of ['resources-upload','resources-save-meta','resources-cancel-meta','resources-refresh']){
@@ -117,10 +204,23 @@ async function load(){
  root.textContent='Loading documents…';
  try{
   const response=await request('list');
-  docs=response.items||[];manage=!!response.can_manage&&state.staff?.role==='admin';
+  docs=Array.isArray(response.items)?response.items:[];
+  categories=Array.isArray(response.categories)?response.categories:[];
+  manage=!!response.can_manage&&state.staff?.role==='admin';
   byId('resources-admin-actions').classList.toggle('hidden',!manage);
-  if(!manage)closeEditor();
-  render();alertText('Division IV resource library ready.');
+  if(!manage){
+   closeEditor();
+   byId('resources-categories-panel').classList.add('hidden');
+  }
+  displayCategories();
+  if(selected&&manage){
+   const current=docs.find(d=>d.id===selected.id);
+   if(current){selected=current;byId('resources-document-category').value=current.category;}
+   else closeEditor();
+  }
+  render();
+  renderCategoryManager();
+  alertText('Division IV resource library ready.');
  }catch(e){root.textContent='Unable to load documents.';alertText(e.message,true)}
 }
 window.loadResources=load;
@@ -196,6 +296,30 @@ byId('resources-save-meta').onclick=async()=>{
   locked(true);await request('edit',payload);closeEditor();await load();toast('Document details saved');
  }catch(e){alertText(e.message,true);toast(e.message,true)}
  finally{locked(false)}
+};
+byId('resources-manage-categories').onclick=()=>{
+ if(!manage)return;
+ const panel=byId('resources-categories-panel');
+ const show=panel.classList.contains('hidden');
+ panel.classList.toggle('hidden',!show);
+ byId('resources-manage-categories').setAttribute('aria-expanded',String(show));
+ if(show){
+  renderCategoryManager();
+  categoryNotice('Choose Add Category, Rename, or Retire. Changes affect the whole Division IV library.');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+ }
+};
+byId('resources-categories-close').onclick=()=>{
+ byId('resources-categories-panel').classList.add('hidden');
+ byId('resources-manage-categories').setAttribute('aria-expanded','false');
+};
+byId('resources-category-add-form').onsubmit=async e=>{
+ e.preventDefault();if(!manage||categoryBusy)return;
+ const input=byId('resources-category-new-name');
+ const name=input.value.trim().replace(/\s+/g,' ');
+ if(name.length<2||name.length>50){categoryNotice('Category names must be 2–50 characters.',true);return;}
+ await changeCategory('create',{id:null,name:null},name);
+ if(!categoryBusy&&byId('resources-category-message').textContent==='Category added.')input.value='';
 };
 byId('resources-clear-history').onclick=()=>byId('resources-version-history').classList.add('hidden');
 })();
