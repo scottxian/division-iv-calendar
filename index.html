@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=13"><script defer src="bootstrap.js"></script><script defer src="app.js?v=28"></script>
-<script defer src="lodges-admin.js?v=2"></script><script defer src="site-settings-admin.js?v=2"></script><script defer src="resources.js?v=1"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=14"><script defer src="bootstrap.js"></script><script defer src="app.js?v=28"></script>
+<script defer src="lodges-admin.js?v=2"></script><script defer src="site-settings-admin.js?v=2"></script><script defer src="resources.js?v=2"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -229,11 +229,30 @@
 <div class="resources-controls">
 <label>Search documents<input id="resources-search" type="search" placeholder="Document name or keyword" autocomplete="off"></label>
 <label>Category<select id="resources-category-filter"><option>All categories</option><option>Forms</option><option>Reports</option><option>Reference</option><option>General</option></select></label>
-<div id="resources-admin-actions" class="resources-admin-actions hidden"><button id="resources-new" type="button" class="primary">Upload Document</button></div>
+<div id="resources-admin-actions" class="resources-admin-actions hidden">
+<button id="resources-new" type="button" class="primary">Upload Document</button>
+<button id="resources-manage-categories" type="button" class="secondary" aria-controls="resources-categories-panel" aria-expanded="false">Manage Categories</button>
+</div>
 </div>
 <div id="resources-message" class="help" role="status" aria-live="polite"></div>
 <div id="resources-count" class="resources-count"></div>
 <div id="resources-list" class="resources-list" aria-label="Division IV inspector documents"></div>
+<section id="resources-categories-panel" class="resources-categories-panel hidden" aria-labelledby="resources-categories-heading">
+<div class="review-title">
+<div><h3 id="resources-categories-heading">Manage Resource Categories</h3>
+<p class="muted">Create one consistent category list for every Division IV document. Changes apply to all inspectors immediately after they refresh Resources.</p></div>
+<button id="resources-categories-close" type="button" class="secondary">Close</button>
+</div>
+<form id="resources-category-add-form" class="resources-category-add-form">
+<label for="resources-category-new-name">New category name
+<input id="resources-category-new-name" name="category_name" type="text" minlength="2" maxlength="50" placeholder="Example: Training Materials" required></label>
+<button id="resources-category-add" class="primary" type="submit">Add Category</button>
+</form>
+<p class="help">Use short, descriptive names. Renaming updates existing files. To retire a category, move its files to another category first; you can restore a retired category later. <strong>General</strong> stays available as the default.</p>
+<p id="resources-category-message" class="help" role="status" aria-live="polite"></p>
+<div id="resources-category-list" class="resources-category-list" aria-label="Managed document categories"></div>
+</section>
+
 <section id="resources-version-history" class="resources-history hidden">
 <div class="review-title"><h3>Document history</h3><button id="resources-clear-history" type="button" class="secondary">Close</button></div>
 </section>
