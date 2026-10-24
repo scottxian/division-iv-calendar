@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=11"><script defer src="bootstrap.js"></script><script defer src="app.js?v=26"></script>
-<script defer src="lodges-admin.js?v=2"></script><script defer src="site-settings-admin.js?v=1"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=12"><script defer src="bootstrap.js"></script><script defer src="app.js?v=27"></script>
+<script defer src="lodges-admin.js?v=2"></script><script defer src="site-settings-admin.js?v=2"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -285,10 +285,26 @@
 <label class="wide">Publishing Google Calendar ID <input name="calendar_id" required maxlength="200"></label>
 <label class="wide">Calendar time zone (IANA name) <input name="calendar_timezone" required maxlength="80"></label>
 <p class="wide help">Changing the Calendar ID also changes the destination for future calendar publishing. Existing Google event links may no longer match. An additional confirmation is required.</p>
-<div class="wide"><h3>Top Dropdown Menu</h3>
-<p class="muted">These same links appear on every Wix page. Use a Wix destination such as <code>lodges.html</code>, a secure URL beginning with https://, or a saved destination such as <code>@event_requests</code>.</p>
+<div class="wide" id="website-menu-editor"><h3>Top Dropdown Menu <span class="chip">Administrators only</span></h3>
+<p class="muted">Manage the menu links shown across the public Division IV Wix pages. These links open public pages or the existing Inspector Desk sign-in; editing a link does not grant anyone additional access.</p>
+<details class="website-menu-help" id="website-menu-help">
+<summary>How do I edit menu links? <span class="website-help-hint">Show instructions and examples</span></summary>
+<div class="website-menu-help-body">
+<p><strong>Dropdown:</strong> Choose which top menu contains this link: Division, Lodges, Calendar, or Inspectors. Home is a separate permanent link.</p>
+<p><strong>Menu text:</strong> Enter what visitors should read, such as <strong>View Calendar</strong> or <strong>Lodge Directory</strong>.</p>
+<p><strong>Destination:</strong> Pick a common Wix page or a saved website link. Choose <strong>Custom link</strong> only when you need another page or a secure <code>https://</code> URL. Saved links automatically follow changes you make in the website settings above.</p>
+<p><strong>Order:</strong> Use the arrows to move a link higher or lower. Remove only deletes a link from the dropdown after you save; it does not delete the destination page. Use <strong>Preview</strong> to test where it opens.</p>
+<p><strong>Save:</strong> Click <strong>Save Website Settings</strong> below, then reload a Wix page to see the updated menu. <strong>Restore saved links</strong> undoes unsaved menu edits.</p>
+<div class="website-menu-examples">
+<div><strong>Wix page</strong><code>calendar.html</code><span>Opens the calendar embedded on Wix</span></div>
+<div><strong>Saved link</strong><code>@event_requests</code><span>Uses the event-request address configured above</span></div>
+<div><strong>External page</strong><code>https://example.org/page</code><span>Opens a secure external website</span></div>
+</div>
+<p class="help"><strong>Privacy:</strong> Only signed-in administrators can load or save these settings. This does not make private inspector data public.</p>
+</div></details>
+<p class="website-menu-intro"><strong>Menu links</strong> <span class="muted">Select a dropdown, enter the visible link text, then select where it goes. The Preview control opens the destination without saving.</span></p>
 <div id="website-menu-links" class="website-menu-list"></div>
-<div class="form-actions"><button type="button" id="website-menu-add" class="secondary">Add menu link</button><button type="button" id="website-menu-reset" class="secondary">Restore saved links</button></div></div>
+<div class="form-actions website-menu-tools"><button type="button" id="website-menu-add" class="secondary">Add menu link</button><button type="button" id="website-menu-reset" class="secondary">Undo unsaved menu changes</button></div></div>
 <div class="wide form-actions"><span id="website-settings-message" class="help" role="status" aria-live="polite"></span><button type="submit" id="website-settings-save" class="primary">Save Website Settings</button></div>
 </form>
 </section>
