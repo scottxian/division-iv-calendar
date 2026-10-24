@@ -620,7 +620,7 @@ async function loadDashboard(){
   if(!d.recent?.length)recent.append(dashboardElement('p','muted','No recent activity.'));
  }catch(ex){stats.textContent='Unable to load dashboard: '+ex.message;toast(ex.message,true)}
 }
-$('dashboard-refresh').onclick=()=>Promise.allSettled([loadDashboard(),loadLodges(),window.loadCalendarSync?.(),window.loadWebsitePreview?.()]);
+$('dashboard-refresh').onclick=()=>Promise.allSettled([loadDashboard(),window.loadCalendarSync?.(),window.loadWebsitePreview?.()]);
 let eventPage=0;
 async function loadEvents(p=0){
  eventPage=Math.max(0,p);
@@ -720,9 +720,10 @@ async function activateInspectorTab(key){
   return;
  }
  all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
- for(const k of ['dashboard','requests','events','resources','history','staff','settings'])
+ for(const k of ['dashboard','lodges','requests','events','resources','history','staff','settings'])
   $('tab-'+k).classList.toggle('hidden',k!==key);
- if(key==='dashboard'){await Promise.allSettled([loadDashboard(),loadLodges(),window.loadCalendarSync?.(),window.loadWebsitePreview?.()]);}
+ if(key==='dashboard'){await Promise.allSettled([loadDashboard(),window.loadCalendarSync?.(),window.loadWebsitePreview?.()]);}
+ if(key==='lodges')await window.loadLodges?.();
  if(key==='requests')await loadRequests(0);
  if(key==='events')await loadEvents(0);
  if(key==='resources')await window.loadResources?.();
