@@ -830,6 +830,27 @@ async function loadStaff(){
     };
     buttons.append(edit);
     if(s.role==='inspector'){
+     const toggle=document.createElement('button');
+     toggle.type='button';
+     toggle.className=s.enabled?'secondary':'primary';
+     toggle.textContent=s.enabled?'Deactivate':'Activate';
+     toggle.setAttribute('aria-label',(s.enabled?'Deactivate ':'Activate ')+(s.display_name||s.email));
+     toggle.title=s.enabled?'Temporarily disable sign-in and inspector access':'Restore sign-in and inspector access';
+     toggle.onclick=async()=>{
+      const actions=[...buttons.querySelectorAll('button')];
+      actions.forEach(button=>button.disabled=true);
+      try{
+       const result=await api('staff-toggle',{
+        id:s.id,expected_enabled:s.enabled,enabled:!s.enabled
+       });
+       toast(result.message||'Inspector access updated');
+       await loadStaff();
+      }catch(ex){
+       toast(ex.message,true);
+       actions.forEach(button=>button.disabled=false);
+      }
+     };
+     buttons.append(toggle);
      const remove=document.createElement('button');remove.type='button';remove.className='danger';
      remove.textContent='Remove inspector';
      remove.onclick=async()=>{
