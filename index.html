@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=12"><script defer src="bootstrap.js"></script><script defer src="app.js?v=27"></script>
-<script defer src="lodges-admin.js?v=2"></script><script defer src="site-settings-admin.js?v=2"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=13"><script defer src="bootstrap.js"></script><script defer src="app.js?v=28"></script>
+<script defer src="lodges-admin.js?v=2"></script><script defer src="site-settings-admin.js?v=2"></script><script defer src="resources.js?v=1"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -131,6 +131,7 @@
 <button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
 <button class="tab" data-tab="requests" type="button">Review Requests</button>
 <button class="tab" data-tab="events" type="button">Manage Published Events</button>
+<button class="tab" data-tab="resources" type="button">Resources</button>
 <button class="tab" data-tab="history" type="button">Status Log</button>
 <button class="tab admin-only hidden" data-tab="staff" type="button">Inspectors</button>
 <button class="tab admin-only hidden" data-tab="settings" type="button">Settings</button>
@@ -221,6 +222,35 @@
 </div>
 </section>
 <section id="event-detail" class="panel hidden" aria-live="polite"></section>
+</section>
+<section id="tab-resources" class="panel hidden">
+<div class="review-title"><div><h3>Division IV Resources</h3><p class="muted">Private document library shared by every active Division IV inspector and administrator.</p></div>
+<button type="button" id="resources-refresh" class="secondary">Refresh</button></div>
+<div class="resources-controls">
+<label>Search documents<input id="resources-search" type="search" placeholder="Document name or keyword" autocomplete="off"></label>
+<label>Category<select id="resources-category-filter"><option>All categories</option><option>Forms</option><option>Reports</option><option>Reference</option><option>General</option></select></label>
+<div id="resources-admin-actions" class="resources-admin-actions hidden"><button id="resources-new" type="button" class="primary">Upload Document</button></div>
+</div>
+<div id="resources-message" class="help" role="status" aria-live="polite"></div>
+<div id="resources-count" class="resources-count"></div>
+<div id="resources-list" class="resources-list" aria-label="Division IV inspector documents"></div>
+<section id="resources-version-history" class="resources-history hidden">
+<div class="review-title"><h3>Document history</h3><button id="resources-clear-history" type="button" class="secondary">Close</button></div>
+</section>
+<section id="resources-editor" class="resources-editor hidden">
+<h3 id="resources-editor-title">Upload a document</h3>
+<div class="form-grid">
+<label>Document title <input id="resources-document-title" maxlength="160" placeholder="Example: Inspector Report Template" required></label>
+<label>Category <select id="resources-document-category"><option>General</option><option>Forms</option><option>Reports</option><option>Reference</option></select></label>
+<label class="wide">Description (optional) <textarea id="resources-document-description" rows="3" maxlength="1200" placeholder="What is this document used for?"></textarea></label>
+<div id="resources-file-wrap" class="wide"><label>Choose document<input id="resources-file" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png"></label></div>
+<p id="resources-upload-help" class="wide help">Only administrators can upload or change documents.</p>
+</div>
+<div class="resources-editor-actions"><button id="resources-cancel-meta" type="button" class="secondary">Cancel</button>
+<button id="resources-save-meta" type="button" class="primary hidden">Save Details</button>
+<button id="resources-upload" type="button" class="primary">Upload Document</button></div>
+</section>
+<input id="resources-replace-file" type="file" class="hidden" tabindex="-1" aria-hidden="true" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png">
 </section>
 <section id="tab-history" class="panel hidden">
 <h3>Status Log</h3>
