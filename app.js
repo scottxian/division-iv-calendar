@@ -836,18 +836,37 @@ async function loadStaff(){
      toggle.textContent=s.enabled?'Deactivate':'Activate';
      toggle.setAttribute('aria-label',(s.enabled?'Deactivate ':'Activate ')+(s.display_name||s.email));
      toggle.title=s.enabled?'Temporarily disable sign-in and inspector access':'Restore sign-in and inspector access';
-     toggle.onclick=async()=>{
-      const actions=[...buttons.querySelectorAll('button')];
-      actions.forEach(button=>button.disabled=true);
+     toggle.onclick=async event=>{
+      // Handle the status change entirely within this row: no list replacement,
+      // edit-form navigation, or scroll/focus changes.
+      event.preventDefault();
+      event.stopPropagation();
+      if(toggle.dataset.pending==='1')return;
+      toggle.dataset.pending='1';
+      toggle.disabled=true;
+      const requested=!s.enabled;
       try{
        const result=await api('staff-toggle',{
-        id:s.id,expected_enabled:s.enabled,enabled:!s.enabled
+        id:s.id,expected_enabled:s.enabled,enabled:requested
        });
+       // Update only the record status on success, leaving every other
+       // element (including the editing form and scroll position) untouched.
+       s.enabled=result.staff.enabled===true;
+       const updatedAccess=s.enabled?'Active':'Disabled';
+       meta.textContent=[s.email,nice(s.role),
+        s.district?'District '+s.district:null,
+        s.member_number?'Member '+s.member_number:null,
+        updatedAccess].filter(Boolean).join(' · ');
+       toggle.textContent=s.enabled?'Deactivate':'Activate';
+       toggle.className=s.enabled?'secondary':'primary';
+       toggle.setAttribute('aria-label',(s.enabled?'Deactivate ':'Activate ')+(s.display_name||s.email));
+       toggle.title=s.enabled?'Temporarily disable sign-in and inspector access':'Restore sign-in and inspector access';
        toast(result.message||'Inspector access updated');
-       await loadStaff();
       }catch(ex){
        toast(ex.message,true);
-       actions.forEach(button=>button.disabled=false);
+      }finally{
+       toggle.disabled=false;
+       delete toggle.dataset.pending;
       }
      };
      buttons.append(toggle);
