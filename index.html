@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Calendar Requests</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=10"><script defer src="bootstrap.js"></script><script defer src="app.js?v=24"></script>
-<script defer src="lodges-admin.js?v=2"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="assets/division-iv-emblem.png"><link rel="stylesheet" href="styles.css?v=10"><script defer src="bootstrap.js"></script><script defer src="app.js?v=25"></script>
+<script defer src="lodges-admin.js?v=2"></script><script defer src="site-settings-admin.js?v=1"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
@@ -144,6 +144,19 @@
 <section><h3>Requests needing attention</h3><div id="dashboard-requests" class="dashboard-list"></div></section>
 <section><h3>Calendar delivery failures</h3><div id="dashboard-failures" class="dashboard-list"></div></section>
 </div>
+<section class="dashboard-activity" id="dashboard-sync-panel">
+<div class="review-title"><div><h3>Google Calendar Sync</h3>
+<p class="muted">Latest delivery status for published and cancelled events.</p></div><button id="calendar-sync-refresh" type="button" class="secondary">Refresh Sync Status</button></div>
+<div id="calendar-sync-summary" class="dashboard-stats" aria-live="polite">Loading calendar sync…</div>
+<div id="calendar-sync-issues" class="dashboard-list"></div>
+<p class="help" id="calendar-sync-checked"></p></section>
+<section class="dashboard-activity" id="dashboard-website-preview"><h3>View the Public Website</h3>
+<p class="muted">Open the public page to confirm that published updates are visible.</p>
+<div class="website-preview-links">
+<a id="preview-site-home" class="secondary" href="https://headless-odfdmxtmddz-scottyjchristian-1410.wix-site-host.com" target="_blank" rel="noopener noreferrer">Public Homepage ↗</a>
+<a id="preview-site-calendar" class="secondary" href="https://headless-odfdmxtmddz-scottyjchristian-1410.wix-site-host.com/calendar.html" target="_blank" rel="noopener noreferrer">Public Calendar ↗</a>
+<a id="preview-site-lodges" class="secondary" href="https://headless-odfdmxtmddz-scottyjchristian-1410.wix-site-host.com/lodges.html" target="_blank" rel="noopener noreferrer">Lodge Directory ↗</a>
+</div></section>
 <section class="dashboard-activity"><h3>Recent activity</h3><div id="dashboard-recent" class="dashboard-list"></div></section>
 <section class="dashboard-activity" id="dashboard-lodges">
 <div class="review-title"><div><h3>Lodges</h3>
@@ -260,6 +273,26 @@
 <div class="wide form-actions"><button type="submit" class="primary">Save Inspector</button><button type="button" id="staff-form-clear" class="secondary">Clear Form</button></div>
 </form></section>
 <section id="tab-settings" class="panel hidden"><h3>Administration Settings</h3>
+<section id="website-settings-section">
+<h3>Division IV Website Settings</h3>
+<p class="muted">Edit public website destinations in one place. Wix pages load these settings automatically when opened. Only administrators can save them.</p>
+<form id="website-settings-form" class="form-grid">
+<label class="wide">Public Wix website address <input type="url" name="website_site_url" required></label>
+<label class="wide">Event submission and change-request URL <input type="url" name="website_event_request_url" required></label>
+<label class="wide">Inspector Desk / sign-in URL <input type="url" name="website_inspector_desk_url" required></label>
+<label class="wide">Grand Lodge finder URL <input type="url" name="website_grand_lodge_url" required></label>
+<label class="wide">Backup public calendar URL <input type="url" name="website_calendar_fallback_url" required></label>
+<label class="wide">Publishing Google Calendar ID <input name="calendar_id" required maxlength="200"></label>
+<label class="wide">Calendar time zone (IANA name) <input name="calendar_timezone" required maxlength="80"></label>
+<p class="wide help">Changing the Calendar ID also changes the destination for future calendar publishing. Existing Google event links may no longer match. An additional confirmation is required.</p>
+<div class="wide"><h3>Top Dropdown Menu</h3>
+<p class="muted">These same links appear on every Wix page. Use a Wix destination such as <code>lodges.html</code>, a secure URL beginning with https://, or a saved destination such as <code>@event_requests</code>.</p>
+<div id="website-menu-links" class="website-menu-list"></div>
+<div class="form-actions"><button type="button" id="website-menu-add" class="secondary">Add menu link</button><button type="button" id="website-menu-reset" class="secondary">Restore saved links</button></div></div>
+<div class="wide form-actions"><span id="website-settings-message" class="help" role="status" aria-live="polite"></span><button type="submit" id="website-settings-save" class="primary">Save Website Settings</button></div>
+</form>
+</section>
+<hr>
 <label>Calendar subscription links included in outgoing emails <textarea id="email-links" rows="6" placeholder="Google Calendar: https://...&#10;Apple / Outlook: https://..."></textarea></label>
 <p class="help">You and Morrison can update these links. They appear in emails once the email provider is configured.</p>
 <button type="button" id="save-links" class="secondary">Save Email Links</button>
