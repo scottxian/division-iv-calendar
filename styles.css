@@ -190,3 +190,25 @@ header .nav-btn{color:#f0e0b8}header .nav-btn:hover,header .nav-btn.active{backg
 header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
 .eyebrow{color:#906622}.primary{border-color:var(--navy)}.primary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 @media(max-width:760px){.brand-emblem{height:46px;width:46px}.brand b{font-size:21px}}
+
+/* Inspector Dashboard: one lodge list with expandable editor. */
+.lodge-admin-table-head,.lodge-admin-row{display:grid;grid-template-columns:minmax(175px,1.3fr) minmax(92px,.55fr) minmax(160px,1fr) auto;gap:14px;align-items:center}
+.lodge-admin-table-head{color:var(--muted);background:#f3f6f9;border:1px solid var(--border);border-radius:9px 9px 0 0;padding:10px 14px;font-size:12px}
+.lodge-admin-list{border:1px solid var(--border);border-top:0;border-radius:0 0 9px 9px;overflow:hidden}
+.lodge-admin-row{width:100%;background:#fff;border:0;border-bottom:1px solid var(--border);text-align:left;padding:14px;cursor:pointer;color:var(--ink);font:inherit}
+.lodge-admin-row:last-child{border-bottom:0}
+.lodge-admin-row:hover,.lodge-admin-row.selected{background:#f3f7fb}
+.lodge-admin-row strong{display:block;font-size:14px}
+.lodge-admin-row small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.lodge-district{font-weight:650;font-size:13px}
+.lodge-inspector{font-size:13px;color:var(--muted)}
+.lodge-edit-action{color:var(--navy);font-size:13px;font-weight:750;white-space:nowrap}
+.lodge-edit-panel{margin-top:23px;border:1px solid #bed0df;border-radius:11px;padding:22px;background:#f8fafc}
+#lodge-edit-history{margin-top:12px}
+@media(max-width:710px){
+ .lodge-admin-table-head{display:none}
+ .lodge-admin-row{grid-template-columns:minmax(0,1fr) auto;gap:5px 14px}
+ .lodge-inspector{grid-column:1;grid-row:3}
+ .lodge-edit-action{grid-column:2;grid-row:1 / 4;align-self:center}
+ .lodge-edit-panel{padding:15px}
+}
