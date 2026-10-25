@@ -97,7 +97,7 @@ function show(view){
  for(const k of ['public','signin','admin'])$(k+'-view').classList.toggle('hidden',k!==view);
  for(const k of ['public','signin','admin'])$('nav-'+k).classList.toggle('active',k===view);
  $('notice').classList.add('hidden');window.scrollTo({top:0});
- if(view==='admin')activateInspectorTab('dashboard');
+ if(view==='admin'&&!$('admin-view').classList.contains('mfa-locked'))activateInspectorTab('dashboard');
 }
 
 // Branded, accessible confirmation dialogs (rather than browser-name alerts).
@@ -220,8 +220,11 @@ async function identity(){
   $('staff-role').textContent=nice(m.staff.role);
   all('.admin-only').forEach(x=>x.classList.toggle('hidden',m.staff.role!=='admin'));
  }
- window.divisionSecurityInit?.(m.staff);
+ const blocked=!!(m.staff?.role==='admin'&&(!m.mfa||m.mfa.required&&!m.mfa.verified));
+ $('admin-view').classList.toggle('mfa-locked',blocked);
+ window.divisionSecurityInit?.(m.staff,m.mfa);
 }
+window.divisionRefreshIdentity=identity;
 async function init(){
  try{
   const conf=await api('config');state.config=conf;
@@ -715,6 +718,9 @@ async function eventDetail(id){
  }catch(e){host.textContent=e.message;toast(e.message,true)}
 }
 async function activateInspectorTab(key){
+ if($('admin-view').classList.contains('mfa-locked')){
+  toast('Complete authenticator verification to access the Inspector Desk.',true);return;
+ }
  if((key==='staff'||key==='settings'||key==='lodges')&&state.staff?.role!=='admin'){
   toast('Administrator access is required to manage lodges, inspectors or website settings.',true);
   return;
