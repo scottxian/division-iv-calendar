@@ -339,3 +339,7 @@ header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
 #lodge-admin-edit-note{margin:8px 0 16px}
 #tab-lodges .lodge-admin-row:focus-visible{outline:3px solid var(--gold);outline-offset:-3px;position:relative;z-index:1}
 @media(max-width:650px){.lodge-view-summary{grid-template-columns:1fr}.lodge-filters label{flex-basis:100%}}
+
+/* Show only the MFA verification panel until server-approved step-up. */
+#admin-view.mfa-locked .tabs,
+#admin-view.mfa-locked [id^="tab-"]{display:none!important}
