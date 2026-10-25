@@ -158,14 +158,40 @@ function locationControls(form){
  const toggle=form.elements.location_tbd;
  const inputs=locationNames.map(name=>form.elements[name]).filter(Boolean);
  const details=toggle.closest('details');
+ const eventMode=form.elements.event_mode;
+ const eventType=form.elements.event_type;
+ const virtualField=form.elements.virtual_meeting_url;
+ const districtField=form.elements.district;
  function update(){
-  if(toggle.checked){
-   for(const field of inputs){field.value='';field.disabled=true;field.required=false;}
-  }else{
-   for(const field of inputs){field.disabled=false;field.required=form.id==='new-form'&&field.name!=='location_address2';}
-   if(form.id==='new-form'&&!form.elements.location_state.value)form.elements.location_state.value='CA';
+  const online=eventMode?.value==='online';
+  const divisionWide=eventType?.value==='Division School of Instruction';
+  if(districtField){
+   const label=districtField.closest('label');
+   if(divisionWide){districtField.value='';districtField.disabled=true;districtField.required=false;}
+   else{districtField.disabled=false;districtField.required=form.id!=='modify-form';}
+   label?.classList.toggle('hidden',divisionWide);
+   const mark=label?.querySelector('.req');
+   if(mark)mark.classList.toggle('hidden',divisionWide);
   }
-  details.classList.toggle('tbd-selected',toggle.checked);
+  if(virtualField){
+   const label=virtualField.closest('label');
+   label?.classList.toggle('hidden',!online);
+   virtualField.disabled=!online;
+   virtualField.required=online&&form.id!=='modify-form';
+   if(!online)virtualField.value='';
+  }
+  toggle.disabled=!!online;
+  if(online)toggle.checked=false;
+  for(const field of inputs){
+   const needsAddress=!online&&!toggle.checked;
+   field.disabled=!needsAddress;
+   field.required=needsAddress&&form.id!=='modify-form'&&field.name!=='location_address2';
+   if(!needsAddress)field.value='';
+  }
+  if(!online&&!toggle.checked&&form.id!=='modify-form'&&!form.elements.location_state.value)form.elements.location_state.value='CA';
+  details.classList.toggle('tbd-selected',toggle.checked&&!online);
+  details.classList.toggle('online-selected',online);
+  if(online)details.open=true;
  }
  const headerToggle=toggle.closest('.location-header-toggle');
  if(headerToggle){
@@ -176,6 +202,8 @@ function locationControls(form){
   update();
   if(!toggle.checked)details.open=true;
  });
+ eventMode?.addEventListener('change',update);
+ eventType?.addEventListener('change',update);
  form.addEventListener('invalid',e=>{if(details.contains(e.target))details.open=true;},true);
  update();
  return update;
@@ -253,7 +281,7 @@ $('new-form').onsubmit=async e=>{
  e.preventDefault();const btn=e.submitter;busy(btn,true);
  try{
   const f=values(e.target),event={};
-  for(const k of ['title','event_type','hosted_by','district','start_local','end_local','event_mode','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_phone','poc_email','cost_details'])event[k]=f[k]??'';
+  for(const k of ['title','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_phone','poc_email','cost_details'])event[k]=f[k]??'';
   const result=await api('submit',{kind:'new',name:f.contact_name,email:f.contact_email,phone:f.contact_phone,message:f.contact_message,website:f.website||'',turnstile_token:turnstileToken,event});
   notify('Request received.\nRequest ID: '+result.request_code+'\nSave this number. Your event is pending inspector review, not yet published.');
   e.target.reset();syncNewLocation();turnstileToken='';if(window.turnstile)window.turnstile.reset();
@@ -273,7 +301,7 @@ $('lookup-button').onclick=async e=>{
   const result=await api('locate',null,{code});
   state.event=result.event;state.original={};
   const form=$('modify-form');
-  for(const k of ['title','event_type','hosted_by','district','event_mode','location_name','location_address1','location_address2','location_city','location_state','location_zip','public_description','location_tbd','poc_name','poc_phone','poc_email','cost_details']){
+  for(const k of ['title','event_type','hosted_by','district','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','public_description','location_tbd','poc_name','poc_phone','poc_email','cost_details']){
     const v=k==='location_address1'?(result.event.location_address1||result.event.location_address||''):(result.event[k]??'');
     state.original[k]=v;
     if(form.elements[k]){
@@ -335,7 +363,7 @@ $('prev-page').onclick=()=>loadRequests(page-1);
 $('next-page').onclick=()=>loadRequests(page+1);
 
 /* Inspector review and published-event management. The original submission is never overwritten. */
-const editorFields=['title','event_type','hosted_by','district','start_local','end_local','event_mode','public_description',
+const editorFields=['title','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','public_description',
  'location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd',
  'attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_phone','poc_email','cost_details'];
 function eventFormValues(e={}){
@@ -370,26 +398,7 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
  for(const key of ['poc_name','poc_phone','poc_email'])if(!initial[key]&&f.elements[key])f.elements[key].required=false;
  const details=f.querySelector('.location-details');
  if(details)details.open=false;
- function toggleLocation(){
-  const tbd=!!f.elements.location_tbd.checked;
-  for(const key of locationNames){
-   const field=f.elements[key];if(!field)continue;
-   field.required=!tbd&&key!=='location_address2';
-   field.disabled=tbd;
-   if(tbd)field.value='';
-  }
-  details?.classList.toggle('tbd-selected',tbd);
- }
- const headerToggle=f.elements.location_tbd.closest('.location-header-toggle');
- if(headerToggle){
-  headerToggle.addEventListener('click',e=>e.stopPropagation());
-  headerToggle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')e.stopPropagation()});
- }
- f.elements.location_tbd.addEventListener('change',()=>{
-  toggleLocation();
-  if(!f.elements.location_tbd.checked)details.open=true;
- });
- toggleLocation();
+ locationControls(f);
  const controls=document.createElement('div');controls.className='form-actions';
  const caption=document.createElement('span');caption.textContent=buttonLabel==='Save & Update Calendar'?'Saving updates the published event and queues Google Calendar synchronization.':'Changes stay in review until an inspector approves them.';
  const submit=document.createElement('button');submit.type='submit';submit.className='primary';submit.textContent=buttonLabel;
