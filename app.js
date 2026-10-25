@@ -220,9 +220,12 @@ async function identity(){
   $('staff-role').textContent=nice(m.staff.role);
   all('.admin-only').forEach(x=>x.classList.toggle('hidden',m.staff.role!=='admin'));
  }
- const blocked=!!(m.staff?.role==='admin'&&(!m.mfa||m.mfa.required&&!m.mfa.verified));
+ const blocked=!!(m.staff&&(!m.mfa||m.mfa.required&&!m.mfa.verified));
+ const wasLocked=$('admin-view').classList.contains('mfa-locked');
  $('admin-view').classList.toggle('mfa-locked',blocked);
  window.divisionSecurityInit?.(m.staff,m.mfa);
+ // Restore the first work tab only after the server confirms an AAL2 session.
+ if(wasLocked&&!blocked&&state.view==='admin')void activateInspectorTab('dashboard');
 }
 window.divisionRefreshIdentity=identity;
 async function init(){
