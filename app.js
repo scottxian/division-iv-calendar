@@ -502,17 +502,6 @@ async function detail(id){
    }
   }else{
    actions.textContent='Decision recorded. The original approval remains in the history.';
-   if(r.status==='approved'&&r.approved_event_id&&d.event?.status==='active'){
-    const edit=document.createElement('button');
-    edit.type='button';edit.className='primary';edit.textContent='Edit & Update Calendar';
-    edit.onclick=()=>{
-     const event=d.event;
-     inspectorEditor($('inspector-editor-host'),eventFormValues(event),
-       async fields=>{if(await savePublishedInspectorEdit(event,fields))await detail(id);},
-       'Save & Update Calendar');
-    };
-    target.querySelector('.review-title').append(edit);
-   }
   }
   const jobs=d.calendar||[],job=jobs[0],status=d.event?calendarState(d.event,job):null;
   const sent=(d.email||[]).filter(x=>x.status==='sent').length;
