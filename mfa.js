@@ -26,6 +26,21 @@ function factorsFrom(payload){
  if(Array.isArray(user.factors))return user.factors;
  throw Error('The authenticator settings response was unexpected. Please refresh.');
 }
+function qrImageSource(value){
+ const raw=String(value||'').trim();
+ // The REST API returns SVG markup (sometimes prefixed with an XML declaration).
+ // Supabase's JS client, which this site does not use, normally turns it into a data URL.
+ const svg=raw.startsWith('data:image/svg+xml')?raw.slice(raw.indexOf(',')+1):raw;
+ const normalized=svg.trimStart().replace(/^\uFEFF/,'');
+ if(!/^<(?:\?xml\b|svg\b)/i.test(normalized))throw Error('QR code format unavailable; use the manual setup option.');
+ return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(normalized);
+}
+async function discardFactor(factorId){
+ const s=(await db.auth.getSession()).data.session;
+ if(!s?.access_token)throw Error('Sign in again to cancel setup.');
+ await authFetch('factors/'+encodeURIComponent(factorId),{method:'DELETE',
+  headers:{authorization:'Bearer '+s.access_token}});
+}
 function securePanel(){
  const host=document.getElementById('admin-view');
  if(!host)return null;
@@ -109,18 +124,53 @@ async function showMfa(staff){
     if(!data?.id||!data?.totp?.secret)throw Error('Authenticator enrollment could not be started.');
     pending=data.id;
     btn.remove();
-    const instructions=make('p','help','Scan this QR code in an authenticator app, or enter the setup secret manually. Then enter the six-digit code to finish.');
+    const instructions=make('p','help','Scan the QR code using your authenticator app. If you cannot scan it, open the manual setup option. Enter the six-digit code to finish.');
     host.append(instructions);
-    if(data.totp.qr_code){
-      const img=make('img','');img.alt='Authenticator enrollment QR code';
-      img.style.width='190px';img.style.maxWidth='100%';
-      const qr=data.totp.qr_code;
-      img.src=qr.startsWith('<svg')?'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(qr):qr;
-      host.append(img);
+    const img=make('img','');
+    img.alt='Authenticator setup QR code';img.width=200;img.height=200;
+    img.style.width='200px';img.style.height='200px';img.style.maxWidth='100%';img.style.display='block';
+    const qrStatus=make('p','help');qrStatus.setAttribute('role','status');
+    img.addEventListener('error',()=>{
+      img.remove();
+      say(qrStatus,'QR image could not be displayed. Use the manual setup option, or cancel and restart.',true);
+    });
+    host.append(img,qrStatus);
+    try{
+      img.src=qrImageSource(data.totp.qr_code);
+    }catch(err){
+      img.remove();
+      say(qrStatus,err.message||'QR image unavailable; use the manual setup option.',true);
     }
-    const secret=make('p','help','Manual setup secret: '+data.totp.secret);
-    secret.style.overflowWrap='anywhere';host.append(secret);
+    const manual=make('details','');
+    const summary=make('summary','', 'Use manual setup key instead');
+    const key=make('input','');
+    key.type='password';key.readOnly=true;key.value=data.totp.secret;
+    key.autocomplete='off';key.setAttribute('aria-label','Manual authenticator setup key');
+    key.style.maxWidth='100%';key.style.width='280px';
+    const reveal=make('button','secondary','Show key');
+    reveal.type='button';reveal.addEventListener('click',()=>{
+      key.type=key.type==='password'?'text':'password';
+      reveal.textContent=key.type==='password'?'Show key':'Hide key';
+    });
+    const privateNote=make('p','help','Keep this setup key private. Do not screenshot or share it.');
+    manual.append(summary,privateNote,key,reveal);
+    host.append(manual);
     promptCode(host,'First six-digit code',async code=>completeChallenge(data.id,code));
+    const cancel=make('button','secondary','Cancel setup and discard this key');
+    cancel.type='button';cancel.style.marginTop='12px';
+    const cancelStatus=make('p','help');cancelStatus.setAttribute('role','status');
+    cancel.addEventListener('click',async()=>{
+      cancel.disabled=true;say(cancelStatus,'Discarding the unfinished authenticator setup…');
+      try{
+        await discardFactor(data.id);
+        pending=null;
+        key.value='';
+        await window.divisionSecurityInit?.(window.divisionCurrentStaff);
+      }catch(err){
+        cancel.disabled=false;say(cancelStatus,err.message||'Unable to discard factor. Please sign in again.',true);
+      }
+    });
+    host.append(cancel,cancelStatus);
    }catch(err){btn.disabled=false;host.append(make('p','help',err.message||'Unable to enroll authenticator.'))}
   });
  }catch(err){
