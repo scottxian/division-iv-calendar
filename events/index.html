@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Division IV | Event Submissions</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="/app/assets/division-iv-emblem.png"><link rel="stylesheet" href="/app/styles.css?v=15"><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=32"></script>
+<script defer src="/app/lodges-admin.js?v=3"></script><script defer src="/app/site-settings-admin.js?v=2"></script><script defer src="/app/resources.js?v=2"></script>
+</head><body>
+<a href="#content" class="skip">Skip to content</a>
+<header><div class="container topbar">
+<div class="brand"><img class="brand-emblem" src="/app/assets/division-iv-emblem.png" width="54" height="54" alt="Division IV Masons emblem"><div><b>Division IV</b><small>Calendar &amp; Events</small></div></div>
+<nav aria-label="Main navigation"><button id="nav-public" class="nav-btn active" type="button">Event Requests</button><a href="/calendar/" class="nav-btn">View Calendar</a><button id="nav-admin" class="nav-btn hidden" type="button">Inspector Desk</button><button id="nav-signin" class="nav-btn" type="button">Inspector Sign In</button><button id="nav-signout" class="nav-btn hidden" type="button">Sign Out</button></nav>
+</div></header>
+<noscript><div class="container banner">JavaScript must be enabled to sign in or submit an event.</div></noscript><main class="container" id="content">
+<div class="hero"><div class="eyebrow">Division IV · Masonic Events</div><h1>Calendar requests, made simple.</h1><p>Submit an event, change the details, or request a cancellation. An authorized inspector reviews each request before it reaches the public calendar.</p><p><a href="/calendar/" class="secondary" style="display:inline-block;text-decoration:none;font-size:15px">View the Public Calendar →</a></p></div>
+<div id="notice" class="notice hidden" role="status" aria-live="polite"></div>
+<datalist id="host-choices"></datalist>
+<datalist id="venue-choices"><option value="Lodge Hall"></option><option value="Masonic Temple"></option></datalist>
+<datalist id="city-choices"></datalist>
+<datalist id="cost-choices"><option value="Free"></option><option value="Donation"></option><option value="No charge"></option><option value="Pay at the door"></option></datalist>
+<datalist id="attire-choices"><option value="Business attire"></option><option value="Coat and tie"></option><option value="Tuxedo"></option><option value="Masonic regalia"></option><option value="Casual"></option></datalist>
+<datalist id="audience-choices"><option value="All Masons"></option><option value="Master Masons"></option><option value="Members and guests"></option><option value="Family and friends"></option><option value="Open to the public"></option></datalist>
+<section id="public-view">
+<div id="banner" class="banner hidden" role="status">Public event submissions are currently unavailable. Please contact a Division IV inspector.</div>
+<div class="choices" role="group" aria-label="What would you like to do?">
+<button type="button" class="choice" data-mode="new"><span class="symbol">＋</span><strong>New Event</strong><small>Add an event to the Division IV calendar</small></button>
+<button type="button" class="choice" data-mode="change"><span class="symbol">✎</span><strong>Change an Event</strong><small>Change only the details you need</small></button>
+<button type="button" class="choice" data-mode="cancel"><span class="symbol">×</span><strong>Cancel an Event</strong><small>Request cancellation of an existing event</small></button>
+</div>
+
+<section id="new-panel" class="panel hidden">
+<h2>New Event</h2><p class="muted">Fields marked * are required. Optional information can be added below.</p>
+<form id="new-form">
+<div class="form-title">Event details</div>
+<div class="form-grid">
+<label class="wide"><span class="field-caption">Event title <span class="req" aria-label="required">*</span></span><input name="title" maxlength="180" required placeholder="Example: Entered Apprentice Degree"></label>
+<label><span class="field-caption">Event type <span class="req" aria-label="required">*</span></span><select id="event-type" name="event_type" required><option value="">Choose event type</option></select></label>
+<label><span class="field-caption">Hosting lodge or organization <span class="req" aria-label="required">*</span></span><input name="hosted_by" list="host-choices" maxlength="180" autocomplete="off" required placeholder="Type or choose a lodge (e.g., Lodge No. 123)"></label>
+<label><span class="field-caption">District <span class="req" aria-label="required">*</span></span><select name="district" id="new-district" required><option value="">Choose district</option></select></label>
+<label><span class="field-caption">Event format <span class="req" aria-label="required">*</span></span><select name="event_mode" required><option value="in_person">In person</option><option value="hybrid">Hybrid (in person and online)</option><option value="online">Online only</option></select></label>
+<label><span class="field-caption">Start date and time <span class="req" aria-label="required">*</span></span><input name="start_local" type="datetime-local" required></label>
+<label><span class="field-caption">End date and time <span class="req" aria-label="required">*</span></span><input name="end_local" type="datetime-local" required></label>
+<label class="wide"><span class="field-caption">Public event description <span class="req" aria-label="required">*</span></span><textarea name="public_description" rows="4" maxlength="4000" required placeholder="What is happening? Who is invited? Add helpful details for attendees."></textarea></label>
+</div>
+<details id="new-location-details" class="location-details form-section"><summary><span class="location-summary-title">Location details</span><label class="checkline location-tbd-toggle location-header-toggle"><input id="new-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD</strong></label></summary>
+<p class="help">For online events, supply a meeting link instead of an address. For in-person events, complete the venue and address or select Location TBD.</p>
+<div class="form-grid"><label class="wide virtual-link-field hidden"><span class="field-caption">Online meeting link <span class="req" aria-label="required">*</span></span><input name="virtual_meeting_url" type="url" placeholder="https://example.org/meeting"></label></div>
+<div class="form-grid location-inputs">
+<label class="wide"><span class="field-caption">Location / Venue Name <span class="req" aria-label="required">*</span></span><input name="location_name" list="venue-choices" required placeholder="Choose or enter: Lodge Hall, Masonic Temple..."></label>
+<label class="wide"><span class="field-caption">Address Line 1 <span class="req" aria-label="required">*</span></span><input name="location_address1" required placeholder="Example: 123 Main Street"></label>
+<label class="wide"><span class="field-caption">Address Line 2 (optional)</span><input name="location_address2" placeholder="Suite, floor, building, etc."></label>
+<label><span class="field-caption">City <span class="req" aria-label="required">*</span></span><input name="location_city" list="city-choices" required placeholder="Choose or enter a city"></label>
+<label><span class="field-caption">State <span class="req" aria-label="required">*</span></span><select name="location_state" required><option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA" selected>California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="DC">District of Columbia</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option></select></label>
+<label><span class="field-caption">ZIP Code <span class="req" aria-label="required">*</span></span><input name="location_zip" placeholder="Example: 95624" required inputmode="numeric" autocomplete="postal-code" maxlength="10" pattern="[0-9]{5}(-[0-9]{4})?" title="Enter a 5-digit ZIP code or ZIP+4"></label>
+</div>
+</details>
+<details class="form-section"><summary>More event information <span class="location-hint">— Optional</span></summary>
+<div class="form-grid">
+<label>Cost (optional) <input name="cost_details" list="cost-choices" maxlength="180" placeholder="Choose or enter: Free, $20, dinner $25, donation..."></label>
+<label>Dress / attire <input name="attire" list="attire-choices" placeholder="Choose or enter: Coat and tie, casual..."></label><label>Who is invited? <input name="invited_audience" list="audience-choices" placeholder="Choose or enter: All Masons, guests..."></label>
+<label class="wide">Registration link <input name="registration_url" type="url" placeholder="https://example.org/register"></label>
+<label class="wide">Payment link <input name="payment_url" type="url" placeholder="https://example.org/pay"></label>
+<label class="wide">Flyer or invitation link <input name="flyer_url" type="url" placeholder="https://example.org/event-flyer"></label>
+</div></details>
+<div class="form-title">Event point of contact (published on calendar)</div>
+<p class="help">Enter the person members should call with questions about the event. This may be different from the person submitting the request. The POC name, phone number and email will be visible on the public Google Calendar.</p>
+<div class="form-grid">
+<label><span class="field-caption">POC name <span class="req" aria-label="required">*</span></span><input name="poc_name" maxlength="150" autocomplete="off" required placeholder="Contact person's full name"></label>
+<label><span class="field-caption">POC phone <span class="req" aria-label="required">*</span></span><input name="poc_phone" type="tel" maxlength="50" autocomplete="off" required placeholder="Phone number to publish"></label>
+<label><span class="field-caption">POC email <span class="req" aria-label="required">*</span></span><input name="poc_email" type="email" maxlength="250" autocomplete="off" required placeholder="Email address to publish"></label>
+</div>
+<div class="form-title">Your contact information (not published)</div>
+<div class="form-grid">
+<label><span class="field-caption">Name <span class="req" aria-label="required">*</span></span><input name="contact_name" autocomplete="name" maxlength="150" required placeholder="Your full name"></label>
+<label><span class="field-caption">Email <span class="req" aria-label="required">*</span></span><input name="contact_email" type="email" autocomplete="email" required placeholder="you@example.org"></label>
+<label>Telephone (optional)<input name="contact_phone" type="tel" autocomplete="tel" placeholder="(916) 555-0123"></label>
+<label class="wide">Message for inspector (optional)<textarea name="contact_message" rows="2" placeholder="Anything the inspector should know (not published)"></textarea></label>
+</div>
+<input name="website" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" placeholder="Leave blank">
+<div id="turnstile-widget" aria-label="Anti-spam verification"></div>
+<div class="form-actions"><span>Submission does not publish the event immediately.</span><button type="submit" class="primary">Submit for Review →</button></div>
+</form></section>
+<section id="existing-panel" class="panel hidden">
+<h2 id="lookup-title">Change an Event</h2>
+<p>Enter the <strong>original Request ID</strong> from your submission confirmation or approval email. If you cannot find it, ask an inspector.</p>
+<div class="form-grid">
+<label><span class="field-caption">Original Request ID <span class="req" aria-label="required">*</span></span><input id="lookup-code" placeholder="DIV4-20261018-..." autocapitalize="characters"></label>
+<label><span class="field-caption">Original contact email <span class="req" aria-label="required">*</span></span><input type="email" id="lookup-email" placeholder="name@example.com"></label>
+</div><p class="help">We'll verify the original email before displaying the event.</p>
+<button type="button" class="primary" id="lookup-button">Verify &amp; Find Event →</button>
+<div id="existing-editor" class="hidden"><hr><h3 id="event-being-edited"></h3><p class="muted" id="event-summary"></p>
+<form id="modify-form">
+<div id="edit-fields">
+<div class="form-grid">
+<label class="wide">Event title <input name="title"></label>
+<label>Event type <select name="event_type" id="edit-event-type"><option value="">Choose event type</option></select></label>
+<label>Hosting lodge or organization <input name="hosted_by" list="host-choices" maxlength="180" autocomplete="off"></label>
+<label>District <select name="district" id="edit-district"><option value="">Choose district</option></select></label>
+<label>Event format <select name="event_mode"><option value="in_person">In person</option><option value="hybrid">Hybrid</option><option value="online">Online only</option></select></label>
+<label>Start date and time <input type="datetime-local" name="start_local"></label>
+<label>End date and time <input type="datetime-local" name="end_local"></label>
+<label class="wide">Public event description <textarea name="public_description" rows="4" placeholder="Event details for the public calendar"></textarea></label>
+<label>Event POC name (public) <input name="poc_name" maxlength="150"></label>
+<label>Event POC phone (public) <input name="poc_phone" type="tel" maxlength="50"></label>
+<label>Event POC email (public) <input name="poc_email" type="email" maxlength="250"></label>
+<label>Cost (optional) <input name="cost_details" list="cost-choices" maxlength="180" placeholder="Free, $20, dinner $25, donation..."></label>
+</div>
+<details id="edit-location-details" class="location-details form-section"><summary><span class="location-summary-title">Location details</span><label class="checkline location-tbd-toggle location-header-toggle"><input id="edit-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD</strong></label></summary>
+<div class="form-grid"><label class="wide virtual-link-field hidden">Online meeting link <input name="virtual_meeting_url" type="url" placeholder="https://example.org/meeting"></label></div>
+<div class="form-grid location-inputs">
+<label class="wide">Location / Venue Name <input name="location_name" list="venue-choices" placeholder="Choose or enter a venue"></label>
+<label class="wide">Address Line 1 <input name="location_address1" placeholder="Street address"></label>
+<label class="wide">Address Line 2 (optional) <input name="location_address2"></label>
+<label>City <input name="location_city" list="city-choices" placeholder="City"></label>
+<label>State <select name="location_state"><option value="">Choose state</option><option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="DC">District of Columbia</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option></select></label>
+<label>ZIP Code <input name="location_zip" placeholder="5-digit ZIP" inputmode="numeric" maxlength="10" pattern="[0-9]{5}(-[0-9]{4})?"></label>
+</div>
+</details>
+</div>
+<label id="cancel-label" class="wide hidden">Cancellation reason <textarea id="cancel-reason" rows="3" placeholder="Why should this event be cancelled?"></textarea></label>
+<label class="wide">Message for inspector (optional) <textarea id="modify-message" rows="2"></textarea></label>
+<div class="form-actions"><span>Only changed fields are submitted for review.</span><button type="submit" id="modify-submit" class="primary">Submit Changes →</button></div>
+</form></div>
+</section>
+</section>
+<section id="signin-view" class="panel narrow hidden">
+<h2>Inspector Sign In</h2><p class="muted">Enter the email address your administrator approved. We'll email you a secure sign-in link.</p>
+<form id="signin-form"><label>Email address <input type="email" id="signin-email" required autocomplete="email" placeholder="you@example.com"></label><div class="form-actions"><button class="primary full" type="submit">Email Sign-In Link →</button></div></form>
+<p class="help">Inspector accounts must be enabled by an administrator. If your email does not arrive, check Junk/Spam.</p>
+</section>
+<section id="admin-view" class="hidden">
+<div class="admin-head"><div><div class="eyebrow">Inspector Desk</div><h2 id="welcome">Review Requests</h2></div><span class="chip" id="staff-role">Inspector</span></div>
+<div class="tabs">
+<button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
+<button class="tab" data-tab="requests" type="button">Review Requests</button>
+<button class="tab" data-tab="events" type="button">Manage Published Events</button>
+<button class="tab" data-tab="resources" type="button">Resources</button>
+<button class="tab" data-tab="history" type="button">Status Log</button>
+<button class="tab admin-only hidden" data-tab="lodges" type="button">Lodges</button>
+<button class="tab admin-only hidden" data-tab="staff" type="button">Inspectors</button>
+<button class="tab admin-only hidden" data-tab="settings" type="button">Settings</button>
+</div>
+<section id="tab-dashboard" class="panel">
+<div class="review-title"><div><h3>Inspector Dashboard</h3>
+<p class="muted">Requests, calendar delivery problems, and recent changes—all in one place.</p></div>
+<button class="secondary" id="dashboard-refresh" type="button">Refresh</button></div>
+<div class="dashboard-stats" id="dashboard-stats" aria-live="polite"></div>
+<div class="dashboard-columns">
+<section><h3>Requests needing attention</h3><div id="dashboard-requests" class="dashboard-list"></div></section>
+<section><h3>Calendar delivery failures</h3><div id="dashboard-failures" class="dashboard-list"></div></section>
+</div>
+<section class="dashboard-activity" id="dashboard-sync-panel">
+<div class="review-title"><div><h3>Google Calendar Sync</h3>
+<p class="muted">Latest delivery status for published and cancelled events.</p></div><button id="calendar-sync-refresh" type="button" class="secondary">Refresh Sync Status</button></div>
+<div id="calendar-sync-summary" class="dashboard-stats" aria-live="polite">Loading calendar sync…</div>
+<div id="calendar-sync-issues" class="dashboard-list"></div>
+<p class="help" id="calendar-sync-checked"></p></section>
+<section class="dashboard-activity" id="dashboard-website-preview"><h3>View the Public Website</h3>
+<p class="muted">Open the public page to confirm that published updates are visible.</p>
+<div class="website-preview-links">
+<a id="preview-site-home" class="secondary" href="/" target="_blank" rel="noopener noreferrer">Public Homepage ↗</a>
+<a id="preview-site-calendar" class="secondary" href="/calendar/" target="_blank" rel="noopener noreferrer">Public Calendar ↗</a>
+<a id="preview-site-lodges" class="secondary" href="/lodges/" target="_blank" rel="noopener noreferrer">Lodge Directory ↗</a>
+</div></section>
+<section class="dashboard-activity"><h3>Recent activity</h3><div id="dashboard-recent" class="dashboard-list"></div></section>
+</section>
+<section id="tab-lodges" class="panel hidden">
+
+<div class="review-title"><div><h3>Division IV Lodges</h3>
+<p class="muted">Select a lodge to view its details and district. Administrators can edit lodge records and assign lodges to districts.</p></div>
+<button type="button" id="lodge-list-refresh" class="secondary">Refresh Lodges</button></div>
+<div class="lodge-filters">
+<label>Find a lodge<input id="lodge-search" type="search" placeholder="Name, number, city or district" autocomplete="off"></label>
+<label>District<select id="lodge-district-filter"><option value="">All districts</option></select></label>
+</div>
+<div id="lodge-admin-message" class="help" role="status" aria-live="polite"></div>
+<div class="lodge-admin-table-head"><strong>Lodge</strong><strong>District</strong><strong>Assigned inspector</strong><span></span></div>
+<div id="lodge-admin-list" class="lodge-admin-list" aria-label="Division IV lodge list"></div>
+<div id="lodge-edit-panel" class="lodge-edit-panel hidden" aria-live="polite">
+<div class="review-title"><h3 id="lodge-edit-heading">Lodge Details</h3><button type="button" id="lodge-close" class="secondary">Close</button></div>
+<div id="lodge-view-summary" class="lodge-view-summary hidden"></div>
+<p id="lodge-admin-edit-note" class="help hidden">Only administrators can change lodge details and district assignments. All edits are saved with a change history.</p>
+<form id="lodge-edit-form" class="form-grid hidden">
+<label>Lodge name <input name="lodge_name" maxlength="150" required></label>
+<label>Lodge number <input name="lodge_number" maxlength="12" required></label>
+<label>District <select name="district" required><option value="402">402</option><option value="404">404</option><option value="410">410</option><option value="414">414</option><option value="418">418</option><option value="422">422</option><option value="428">428</option><option value="438">438</option></select></label>
+<label>State <input name="state" maxlength="2" value="CA" required></label>
+<label class="wide">Meeting address <input name="address_line1" maxlength="240" required></label>
+<label>City <input name="city" maxlength="120" required></label>
+<label>County <input name="county" maxlength="100"></label>
+<label>Meeting day <input name="meeting_day" maxlength="100" placeholder="Example: 1st Thu"></label>
+<label>Meeting time <input name="meeting_time" maxlength="40" placeholder="Example: 7:30 PM"></label>
+<label class="wide">Schedule notes <input name="meeting_notes" maxlength="300" placeholder="Every month; or list exceptions"></label>
+<label class="wide">Official lodge listing URL <input name="official_url" type="url" maxlength="1000" placeholder="https://member.freemason.org/..."></label>
+<div class="wide form-actions"><span id="lodge-record-version" class="muted"></span><button type="submit" class="primary">Save Lodge Changes</button><button type="button" id="lodge-reload" class="secondary">Discard Changes</button></div>
+</form>
+<div class="form-actions"><button type="button" id="lodge-history-toggle" class="secondary">View Change History</button></div>
+<div id="lodge-edit-history" class="timeline hidden"></div>
+</div>
+</section>
+<div id="tab-requests" class="hidden">
+<section class="panel">
+<div class="filters">
+<label>Request ID / submitter <input id="filter-search" placeholder="Search request or name"></label>
+<label>Status <select id="filter-status"><option value="pending" selected>Pending</option><option value="all">All statuses</option><option value="approved">Approved</option><option value="needs_correction">Needs Correction</option><option value="rejected">Rejected</option></select></label>
+<label>Event type <select id="filter-type"><option value="">All types</option></select></label>
+<label>Lodge <input id="filter-lodge" placeholder="Search lodge"></label>
+<label>Event date from <input id="filter-event-from" type="date"></label>
+<label>Event date through <input id="filter-event-to" type="date"></label>
+<label>Submitted from <input id="filter-from" type="date"></label>
+<label>Submitted through <input id="filter-to" type="date"></label>
+<button type="button" class="secondary" id="refresh-requests">Apply Filters</button>
+</div>
+<div class="list-head"><strong id="count">Requests</strong><small>Click an event to see details</small></div>
+<div id="request-list" class="request-list"></div>
+<div class="pagination"><button type="button" class="secondary" id="prev-page">← Previous</button><span id="page-label">Page 1</span><button type="button" class="secondary" id="next-page">Next →</button></div>
+</section><section id="request-detail" class="panel hidden" aria-live="polite"></section>
+</div>
+<section id="tab-events" class="hidden">
+<section class="panel">
+<h3>Manage Published Events</h3>
+<p class="muted">Find active and cancelled events, check calendar delivery, and edit an approved event directly. Inspector edits are recorded and automatically synchronized.</p>
+<div class="filters">
+<label>Search events<input id="event-search" placeholder="Title, lodge, or event ID"></label>
+<label>Status<select id="event-status"><option value="active">Active</option><option value="all">All</option><option value="cancelled">Cancelled</option></select></label>
+<button type="button" id="event-search-go" class="secondary">Search</button>
+</div>
+<div class="list-head"><strong id="event-count">Events</strong><small>Select an event to manage it</small></div>
+<div id="event-list" class="request-list"></div>
+<div class="pagination">
+<button type="button" id="event-prev" class="secondary">← Previous</button><span id="event-page">Page 1</span>
+<button type="button" id="event-next" class="secondary">Next →</button>
+</div>
+</section>
+<section id="event-detail" class="panel hidden" aria-live="polite"></section>
+</section>
+<section id="tab-resources" class="panel hidden">
+<div class="review-title"><div><h3>Division IV Resources</h3><p class="muted">Private document library shared by every active Division IV inspector and administrator.</p></div>
+<button type="button" id="resources-refresh" class="secondary">Refresh</button></div>
+<div class="resources-controls">
+<label>Search documents<input id="resources-search" type="search" placeholder="Document name or keyword" autocomplete="off"></label>
+<label>Category<select id="resources-category-filter"><option>All categories</option><option>Forms</option><option>Reports</option><option>Reference</option><option>General</option></select></label>
+<div id="resources-admin-actions" class="resources-admin-actions hidden">
+<button id="resources-new" type="button" class="primary">Upload Document</button>
+<button id="resources-manage-categories" type="button" class="secondary" aria-controls="resources-categories-panel" aria-expanded="false">Manage Categories</button>
+</div>
+</div>
+<div id="resources-message" class="help" role="status" aria-live="polite"></div>
+<div id="resources-count" class="resources-count"></div>
+<div id="resources-list" class="resources-list" aria-label="Division IV inspector documents"></div>
+<section id="resources-categories-panel" class="resources-categories-panel hidden" aria-labelledby="resources-categories-heading">
+<div class="review-title">
+<div><h3 id="resources-categories-heading">Manage Resource Categories</h3>
+<p class="muted">Create one consistent category list for every Division IV document. Changes apply to all inspectors immediately after they refresh Resources.</p></div>
+<button id="resources-categories-close" type="button" class="secondary">Close</button>
+</div>
+<form id="resources-category-add-form" class="resources-category-add-form">
+<label for="resources-category-new-name">New category name
+<input id="resources-category-new-name" name="category_name" type="text" minlength="2" maxlength="50" placeholder="Example: Training Materials" required></label>
+<button id="resources-category-add" class="primary" type="submit">Add Category</button>
+</form>
+<p class="help">Use short, descriptive names. Renaming updates existing files. To retire a category, move its files to another category first; you can restore a retired category later. <strong>General</strong> stays available as the default.</p>
+<p id="resources-category-message" class="help" role="status" aria-live="polite"></p>
+<div id="resources-category-list" class="resources-category-list" aria-label="Managed document categories"></div>
+</section>
+
+<section id="resources-version-history" class="resources-history hidden">
+<div class="review-title"><h3>Document history</h3><button id="resources-clear-history" type="button" class="secondary">Close</button></div>
+</section>
+<section id="resources-editor" class="resources-editor hidden">
+<h3 id="resources-editor-title">Upload a document</h3>
+<div class="form-grid">
+<label>Document title <input id="resources-document-title" maxlength="160" placeholder="Example: Inspector Report Template" required></label>
+<label>Category <select id="resources-document-category"><option>General</option><option>Forms</option><option>Reports</option><option>Reference</option></select></label>
+<label class="wide">Description (optional) <textarea id="resources-document-description" rows="3" maxlength="1200" placeholder="What is this document used for?"></textarea></label>
+<div id="resources-file-wrap" class="wide"><label>Choose document<input id="resources-file" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png"></label></div>
+<p id="resources-upload-help" class="wide help">Only administrators can upload or change documents.</p>
+</div>
+<div class="resources-editor-actions"><button id="resources-cancel-meta" type="button" class="secondary">Cancel</button>
+<button id="resources-save-meta" type="button" class="primary hidden">Save Details</button>
+<button id="resources-upload" type="button" class="primary">Upload Document</button></div>
+</section>
+<input id="resources-replace-file" type="file" class="hidden" tabindex="-1" aria-hidden="true" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png">
+</section>
+<section id="tab-history" class="panel hidden">
+<h3>Status Log</h3>
+<p class="muted">See which event changed, who made the change, and when. Open a request or event to see its full record.</p>
+<div class="filters">
+<label>Activity type
+<select id="log-action">
+<option value="">All activity</option>
+<option value="submitted">Submissions</option>
+<option value="approved">Approvals and cancellations</option>
+<option value="inspector_edited">Inspector draft corrections</option>
+<option value="inspector_updated_published">Published event edits</option>
+<option value="inspector_undo_published">Administrator undo</option>
+<option value="calendar_retry_requested">Calendar retries</option>
+<option value="needs_correction">Needs correction</option>
+<option value="rejected">Rejections</option>
+</select>
+</label>
+<button id="refresh-history" class="secondary" type="button">Refresh</button>
+</div><div id="history-content" class="timeline"></div><div class="pagination"><button id="history-prev" type="button" class="secondary">← Previous</button><span id="history-page">Page 1</span><button id="history-next" type="button" class="secondary">Next →</button></div></section>
+<section id="tab-staff" class="panel hidden"><h3>Inspectors</h3>
+<p class="muted">Administrators manage inspector sign-in, district assignments, and private contact records here. Removing access preserves earlier approvals and activity history.</p>
+<div id="staff-list"></div>
+<div class="form-actions"><button type="button" id="toggle-removed" class="secondary">Show removed inspectors</button><button id="staff-new" type="button" class="secondary">Add New Inspector</button></div>
+<hr>
+<h3 id="staff-form-mode">Add Inspector</h3>
+<p class="muted">These addresses and phone numbers are private. They will not appear in the public Wix lodge directory. Fields marked * are required for new inspectors.</p>
+<form id="staff-form" class="form-grid" data-editing="0">
+<div class="wide"><h4>Identity and access</h4></div>
+<label>Email * <input type="email" name="email" maxlength="250" autocomplete="email" required></label>
+<label>Member ID * <input name="member_number" maxlength="20" inputmode="numeric" pattern="[0-9]*" placeholder="Grand Lodge member number"></label>
+<label>First name * <input name="first_name" maxlength="80" autocomplete="given-name"></label>
+<label>Middle name <input name="middle_name" maxlength="80" autocomplete="additional-name"></label>
+<label>Last name * <input name="last_name" maxlength="80" autocomplete="family-name"></label>
+<label>Display name (optional) <input name="display_name" maxlength="150" placeholder="Defaults to full name"></label>
+<label>Office <input name="office_title" maxlength="80" value="Inspector"></label>
+<label>District * <select name="district"><option value="">Select district</option><option value="402">402</option><option value="404">404</option><option value="410">410</option><option value="414">414</option><option value="418">418</option><option value="422">422</option><option value="428">428</option><option value="438">438</option></select></label>
+<label>Role <select name="role"><option value="inspector">Inspector</option><option value="admin">Administrator</option></select></label>
+<label class="checkline"><input type="checkbox" name="enabled" checked> Access enabled</label>
+<div class="wide"><h4>Private contact information</h4></div>
+<label>Home phone <input name="home_phone" type="tel" maxlength="50" autocomplete="tel-national"></label>
+<label>Mobile phone * <input name="mobile_phone" type="tel" maxlength="50" autocomplete="mobile tel"></label>
+<div class="wide"><h4>Private mailing address</h4></div>
+<label class="wide">Address line 1 * <input name="home_address" maxlength="220" autocomplete="address-line1"></label>
+<label class="wide">Address line 2 <input name="home_address2" maxlength="220" autocomplete="address-line2"></label>
+<label>City * <input name="city" maxlength="120" autocomplete="address-level2"></label>
+<label>State * <input name="state" maxlength="2" value="CA" autocomplete="address-level1"></label>
+<label>ZIP * <input name="zip" maxlength="10" inputmode="numeric" autocomplete="postal-code" placeholder="12345 or 12345-6789"></label>
+<input type="hidden" name="phone">
+<div class="wide form-actions"><button type="submit" class="primary">Save Inspector</button><button type="button" id="staff-form-clear" class="secondary">Clear Form</button></div>
+</form></section>
+<section id="tab-settings" class="panel hidden"><h3>Administration Settings</h3>
+<section id="website-settings-section">
+<h3>Division IV Website Settings</h3>
+<p class="muted">Edit public website destinations in one place. Wix pages load these settings automatically when opened. Only administrators can save them.</p>
+<form id="website-settings-form" class="form-grid">
+<label class="wide">Public Wix website address <input type="url" name="website_site_url" required></label>
+<label class="wide">Event submission and change-request URL <input type="url" name="website_event_request_url" required></label>
+<label class="wide">Inspector Desk / sign-in URL <input type="url" name="website_inspector_desk_url" required></label>
+<label class="wide">Grand Lodge finder URL <input type="url" name="website_grand_lodge_url" required></label>
+<label class="wide">Backup public calendar URL <input type="url" name="website_calendar_fallback_url" required></label>
+<label class="wide">Publishing Google Calendar ID <input name="calendar_id" required maxlength="200"></label>
+<label class="wide">Calendar time zone (IANA name) <input name="calendar_timezone" required maxlength="80"></label>
+<p class="wide help">Changing the Calendar ID also changes the destination for future calendar publishing. Existing Google event links may no longer match. An additional confirmation is required.</p>
+<div class="wide" id="website-menu-editor"><h3>Top Dropdown Menu <span class="chip">Administrators only</span></h3>
+<p class="muted">Manage the menu links shown across the public Division IV Wix pages. These links open public pages or the existing Inspector Desk sign-in; editing a link does not grant anyone additional access.</p>
+<details class="website-menu-help" id="website-menu-help">
+<summary>How do I edit menu links? <span class="website-help-hint">Show instructions and examples</span></summary>
+<div class="website-menu-help-body">
+<p><strong>Dropdown:</strong> Choose which top menu contains this link: Division, Lodges, Calendar, or Inspectors. Home is a separate permanent link.</p>
+<p><strong>Menu text:</strong> Enter what visitors should read, such as <strong>View Calendar</strong> or <strong>Lodge Directory</strong>.</p>
+<p><strong>Destination:</strong> Pick a common Wix page or a saved website link. Choose <strong>Custom link</strong> only when you need another page or a secure <code>https://</code> URL. Saved links automatically follow changes you make in the website settings above.</p>
+<p><strong>Order:</strong> Use the arrows to move a link higher or lower. Remove only deletes a link from the dropdown after you save; it does not delete the destination page. Use <strong>Preview</strong> to test where it opens.</p>
+<p><strong>Save:</strong> Click <strong>Save Website Settings</strong> below, then reload a Wix page to see the updated menu. <strong>Restore saved links</strong> undoes unsaved menu edits.</p>
+<div class="website-menu-examples">
+<div><strong>Wix page</strong><code>calendar.html</code><span>Opens the calendar embedded on Wix</span></div>
+<div><strong>Saved link</strong><code>@event_requests</code><span>Uses the event-request address configured above</span></div>
+<div><strong>External page</strong><code>https://example.org/page</code><span>Opens a secure external website</span></div>
+</div>
+<p class="help"><strong>Privacy:</strong> Only signed-in administrators can load or save these settings. This does not make private inspector data public.</p>
+</div></details>
+<p class="website-menu-intro"><strong>Menu links</strong> <span class="muted">Select a dropdown, enter the visible link text, then select where it goes. The Preview control opens the destination without saving.</span></p>
+<div id="website-menu-links" class="website-menu-list"></div>
+<div class="form-actions website-menu-tools"><button type="button" id="website-menu-add" class="secondary">Add menu link</button><button type="button" id="website-menu-reset" class="secondary">Undo unsaved menu changes</button></div></div>
+<div class="wide form-actions"><span id="website-settings-message" class="help" role="status" aria-live="polite"></span><button type="submit" id="website-settings-save" class="primary">Save Website Settings</button></div>
+</form>
+</section>
+<hr>
+<label>Calendar subscription links included in outgoing emails <textarea id="email-links" rows="6" placeholder="Google Calendar: https://...&#10;Apple / Outlook: https://..."></textarea></label>
+<p class="help">You and Morrison can update these links. They appear in emails once the email provider is configured.</p>
+<button type="button" id="save-links" class="secondary">Save Email Links</button>
+<hr><p class="muted">Public submissions, automatic calendar publishing, and outgoing email delivery are being tested before launch.</p>
+</section>
+</section>
+</main>
+<footer><div class="container">Division IV Calendar Requests · All event submissions require inspector approval · Times are Pacific · <a href="/calendar/">View public calendar</a></div></footer>
+<dialog id="division-confirm-dialog" class="division-dialog" aria-labelledby="division-dialog-title" aria-describedby="division-dialog-message">
+<form method="dialog">
+<div class="division-dialog-heading"><div class="division-dialog-brand">Division IV Calendar</div><h3 id="division-dialog-title">Please confirm</h3></div>
+<p id="division-dialog-message"></p>
+<label id="division-dialog-input-label" class="hidden">Reason <textarea id="division-dialog-input" rows="3" maxlength="2000"></textarea></label>
+<p class="division-dialog-error hidden" id="division-dialog-error" role="alert"></p>
+<div class="division-dialog-buttons"><button type="button" class="secondary" id="division-dialog-no">Go back</button><button type="button" class="primary" id="division-dialog-yes">Confirm</button></div>
+</form></dialog>
+<div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+</body></html>
