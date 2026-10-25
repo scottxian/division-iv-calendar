@@ -102,6 +102,7 @@ async function showMfa(staff){
   const response=await authRequest('user');
   if(seq!==requestSeq)return;
   const all=factorsFrom(response),verified=all.filter(x=>x?.factor_type==='totp'&&x.status==='verified');
+  const unfinished=all.filter(x=>x?.factor_type==='totp'&&x.status==='unverified'&&typeof x.id==='string');
   const sess=(await db.auth.getSession()).data.session;
   const status=accessLevel(sess?.access_token||'');
   host.replaceChildren(make('h3','', 'Administrator account security'));
@@ -120,6 +121,9 @@ async function showMfa(staff){
   btn.addEventListener('click',async()=>{
    btn.disabled=true;
    try{
+    // A fresh setup must not reuse earlier unverified seeds. Cancel old attempts
+    // with the current user's authorization before generating new credentials.
+    for(const old of unfinished)await discardFactor(old.id);
     const data=await authRequest('factors',{factor_type:'totp',friendly_name:'Division IV Inspector Desk'});
     if(!data?.id||!data?.totp?.secret)throw Error('Authenticator enrollment could not be started.');
     pending=data.id;
