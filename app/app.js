@@ -220,6 +220,7 @@ async function identity(){
   $('staff-role').textContent=nice(m.staff.role);
   all('.admin-only').forEach(x=>x.classList.toggle('hidden',m.staff.role!=='admin'));
  }
+ window.divisionSecurityInit?.(m.staff);
 }
 async function init(){
  try{
