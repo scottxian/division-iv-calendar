@@ -2,7 +2,7 @@
    Supabase Auth performs factor verification; no TOTP secrets are stored in GitHub or the app database. */
 (()=>{
 'use strict';
-let panel=null,checkedEmail='',requestSeq=0,pending=null;
+let panel=null,requestSeq=0,pending=null;
 const make=(tag,cls,label)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(label!==undefined)n.textContent=label;return n};
 const say=(target,message,bad=false)=>{target.textContent=message;target.style.color=bad?'#a32727':'';};
 function accessLevel(token){
@@ -76,11 +76,11 @@ async function completeChallenge(factorId,code){
 async function showMfa(staff){
  const seq=++requestSeq;
  window.divisionCurrentStaff=staff||null;
- if(!staff||staff.role!=='admin'){if(panel)panel.remove();panel=null;pending=null;checkedEmail='';return}
+ if(!staff||staff.role!=='admin'){if(panel)panel.remove();panel=null;pending=null;return}
  const host=securePanel();if(!host)return;
  host.replaceChildren(make('h3','', 'Administrator account security'),make('p','help','Checking your authenticator settings…'));
  try{
-  const response=await authRequest('factors');
+  const response=await authRequest('user');
   if(seq!==requestSeq)return;
   const all=factorsFrom(response),verified=all.filter(x=>x?.factor_type==='totp'&&x.status==='verified');
   const sess=(await db.auth.getSession()).data.session;
