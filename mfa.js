@@ -47,9 +47,9 @@ function securePanel(){
  if(!panel){
   panel=make('section','panel');
   panel.id='admin-mfa-security';
-  panel.setAttribute('aria-label','Administrator account security');
+  panel.setAttribute('aria-label','Account security');
   panel.style.margin='16px 0';
-  const heading=make('h3','', 'Administrator account security');
+  const heading=make('h3','', 'Account security');
   panel.append(heading);
   const header=host.querySelector('.admin-head');
   if(header)header.insertAdjacentElement('afterend',panel);else host.prepend(panel);
@@ -95,9 +95,9 @@ async function completeChallenge(factorId,code){
 async function showMfa(staff,serverStatus){
  const seq=++requestSeq;
  window.divisionCurrentStaff=staff||null;
- if(!staff||staff.role!=='admin'){if(panel)panel.remove();panel=null;pending=null;return}
+ if(!staff||!['admin','inspector'].includes(staff.role)){if(panel)panel.remove();panel=null;pending=null;return}
  const host=securePanel();if(!host)return;
- host.replaceChildren(make('h3','', 'Administrator account security'),make('p','help','Checking your authenticator settings…'));
+ host.replaceChildren(make('h3','', 'Account security'),make('p','help','Checking your authenticator settings…'));
  try{
   const response=await authRequest('user');
   if(seq!==requestSeq)return;
@@ -108,7 +108,7 @@ async function showMfa(staff,serverStatus){
   const unfinished=all.filter(x=>x?.factor_type==='totp'&&x.status==='unverified'&&typeof x.id==='string');
   const sess=(await db.auth.getSession()).data.session;
   const status=serverStatus?.required?(serverStatus.verified?'aal2':'aal1'):accessLevel(sess?.access_token||'');
-  host.replaceChildren(make('h3','', 'Administrator account security'));
+  host.replaceChildren(make('h3','', 'Account security'));
   if(verified.length){
    if(status==='aal2'){
     host.append(make('p','help','Two-step verification is active for this sign-in.'));
@@ -118,7 +118,7 @@ async function showMfa(staff,serverStatus){
    }
    return;
   }
-  host.append(make('p','help','Administrator access now requires an authenticator app. Set one up to unlock Inspector Desk functions.'));
+  host.append(make('p','help','Inspectors and administrators must enable two-step verification to use the Inspector Desk. Set up your authenticator to continue.'));
   const btn=make('button','secondary','Set up authenticator');
   btn.type='button';host.append(btn);
   btn.addEventListener('click',async()=>{
@@ -182,7 +182,7 @@ async function showMfa(staff,serverStatus){
   });
  }catch(err){
   if(seq!==requestSeq)return;
-  host.replaceChildren(make('h3','', 'Administrator account security'),make('p','help',err.message||'Authenticator settings unavailable. Refresh the page.'));
+  host.replaceChildren(make('h3','', 'Account security'),make('p','help',err.message||'Authenticator settings unavailable. Refresh the page.'));
  }
 }
 window.divisionSecurityInit=showMfa;
