@@ -97,3 +97,31 @@ During real user testing, an enrolled administrator could still access and edit 
 - Supabase database confirms an active administrator account has a verified MFA factor.
 
 **Still required before release:** Actual account-based end-to-end test: sign out, sign in using email link, verify administrator data and edits are denied before entering the authenticator code, complete MFA, then verify the same functions succeed. Automated mock tests and anonymous HTTP tests are not a substitute for this sign-in test.
+
+
+## Universal inspector and administrator MFA policy — October 25, 2026
+
+The policy now requires every active `inspector` **and** `admin` account to complete the email-link sign-in **and** authenticator verification (Supabase `aal2`) before accessing private Inspector Desk records or taking any protected action. New staff members who have not enrolled a factor can access the minimal staff identification and MFA enrollment screen only. Public event submissions, public Google Calendar, lodge directory, and website settings remain public.
+
+Deployed Supabase services:
+- `division-calendar` v37 — checks MFA on both staff roles for protected actions; the `me` action reports MFA status and returns only minimal staff identity until MFA succeeds. Public `config`, `locate`, and `submit` remain outside the staff-only MFA gate.
+- `division-lodges` v9 — requires staff MFA before any private lodge-management operation; existing admin-only role checks remain.
+- `division-resources` v7 — requires staff MFA before private document listing, download, and updates; existing admin-only upload/delete permissions remain.
+- `division-site-settings` v7 — continues to require administrator role **and** verified MFA.
+- `division-jobs` is unchanged and retains its independent internal authorization.
+
+All four protected Edge Functions use the service-role-only `auth.admin.mfa.listFactors({userId})` and the validated session's `aal2` and matching user ID. Auth enrollment lookup failures deny access.
+
+Both live `main` and migration `phase-1-unified-site` now display the same **Account security** setup/challenge panel to either active staff role and hide protected tabs until `me` reports verified MFA. Current staff records and private documents were not changed. No domain/DNS cutover was performed.
+
+**Verification at deployment:**
+- 9/9 server-side authorization scenarios passed in a dependency-isolated harness (AAL1 denial/AAL2 permission for both roles, unverified/no factor denied, tampered JWT subject denied, malformed/error factor lookup denied).
+- 6/6 simulated browser MFA panels passed (enrollment, code challenge, and unlocked states for both admin and inspector).
+- Live HTTP probes: public calendar config, public lodge listing, and public website configuration returned 200; unauthenticated private dashboard, staff administration, resources, lodge admin, and site settings returned 403.
+- Unauthenticated POST requests for event review, staff changes, document upload, lodge changes, and site settings were all rejected (403).
+- Empty public event submission returned ordinary input validation (400), showing that public submission was not blocked by staff MFA.
+- GitHub Pages served the updated app.js v37 and mfa.js v8 (200).
+
+**Outstanding real-user tests:** Sign out and back in with an inspector account. Verify protected information and actions remain inaccessible at `aal1`, enroll TOTP (if not already enrolled), verify the challenge, and confirm the Inspector Desk permits inspector-only tasks while still denying admin functions. Repeat with an administrator; confirm admin settings work only after MFA. Do not share sign-in links, QR codes, or TOTP values. Storage upload/download still requires a dedicated real-file test.
+
+Email sign-in links necessarily precede MFA enrollment/challenge, because the email link establishes the initial user identity. Unauthorized Auth users may still be able to request a magic-link email through Supabase Auth; they receive no protected staff access without an enabled staff record and MFA. The current frontend keeps `create_user:true` to preserve first-time legitimate inspector onboarding. Restricting who can request magic links would require a separately designed, non-enumerating invitation/OTP workflow.
