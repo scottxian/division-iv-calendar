@@ -90,9 +90,9 @@ async function completeChallenge(factorId,code){
   user:answer.user||previous.user
  });
  pending=null;
- await window.divisionSecurityInit?.(window.divisionCurrentStaff);
+ await window.divisionRefreshIdentity?.();
 }
-async function showMfa(staff){
+async function showMfa(staff,serverStatus){
  const seq=++requestSeq;
  window.divisionCurrentStaff=staff||null;
  if(!staff||staff.role!=='admin'){if(panel)panel.remove();panel=null;pending=null;return}
@@ -102,9 +102,12 @@ async function showMfa(staff){
   const response=await authRequest('user');
   if(seq!==requestSeq)return;
   const all=factorsFrom(response),verified=all.filter(x=>x?.factor_type==='totp'&&x.status==='verified');
+  // The server enrollment lookup is authoritative even when Auth /user omits factors.
+  if(serverStatus?.required&&serverStatus?.factorId&&!verified.some(x=>x.id===serverStatus.factorId))
+    verified.unshift({id:serverStatus.factorId,factor_type:'totp',status:'verified'});
   const unfinished=all.filter(x=>x?.factor_type==='totp'&&x.status==='unverified'&&typeof x.id==='string');
   const sess=(await db.auth.getSession()).data.session;
-  const status=accessLevel(sess?.access_token||'');
+  const status=serverStatus?.required?(serverStatus.verified?'aal2':'aal1'):accessLevel(sess?.access_token||'');
   host.replaceChildren(make('h3','', 'Administrator account security'));
   if(verified.length){
    if(status==='aal2'){
