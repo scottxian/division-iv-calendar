@@ -76,3 +76,24 @@ After the final authorization-response correction, **anonymous calendar requests
 - Security advisor reports 17 `RLS Enabled No Policy` informational findings, consistent with deliberate service-role-only access. Do not grant all authenticated users table access to silence these notices.
 - Security advisor reports *Leaked Password Protection Disabled*. The application uses email magic links, not passwords; review this if password-based accounts are later enabled. [Supabase guide](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
 - Authenticated cross-role access, browser MFA interactions, and a real-file workflow have **not** passed end-to-end testing. Do not treat this audit as final security sign-off.
+
+
+## Corrective finding and remediation — MFA authorization bypass
+
+During real user testing, an enrolled administrator could still access and edit protected Inspector Desk content without completing the MFA challenge. This was a confirmed failure of the previous authorization design, not merely a visible-button problem.
+
+**Root cause:** The first server-side check used `user.factors` from `auth.getUser(token)` as proof of enrollment. That property is not guaranteed to be present, and the check silently returned when absent.
+
+**Remediation deployed to production:**
+- `division-calendar` v36, `division-lodges` v8, `division-resources` v6, and `division-site-settings` v6 now call the service-role-only `auth.admin.mfa.listFactors({userId})` to fetch authoritative factor status, fail closed on lookup errors, and check the validated user's `aal2` token claim on every protected administrator operation.
+- All administrators now require a verified MFA factor plus `aal2` for protected functions. Unenrolled administrators retain only the ability to sign in and complete MFA enrollment; inspector-only accounts continue their standard sign-in.
+- The calendar `me` endpoint reports authenticated administrators' required/verified MFA state; the live frontend hides protected tabs until the server reports a verified session.
+- Live site and staged migration use matching updated authorization UI. New domain and old calendar origin remain supported, and no DNS cutover took place.
+
+**Regression verification:**
+- Seven authorization unit scenarios passed (enrolled AAL1 denied, enrolled AAL2 permitted, unenrolled denied, unverified denied, auth lookup failure denied, malformed lookup denied, token-subject mismatch denied).
+- The currently published GitHub Pages HTML, JavaScript, styles and MFA script all return HTTP 200 with current references.
+- Public calendar config and lodge listing return HTTP 200; anonymous staff/document/website administration endpoints return HTTP 403.
+- Supabase database confirms an active administrator account has a verified MFA factor.
+
+**Still required before release:** Actual account-based end-to-end test: sign out, sign in using email link, verify administrator data and edits are denied before entering the authenticator code, complete MFA, then verify the same functions succeed. Automated mock tests and anonymous HTTP tests are not a substitute for this sign-in test.
