@@ -118,7 +118,7 @@ async function showMfa(staff,serverStatus){
    }
    return;
   }
-  host.append(make('p','help','Protect administrative access with an authenticator app. Enrollment is not required until the migration access tests are complete.'));
+  host.append(make('p','help','Administrator access now requires an authenticator app. Set one up to unlock Inspector Desk functions.'));
   const btn=make('button','secondary','Set up authenticator');
   btn.type='button';host.append(btn);
   btn.addEventListener('click',async()=>{
