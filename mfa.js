@@ -15,12 +15,16 @@ async function authRequest(path,body){
   headers:{authorization:'Bearer '+s.access_token},
   ...(body===undefined?{}:{body:JSON.stringify(body)})});
 }
-function factorsFrom(data){
- if(Array.isArray(data))return data;
- if(Array.isArray(data?.factors))return data.factors;
- if(Array.isArray(data?.all))return data.all;
- if(Array.isArray(data?.totp))return [...data.totp,...(data.phone||[])];
- throw Error('Unable to read the authenticator settings. Please refresh.');
+function factorsFrom(payload){
+ // GoTrue's /auth/v1/user response may omit 'factors' until the user enrolls.
+ // Verify that we received an authenticated user object before accepting an empty list.
+ const user=payload?.user&&typeof payload.user==='object'?payload.user:payload;
+ if(!user||typeof user!=='object'||typeof user.id!=='string'||!user.id){
+  throw Error('Unable to verify the signed-in account. Please sign in again.');
+ }
+ if(user.factors==null)return [];
+ if(Array.isArray(user.factors))return user.factors;
+ throw Error('The authenticator settings response was unexpected. Please refresh.');
 }
 function securePanel(){
  const host=document.getElementById('admin-view');
