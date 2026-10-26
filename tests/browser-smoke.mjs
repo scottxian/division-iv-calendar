@@ -39,6 +39,18 @@ try{
  await desktop.locator('#signin-view:not(.hidden)').waitFor();
  pass.push('Public inspector button routes to Inspector Desk');
  await check(desktop,'Inspector sign-in routing','/inspectors/','#signin-view:not(.hidden)','inspectors-desktop.png');
+ // Intercept the OTP endpoint so this checks the destination without emailing anyone.
+ let capturedRedirect=null;
+ await desktop.route('**/auth/v1/otp?*',async route=>{
+  capturedRedirect=new URL(route.request().url()).searchParams.get('redirect_to');
+  await route.fulfill({status:200,contentType:'application/json',body:'{}'});
+ });
+ await desktop.locator('#signin-email').fill('inspector-smoke@example.invalid');
+ await desktop.locator('#signin-form button[type=submit]').click();
+ await desktop.locator('#notice').getByText('Check your email',{exact:false}).waitFor({timeout:10000});
+ assert.equal(capturedRedirect,'https://divisionivmasons.org/inspectors/','Inspector OTP sign-in must explicitly request the Inspector Desk redirect');
+ pass.push('Inspector magic-link destination');
+
 
  const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
  await check(mobile,'Mobile homepage','/','h1','home-mobile.png');
