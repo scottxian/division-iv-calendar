@@ -51,14 +51,14 @@ const required={
  'index.html':['href="/events/"','href="/calendar/"','href="/inspectors/"'],
  'calendar/index.html':['href="/events/"'],
  'lodges/index.html':['href="/events/"'],
- 'events/index.html':['/app/app.js?v=37','/app/mfa.js?v=8'],
- 'inspectors/index.html':['/app/app.js?v=37','/app/mfa.js?v=8']
+ 'events/index.html':['/app/app.js?v=40','/app/mfa.js?v=8'],
+ 'inspectors/index.html':['/app/app.js?v=40','/app/mfa.js?v=8']
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
  for(const needle of needles)if(!html.includes(needle))errors.push(file+': missing '+needle);
 }
-if(read('CNAME').trim()!=='calendar.divisionivmasons.org')errors.push('Staging CNAME changed before approved cutover');
+if(read('CNAME').trim()!=='divisionivmasons.org')errors.push('Release candidate CNAME must be divisionivmasons.org');
 if(!read('app/app.js').includes("location.pathname.startsWith('/inspectors/')"))
  errors.push('Inspector route does not default to private sign-in');
 
