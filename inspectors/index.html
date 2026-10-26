@@ -307,7 +307,7 @@
 <div class="form-actions"><button type="button" id="toggle-removed" class="secondary">Show removed inspectors</button><button id="staff-new" type="button" class="secondary">Add New Inspector</button></div>
 <hr>
 <h3 id="staff-form-mode">Add Inspector</h3>
-<p class="muted">These addresses and phone numbers are private. They will not appear in the public Wix lodge directory. Fields marked * are required for new inspectors.</p>
+<p class="muted">These addresses and phone numbers are private. They will not appear in the public lodge directory. Fields marked * are required for new inspectors.</p>
 <form id="staff-form" class="form-grid" data-editing="0">
 <div class="wide"><h4>Identity and access</h4></div>
 <label>Email * <input type="email" name="email" maxlength="250" autocomplete="email" required></label>
@@ -335,9 +335,9 @@
 <section id="tab-settings" class="panel hidden"><h3>Administration Settings</h3>
 <section id="website-settings-section">
 <h3>Division IV Website Settings</h3>
-<p class="muted">Edit public website destinations in one place. Wix pages load these settings automatically when opened. Only administrators can save them.</p>
+<p class="muted">Edit public website destinations in one place. The public website uses these settings when loaded. Only administrators can save them.</p>
 <form id="website-settings-form" class="form-grid">
-<label class="wide">Public Wix website address <input type="url" name="website_site_url" required></label>
+<label class="wide">Public website address <input type="url" name="website_site_url" required></label>
 <label class="wide">Event submission and change-request URL <input type="url" name="website_event_request_url" required></label>
 <label class="wide">Inspector Desk / sign-in URL <input type="url" name="website_inspector_desk_url" required></label>
 <label class="wide">Grand Lodge finder URL <input type="url" name="website_grand_lodge_url" required></label>
@@ -346,17 +346,17 @@
 <label class="wide">Calendar time zone (IANA name) <input name="calendar_timezone" required maxlength="80"></label>
 <p class="wide help">Changing the Calendar ID also changes the destination for future calendar publishing. Existing Google event links may no longer match. An additional confirmation is required.</p>
 <div class="wide" id="website-menu-editor"><h3>Top Dropdown Menu <span class="chip">Administrators only</span></h3>
-<p class="muted">Manage the menu links shown across the public Division IV Wix pages. These links open public pages or the existing Inspector Desk sign-in; editing a link does not grant anyone additional access.</p>
+<p class="muted">Manage the menu links shown across the public Division IV pages. These links open public pages or the existing Inspector Desk sign-in; editing a link does not grant anyone additional access.</p>
 <details class="website-menu-help" id="website-menu-help">
 <summary>How do I edit menu links? <span class="website-help-hint">Show instructions and examples</span></summary>
 <div class="website-menu-help-body">
 <p><strong>Dropdown:</strong> Choose which top menu contains this link: Division, Lodges, Calendar, or Inspectors. Home is a separate permanent link.</p>
 <p><strong>Menu text:</strong> Enter what visitors should read, such as <strong>View Calendar</strong> or <strong>Lodge Directory</strong>.</p>
-<p><strong>Destination:</strong> Pick a common Wix page or a saved website link. Choose <strong>Custom link</strong> only when you need another page or a secure <code>https://</code> URL. Saved links automatically follow changes you make in the website settings above.</p>
+<p><strong>Destination:</strong> Pick a common website page or a saved website link. Choose <strong>Custom link</strong> only when you need another page or a secure <code>https://</code> URL. Saved links automatically follow changes you make in the website settings above.</p>
 <p><strong>Order:</strong> Use the arrows to move a link higher or lower. Remove only deletes a link from the dropdown after you save; it does not delete the destination page. Use <strong>Preview</strong> to test where it opens.</p>
-<p><strong>Save:</strong> Click <strong>Save Website Settings</strong> below, then reload a Wix page to see the updated menu. <strong>Restore saved links</strong> undoes unsaved menu edits.</p>
+<p><strong>Save:</strong> Click <strong>Save Website Settings</strong> below, then reload a website page to see the updated menu. <strong>Restore saved links</strong> undoes unsaved menu edits.</p>
 <div class="website-menu-examples">
-<div><strong>Wix page</strong><code>calendar.html</code><span>Opens the calendar embedded on Wix</span></div>
+<div><strong>Website page</strong><code>/calendar/</code><span>Opens the public calendar</span></div>
 <div><strong>Saved link</strong><code>@event_requests</code><span>Uses the event-request address configured above</span></div>
 <div><strong>External page</strong><code>https://example.org/page</code><span>Opens a secure external website</span></div>
 </div>
