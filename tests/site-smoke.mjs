@@ -59,6 +59,7 @@ for(const [file,needles] of Object.entries(required)){
  for(const needle of needles)if(!html.includes(needle))errors.push(file+': missing '+needle);
 }
 if(read('CNAME').trim()!=='divisionivmasons.org')errors.push('Release candidate CNAME must be divisionivmasons.org');
+if(!read('app/app.js').includes("$('nav-signin').onclick=()=>{if(!onInspectorRoute)location.assign('/inspectors/');else show('signin')}")) errors.push('Public Inspector Sign In must route to the Inspector Desk');
 if(!read('app/app.js').includes("location.pathname.startsWith('/inspectors/')"))
  errors.push('Inspector route does not default to private sign-in');
 
