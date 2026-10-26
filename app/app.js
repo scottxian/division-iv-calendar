@@ -75,7 +75,7 @@ function canonicalHost(value){
  if(!match||/\b(?:chapter|association|district)\b/i.test(match[1]))return str;
  return match[1].replace(/[,\s]+$/,'').replace(/\s+Lodge$/i,'').trim()+' Lodge No. '+match[2];
 }
-const state={view:'public',mode:null,staff:null,user:null,config:null,event:null,original:null,page:0,historyPage:0,total:0};
+const state={view:'public',mode:null,staff:null,user:null,config:null,event:null,original:null,page:0,historyPage:0,total:0,loginPurpose:'inspector'};
 let toastTimer,turnstileToken='';
 function toast(t,error=false){const x=$('toast');x.textContent=t;x.className='toast'+(error?' error':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.add('hidden'),6500)}
 function notify(t,error=false){const x=$('notice');x.textContent=t;x.className='notice'+(error?' error':'');}
@@ -274,14 +274,15 @@ async function init(){
 all('.choice').forEach(b=>b.addEventListener('click',()=>mode(b.dataset.mode)));
 const onInspectorRoute=location.pathname.startsWith('/inspectors/');
 $('nav-public').onclick=()=>{if(onInspectorRoute)location.assign('/events/');else show('public')};
-$('nav-signin').onclick=()=>{if(!onInspectorRoute)location.assign('/inspectors/');else show('signin')};
+$('nav-signin').onclick=()=>{state.loginPurpose='inspector';if(!onInspectorRoute)location.assign('/inspectors/');else show('signin')};
 $('nav-admin').onclick=()=>{if(!onInspectorRoute)location.assign('/inspectors/');else show('admin')};
 $('nav-signout').onclick=async()=>{await db.auth.signOut();show('public');await identity();toast('Signed out')};
 $('signin-form').onsubmit=async e=>{
  e.preventDefault();const btn=e.submitter;busy(btn,true);
  try{
   const email=$('signin-email').value.trim().toLowerCase();
-  const {error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+  const destination=location.origin+(state.loginPurpose==='event-contact'?'/events/':'/inspectors/');
+  const {error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:destination}});
   if(error)throw error;
   notify('Check your email for the sign-in link. Check Junk or Spam if it does not arrive.');
  }catch(ex){notify(ex.message,true)}finally{busy(btn,false)}
@@ -304,6 +305,7 @@ $('lookup-button').onclick=async e=>{
   if(!code||!email)throw Error('Enter the original Request ID and contact email.');
   const {data:{session}}=await db.auth.getSession();
   if(!session||session.user.email?.toLowerCase()!==email){
+    state.loginPurpose='event-contact';
     $('signin-email').value=email;show('signin');
     notify('Verify the original contact email first. Follow the emailed sign-in link, then return to Change or Cancel.');
     return;
