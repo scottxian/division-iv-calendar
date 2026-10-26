@@ -78,7 +78,7 @@ function canonicalHost(value){
 const state={view:'public',mode:null,staff:null,user:null,config:null,event:null,original:null,page:0,historyPage:0,total:0};
 let toastTimer,turnstileToken='';
 function toast(t,error=false){const x=$('toast');x.textContent=t;x.className='toast'+(error?' error':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.add('hidden'),6500)}
-function notify(t,error=false){const x=$('notice');x.textContent=t;x.className='notice'+(error?' error':'');x.scrollIntoView({block:'center',behavior:'smooth'})}
+function notify(t,error=false){const x=$('notice');x.textContent=t;x.className='notice'+(error?' error':'');}
 function busy(b,v){b.disabled=v;if(!b.dataset.label)b.dataset.label=b.textContent;b.textContent=v?'Working…':b.dataset.label}
 async function api(action,payload=null,filters={}){
  const url=new URL(ROOT+'/functions/v1/division-calendar');
