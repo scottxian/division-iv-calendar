@@ -1,0 +1,24 @@
+name: Unified site staging checks
+
+on:
+  push:
+    branches:
+      - phase-1-unified-site
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out staging
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate navigation, assets, JavaScript, and security boundaries
+        run: node tests/site-smoke.mjs
