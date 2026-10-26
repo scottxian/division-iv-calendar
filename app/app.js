@@ -78,7 +78,7 @@ function canonicalHost(value){
 const state={view:'public',mode:null,staff:null,user:null,config:null,event:null,original:null,page:0,historyPage:0,total:0};
 let toastTimer,turnstileToken='';
 function toast(t,error=false){const x=$('toast');x.textContent=t;x.className='toast'+(error?' error':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.add('hidden'),6500)}
-function notify(t,error=false){const x=$('notice');x.textContent=t;x.className='notice'+(error?' error':'');x.scrollIntoView({block:'center',behavior:'smooth'})}
+function notify(t,error=false){const x=$('notice');x.textContent=t;x.className='notice'+(error?' error':'');}
 function busy(b,v){b.disabled=v;if(!b.dataset.label)b.dataset.label=b.textContent;b.textContent=v?'Working…':b.dataset.label}
 async function api(action,payload=null,filters={}){
  const url=new URL(ROOT+'/functions/v1/division-calendar');
@@ -264,7 +264,6 @@ async function init(){
    document.head.append(s);
   }
   await identity();
-  if(location.pathname.startsWith('/inspectors/')) show(state.staff?'admin':'signin');
   const qs=new URLSearchParams(location.search);
   const action=qs.get('action');
   if(action==='change'||action==='cancel'){mode(action);$('lookup-code').value=qs.get('id')||qs.get('code')||''}
@@ -292,6 +291,7 @@ $('new-form').onsubmit=async e=>{
   for(const k of ['title','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_phone','poc_email','cost_details'])event[k]=f[k]??'';
   const result=await api('submit',{kind:'new',name:f.contact_name,email:f.contact_email,phone:f.contact_phone,message:f.contact_message,website:f.website||'',turnstile_token:turnstileToken,event});
   notify('Request received.\nRequest ID: '+result.request_code+'\nSave this number. Your event is pending inspector review, not yet published.');
+  const receipt=document.createElement('div');receipt.className='notice';receipt.style.whiteSpace='pre-line';receipt.textContent='Request received! Request ID: '+result.request_code+' — Save this number. Pending inspector approval.'; e.target.append(receipt);
   e.target.reset();syncNewLocation();turnstileToken='';if(window.turnstile)window.turnstile.reset();
  }catch(ex){notify(ex.message,true)}finally{busy(btn,false)}
 };
@@ -662,12 +662,16 @@ async function eventDetail(id){
    edit.onclick=()=>inspectorEditor($('event-editor-host'),initial,
      async fields=>{if(await savePublishedInspectorEdit(ev,fields)){await loadEvents(eventPage);await eventDetail(ev.id);}},
      'Save & Update Calendar');
-   const cancel=document.createElement('button');cancel.className='danger';cancel.textContent='Request Cancellation';
+   const cancel=document.createElement('button');cancel.className='danger';cancel.textContent='Cancel Event';
    cancel.onclick=async()=>{
-    const reason=await divisionQuestion('Why should this event be cancelled?',{title:'Cancellation — step 1 of 2',input:true,confirmLabel:'Continue'});
+    const reason=await divisionQuestion('Cancel '+ev.title+'? Enter the cancellation reason. This will queue removal from Google Calendar.',{title:'Cancel Event',input:true,confirmLabel:'Confirm Cancellation',danger:true});
     if(!reason)return;
-    if(!await divisionQuestion('Submit a cancellation request for '+ev.title+'?\n\nReason: '+reason+'\n\nThe event remains published until the cancellation is approved.',{title:'Cancellation — step 2 of 2',confirmLabel:'Submit cancellation',danger:true}))return;
-    try{const data=await api('submit',{kind:'cancel',name:state.staff?.display_name||state.user,email:state.user,request_code:ev.event_code,reason});toast('Cancellation request '+data.request_code+' created. Approve it under Review Requests.');}catch(ex){toast(ex.message,true)}
+    cancel.disabled=true;
+    try{
+     const result=await api('inspector-cancel-event',{event_id:ev.id,reason});
+     toast(result.notice||'Cancellation approved. Calendar update queued.');
+     await loadEvents(eventPage);await eventDetail(ev.id);
+    }catch(ex){toast(ex.message,true);cancel.disabled=false;}
    };
    actions.append(edit,cancel);
   }
