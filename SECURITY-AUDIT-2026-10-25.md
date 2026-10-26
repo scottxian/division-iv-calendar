@@ -137,4 +137,4 @@ Database verification on October 25, 2026:
 - A direct anonymous request for the real object's public URL returned a bucket-not-found error (no public exposure).
 - A direct private-object request without authorization was denied (required authorization header missing).
 
-Status: **Role-specific resource UI and storage privacy verified**. The inspector has not yet explicitly confirmed actually clicking Download and opening the retrieved file; authenticated signed-download URL fulfillment is therefore not marked passed. Separate administrator upload success is confirmed by the new database record and storage object.
+Status: **Private document upload, authenticated inspector download, inspector read-only UI permissions, and direct anonymous storage-denial tests PASSED**. The owner explicitly confirmed that the document downloads from the MFA-verified inspector account. Separate administrator upload success is confirmed by the database record and storage object. Remaining security work: test a dedicated disabled inspector's live session denial and complete final staged-domain sign-in and public-function regression tests.
