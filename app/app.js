@@ -389,7 +389,7 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
  const source=$('new-form');
  for(const child of [...source.children]){
   if(child.classList.contains('form-title')&&child.textContent.includes('Your contact'))break;
-  if(child.classList.contains('form-title')||child.classList.contains('form-grid')||child.matches('details')){
+  if(child.classList.contains('form-title')||child.classList.contains('form-grid')||child.matches('details')||child.matches('.location-tbd-control')){
    const node=child.cloneNode(true);
    node.removeAttribute('id');
    node.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));
