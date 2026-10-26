@@ -70,6 +70,33 @@ try{
  assert.equal(capturedRedirect,base+'/inspectors/','Inspector OTP sign-in must explicitly request the Inspector Desk redirect');
  pass.push('Inspector magic-link destination');
 
+ // A published event must open a real inspector editor, even when Location TBD lives outside <details>.
+ // Intercept the read-only event lookup; no live accounts, event writes, or notifications.
+ await desktop.route('**/functions/v1/division-calendar?*',async route=>{
+  const action=new URL(route.request().url()).searchParams.get('action');
+  if(action==='event-detail'){
+   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+    event:{id:'smoke-event',title:'Test Published Event',event_code:'DIV4-SMOKE',
+     status:'active',version:1,event_mode:'in_person',location_tbd:false,
+     starts_at:'2026-11-10T20:00:00Z',ends_at:'2026-11-10T21:00:00Z',
+     public_description:'Before change'},
+    calendar:[],history:[]
+   })});
+  }else await route.continue();
+ });
+ await desktop.evaluate(()=>{document.getElementById('admin-view').classList.remove('hidden');document.getElementById('tab-events').classList.remove('hidden')});
+ await desktop.evaluate(()=>eventDetail('smoke-event'));
+ const editPublished=desktop.locator('#event-actions button', {hasText:'Edit Published Event'});
+ await editPublished.waitFor({state:'visible',timeout:10000});
+ await editPublished.click();
+ const editor=desktop.locator('#inspector-form');
+ await editor.waitFor({state:'visible',timeout:10000});
+ assert.equal(await editor.locator('input[name=location_tbd]').count(),1,'Published event editor must include Location TBD');
+ assert.equal(await editor.locator('textarea[name=public_description]').count(),1,'Published event editor must include description');
+ await editor.locator('textarea[name=public_description]').fill('TEST EDIT VERIFIED');
+ assert.equal(await editor.locator('textarea[name=public_description]').inputValue(),'TEST EDIT VERIFIED');
+ pass.push('Published event edit button opens functional editor without saving');
+
 
  const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
  await check(mobile,'Mobile homepage','/','h1','home-mobile.png');
