@@ -37,7 +37,7 @@
 @media (prefers-reduced-motion:reduce){#main-nav .nav-chevron{transition:none}}
 
 
-/* The Division IV calendar is embedded on its own Wix page. */
+/* The Division IV calendar is embedded on its GitHub Pages calendar page. */
 .calendar-hero{padding:58px clamp(24px,8vw,130px) 38px;background:linear-gradient(120deg,#07182b,#153452);color:#fff}
 .calendar-hero .eyebrow{margin-bottom:16px}
 .calendar-hero h1{font-size:clamp(50px,6vw,82px);margin-bottom:14px}
@@ -79,3 +79,26 @@
 #main-nav .nav-inspector-login:hover{background:#d7b56e1a;color:#fff}
 @media(max-width:1050px){#main-nav .nav-inspector-login{display:block;border-radius:0;border:0;border-bottom:1px solid #ffffff22;padding:15px 11px;font-size:14px}}
 @media(max-width:600px){.affiliation-banner{padding:14px 17px}.affiliation-rule{display:none}.grand-lodge-link{font-size:13px}}
+
+/* Unified Division IV / Grand Lodge of California identity. */
+.identity{min-width:0;text-decoration:none}
+.identity .division-wordmark,.footer-brand .division-wordmark{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+.identity .brand-affiliation,.footer-brand .brand-affiliation{
+ display:block;color:#f0d99d;font-family:'DM Sans',system-ui,sans-serif;
+ font-size:clamp(10px,.95vw,12px);font-weight:600;letter-spacing:.035em;
+ line-height:1.45;margin-top:6px;text-transform:none;white-space:nowrap
+}
+.identity:hover .brand-affiliation,.identity:focus-visible .brand-affiliation{color:#fff}
+.identity:focus-visible{outline:2px solid var(--gold);outline-offset:6px;border-radius:3px}
+.footer-brand .brand-affiliation{color:#f0d99d}
+@media(max-width:670px){
+ .identity{gap:9px}
+ .identity img{width:44px;height:44px}
+ .identity strong{font-size:13px;letter-spacing:.12em}
+ .identity small{font-size:9px;letter-spacing:.28em;margin-top:2px}
+ .identity .brand-affiliation{font-size:10px;letter-spacing:0;margin-top:3px}
+}
+@media(max-width:380px){
+ .identity img{width:38px;height:38px}
+ .identity .brand-affiliation{font-size:9px}
+}
