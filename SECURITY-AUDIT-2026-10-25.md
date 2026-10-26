@@ -125,3 +125,16 @@ Both live `main` and migration `phase-1-unified-site` now display the same **Acc
 **Outstanding real-user tests:** Sign out and back in with an inspector account. Verify protected information and actions remain inaccessible at `aal1`, enroll TOTP (if not already enrolled), verify the challenge, and confirm the Inspector Desk permits inspector-only tasks while still denying admin functions. Repeat with an administrator; confirm admin settings work only after MFA. Do not share sign-in links, QR codes, or TOTP values. Storage upload/download still requires a dedicated real-file test.
 
 Email sign-in links necessarily precede MFA enrollment/challenge, because the email link establishes the initial user identity. Unauthorized Auth users may still be able to request a magic-link email through Supabase Auth; they receive no protected staff access without an enabled staff record and MFA. The current frontend keeps `create_user:true` to preserve first-time legitimate inspector onboarding. Restricting who can request magic links would require a separately designed, non-enumerating invitation/OTP workflow.
+
+
+## Private resources — first real-document verification
+
+The owner reported successfully uploading a document while signed in as administrator, then using a separate, MFA-verified inspector account and observing only **Download** and **History** actions, with no inspector upload, edit, or removal controls.
+
+Database verification on October 25, 2026:
+- Exactly 1 non-deleted document metadata record in `public.inspector_documents`.
+- Exactly 1 storage object in private bucket `division-inspector-resources`; bucket `public=false`.
+- A direct anonymous request for the real object's public URL returned a bucket-not-found error (no public exposure).
+- A direct private-object request without authorization was denied (required authorization header missing).
+
+Status: **Role-specific resource UI and storage privacy verified**. The inspector has not yet explicitly confirmed actually clicking Download and opening the retrieved file; authenticated signed-download URL fulfillment is therefore not marked passed. Separate administrator upload success is confirmed by the new database record and storage object.
