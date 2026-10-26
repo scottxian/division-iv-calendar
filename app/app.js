@@ -272,9 +272,10 @@ async function init(){
  }catch(e){notify('Connection problem: '+e.message,true)}
 }
 all('.choice').forEach(b=>b.addEventListener('click',()=>mode(b.dataset.mode)));
-$('nav-public').onclick=()=>show('public');
-$('nav-signin').onclick=()=>show('signin');
-$('nav-admin').onclick=()=>show('admin');
+const onInspectorRoute=location.pathname.startsWith('/inspectors/');
+$('nav-public').onclick=()=>{if(onInspectorRoute)location.assign('/events/');else show('public')};
+$('nav-signin').onclick=()=>{if(!onInspectorRoute)location.assign('/inspectors/');else show('signin')};
+$('nav-admin').onclick=()=>{if(!onInspectorRoute)location.assign('/inspectors/');else show('admin')};
 $('nav-signout').onclick=async()=>{await db.auth.signOut();show('public');await identity();toast('Signed out')};
 $('signin-form').onsubmit=async e=>{
  e.preventDefault();const btn=e.submitter;busy(btn,true);
