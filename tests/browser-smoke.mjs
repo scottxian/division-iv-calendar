@@ -34,6 +34,25 @@ try{
  assert.ok(await desktop.locator('iframe[src*="calendar.google.com"]').count(),'Calendar embed not found');
  await check(desktop,'Lodge directory','/lodges/','#lodge-search','lodges-desktop.png');
  await check(desktop,'Public event requests','/events/','#public-view','events-desktop.png');
+ await desktop.locator('.choice[data-mode="new"]').click();
+ const newTbd=desktop.locator('#new-location-tbd');
+ await desktop.locator('#new-form .location-tbd-control').click();
+ assert.equal(await newTbd.isChecked(),true,'New event Location TBD checkbox cannot be clicked');
+ assert.equal(await desktop.locator('#new-form [name="location_name"]').isDisabled(),true,'New event venue is required with TBD selected');
+ await desktop.locator('#new-form .location-tbd-control').click();
+ assert.equal(await newTbd.isChecked(),false,'New event Location TBD cannot be unchecked');
+ assert.equal(await desktop.locator('#new-form [name="location_name"]').isEnabled(),true,'New event venue must be available when TBD is off');
+ await desktop.locator('#new-form select[name="event_mode"]').selectOption('online');
+ assert.equal(await newTbd.isDisabled(),true,'Online-only event should use meeting link rather than Location TBD');
+ assert.equal(await desktop.locator('#new-form [name="virtual_meeting_url"]').isEnabled(),true,'Online meeting link must be enabled');
+ pass.push('New event Location TBD toggling and online mode');
+ await desktop.locator('.choice[data-mode="change"]').click();
+ await desktop.locator('#existing-editor').evaluate(el=>el.classList.remove('hidden'));
+ const editTbd=desktop.locator('#edit-location-tbd');
+ await desktop.locator('#modify-form .location-tbd-control').click();
+ assert.equal(await editTbd.isChecked(),true,'Change event Location TBD checkbox cannot be clicked');
+ assert.equal(await desktop.locator('#modify-form [name="location_name"]').isDisabled(),true,'Change event venue must be disabled for TBD');
+ pass.push('Event change Location TBD toggling');
  await desktop.locator('#nav-signin').click();
  await desktop.waitForURL(base+'/inspectors/',{timeout:10000});
  await desktop.locator('#signin-view:not(.hidden)').waitFor();
@@ -52,13 +71,18 @@ try{
  pass.push('Inspector magic-link destination');
 
 
- const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+ const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
  await check(mobile,'Mobile homepage','/','h1','home-mobile.png');
  const toggle=mobile.locator('#menu-toggle');
  await toggle.click();
  assert.equal(await toggle.getAttribute('aria-expanded'),'true','Mobile menu did not open');
  await mobile.screenshot({path:'test-results/menu-mobile.png',animations:'disabled'});
  pass.push('Mobile navigation');
+ await check(mobile,'Mobile event requests','/events/','#public-view','events-mobile.png');
+ await mobile.locator('.choice[data-mode="new"]').click();
+ await mobile.locator('#new-form .location-tbd-control').tap();
+ assert.equal(await mobile.locator('#new-location-tbd').isChecked(),true,'Touch: new event Location TBD must toggle on mobile');
+ pass.push('Mobile touch Location TBD');
  console.log('PASS:',pass.join('; '));
 }catch(e){
  console.error('BROWSER SMOKE FAILURE:',e.message);
