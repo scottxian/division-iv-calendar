@@ -343,3 +343,10 @@ header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
 /* Show only the MFA verification panel until server-approved step-up. */
 #admin-view.mfa-locked .tabs,
 #admin-view.mfa-locked [id^="tab-"]{display:none!important}
+
+/* Official organizational relationship, distinct from the Division IV app branding. */
+.app-affiliation{padding:9px 20px;text-align:center;background:#f0e6d1;color:#15304b;font-size:12px;line-height:1.5;border-bottom:1px solid #d8c8ab}
+.app-affiliation a{color:#163c5b;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.app-affiliation a:hover{color:#84602d}
+footer a[href="https://freemason.org/"]{text-decoration:underline;text-underline-offset:3px}
+@media(max-width:600px){.app-affiliation{font-size:11px;padding:10px 15px}}
