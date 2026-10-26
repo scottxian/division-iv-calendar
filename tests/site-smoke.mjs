@@ -51,13 +51,26 @@ const required={
  'index.html':['href="/events/"','href="/calendar/"','href="/inspectors/"'],
  'calendar/index.html':['href="/events/"'],
  'lodges/index.html':['href="/events/"'],
- 'events/index.html':['/app/app.js?v=42','/app/mfa.js?v=8'],
- 'inspectors/index.html':['/app/app.js?v=42','/app/mfa.js?v=8']
+ 'events/index.html':['/app/app.js?v=43','/app/mfa.js?v=8'],
+ 'inspectors/index.html':['/app/app.js?v=43','/app/mfa.js?v=8']
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
  for(const needle of needles)if(!html.includes(needle))errors.push(file+': missing '+needle);
 }
+for(const page of ['events/index.html','inspectors/index.html']){
+ const html=read(page);
+ for(const prefix of ['new','edit']){
+  const label='<label class="checkline location-tbd-toggle location-tbd-control"><input id="'+prefix+'-location-tbd"';
+  const detail='<details id="'+prefix+'-location-details"';
+  const labelIndex=html.indexOf(label),detailsIndex=html.indexOf(detail);
+  if(labelIndex<0||detailsIndex<0||labelIndex>detailsIndex)errors.push(page+': Location TBD must appear outside and before location details');
+  const openSummary=html.indexOf('<summary>',detailsIndex);
+  const closeSummary=html.indexOf('</summary>',openSummary);
+  if(html.slice(openSummary,closeSummary).includes('location-tbd'))errors.push(page+': Location TBD cannot be nested inside summary');
+ }
+}
+if(!read('app/app.js').includes("form.querySelector('.location-details')"))errors.push('Location TBD must find sibling details panel');
 if(read('CNAME').trim()!=='divisionivmasons.org')errors.push('Release candidate CNAME must be divisionivmasons.org');
 if(!read('app/app.js').includes("location.assign('/inspectors/')")||!read('app/app.js').includes("state.loginPurpose==='event-contact'?'/events/':'/inspectors/'")) errors.push('Inspector sign-in must use the Inspector Desk redirect');
 if(!read('app/app.js').includes("location.pathname.startsWith('/inspectors/')"))
