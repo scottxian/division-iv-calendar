@@ -10,6 +10,12 @@ a.nav-btn{text-decoration:none;display:inline-flex;align-items:center}
 .location-hint{font-size:12px;font-weight:500;color:var(--muted)}
 .location-tbd-toggle{margin:12px 0 20px;background:#edf4fa;padding:13px 14px;border-radius:9px}
 .location-tbd-toggle input{flex-shrink:0}
+/* Keep the Location TBD choice outside <summary>; nested controls are unreliable on iOS Safari. */
+.location-tbd-control{display:flex;width:fit-content;max-width:100%;margin:20px 0 8px;gap:9px;align-items:center;cursor:pointer;touch-action:manipulation}
+.location-tbd-control input{margin:0;accent-color:#174b6d;cursor:pointer}
+.location-tbd-control:has(input:checked){background:#dcefeb;border:1px solid #8aaca2}
+.location-tbd-control:has(input:disabled){opacity:.6;cursor:not-allowed}
+.location-tbd-control input:focus-visible{outline:2px solid #174b6d;outline-offset:3px}
 .tbd-selected .location-inputs{opacity:.48}
 .location-inputs input:disabled,.location-inputs select:disabled{background:#eef0f3;color:#69737d;cursor:not-allowed}
 @media(max-width:760px){.location-details{padding:0 14px 16px}.location-hint{display:block;margin-left:15px}}
