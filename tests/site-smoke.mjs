@@ -51,8 +51,8 @@ const required={
  'index.html':['href="/events/"','href="/calendar/"','href="/inspectors/"'],
  'calendar/index.html':['href="/events/"'],
  'lodges/index.html':['href="/events/"'],
- 'events/index.html':['/app/app.js?v=41','/app/mfa.js?v=8'],
- 'inspectors/index.html':['/app/app.js?v=41','/app/mfa.js?v=8']
+ 'events/index.html':['/app/app.js?v=42','/app/mfa.js?v=8'],
+ 'inspectors/index.html':['/app/app.js?v=42','/app/mfa.js?v=8']
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
