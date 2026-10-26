@@ -16,14 +16,12 @@
    {group:'lodges',label:'Lodge Directory',href:'lodges.html'},
    {group:'lodges',label:'Grand Lodge Finder ↗',href:'@grand_lodge'},
    {group:'calendar',label:'View Division IV Calendar',href:'calendar.html'},
-   {group:'calendar',label:'Submit / Change Event ↗',href:'@event_requests'},
-   {group:'inspectors',label:'Inspector Area',href:'/inspectors/'},
-   {group:'inspectors',label:'Inspector Desk / Sign In ↗',href:'@inspector_desk'}
+   {group:'calendar',label:'Submit / Change Event ↗',href:'@event_requests'}
   ]
  };
  const menu=document.getElementById('menu-toggle');
  const nav=document.getElementById('main-nav');
- const groups=[['division','Division'],['lodges','Lodges'],['calendar','Calendar'],['inspectors','Inspectors']];
+ const groups=[['division','Division'],['lodges','Lodges'],['calendar','Calendar']];
  const small=window.matchMedia('(max-width:750px)');
  const desktop=()=>window.matchMedia('(min-width:1051px)').matches;
  let userMode=null,config=base,activeGroups=[];
@@ -78,6 +76,7 @@
   home.className='nav-home';
   if(onHome)home.setAttribute('aria-current','page');
   nav.append(home);
+  // Inspector access is always a single top-level link, never a public resources dropdown.
   for(const [id,title] of groups){
    const wrapper=document.createElement('div');wrapper.className='nav-group';
    const button=document.createElement('button');button.className='nav-trigger';button.type='button';
@@ -118,6 +117,9 @@
     if(!wrapper.contains(ev.relatedTarget))setExpanded(wrapper,false);
    });
   }
+  const desk=link('Inspector Login ↗','/inspectors/',false);
+  desk.className='nav-inspector-login';desk.addEventListener('click',closeMenu);
+  nav.append(desk);
   activeGroups=[...nav.querySelectorAll('.nav-group')];
  }
  function applyLinkSettings(s){
