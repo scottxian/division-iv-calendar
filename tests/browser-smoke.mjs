@@ -48,7 +48,7 @@ try{
  await desktop.locator('#signin-email').fill('inspector-smoke@example.invalid');
  await desktop.locator('#signin-form button[type=submit]').click();
  await desktop.locator('#notice').getByText('Check your email',{exact:false}).waitFor({timeout:10000});
- assert.equal(capturedRedirect,'https://divisionivmasons.org/inspectors/','Inspector OTP sign-in must explicitly request the Inspector Desk redirect');
+ assert.equal(capturedRedirect,base+'/inspectors/','Inspector OTP sign-in must explicitly request the Inspector Desk redirect');
  pass.push('Inspector magic-link destination');
 
 
