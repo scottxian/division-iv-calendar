@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Event Submissions</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="/app/assets/division-iv-emblem.png"><link rel="stylesheet" href="/app/styles.css?v=16"><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=42"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="/app/assets/division-iv-emblem.png"><link rel="stylesheet" href="/app/styles.css?v=17"><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=43"></script>
 <script defer src="/app/lodges-admin.js?v=3"></script><script defer src="/app/site-settings-admin.js?v=2"></script><script defer src="/app/resources.js?v=2"></script>
 <script defer src="/app/mfa.js?v=8"></script>
 </head><body>
@@ -42,7 +42,8 @@
 <label><span class="field-caption">End date and time <span class="req" aria-label="required">*</span></span><input name="end_local" type="datetime-local" required></label>
 <label class="wide"><span class="field-caption">Public event description <span class="req" aria-label="required">*</span></span><textarea name="public_description" rows="4" maxlength="4000" required placeholder="What is happening? Who is invited? Add helpful details for attendees."></textarea></label>
 </div>
-<details id="new-location-details" class="location-details form-section"><summary><span class="location-summary-title">Location details</span><label class="checkline location-tbd-toggle location-header-toggle"><input id="new-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD</strong></label></summary>
+<label class="checkline location-tbd-toggle location-tbd-control"><input id="new-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD</strong></label>
+<details id="new-location-details" class="location-details form-section"><summary><span class="location-summary-title">Location details</span></summary>
 <p class="help">For online events, supply a meeting link instead of an address. For in-person events, complete the venue and address or select Location TBD.</p>
 <div class="form-grid"><label class="wide virtual-link-field hidden"><span class="field-caption">Online meeting link <span class="req" aria-label="required">*</span></span><input name="virtual_meeting_url" type="url" placeholder="https://example.org/meeting"></label></div>
 <div class="form-grid location-inputs">
@@ -105,7 +106,8 @@
 <label>Event POC email (public) <input name="poc_email" type="email" maxlength="250"></label>
 <label>Cost (optional) <input name="cost_details" list="cost-choices" maxlength="180" placeholder="Free, $20, dinner $25, donation..."></label>
 </div>
-<details id="edit-location-details" class="location-details form-section"><summary><span class="location-summary-title">Location details</span><label class="checkline location-tbd-toggle location-header-toggle"><input id="edit-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD</strong></label></summary>
+<label class="checkline location-tbd-toggle location-tbd-control"><input id="edit-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD</strong></label>
+<details id="edit-location-details" class="location-details form-section"><summary><span class="location-summary-title">Location details</span></summary>
 <div class="form-grid"><label class="wide virtual-link-field hidden">Online meeting link <input name="virtual_meeting_url" type="url" placeholder="https://example.org/meeting"></label></div>
 <div class="form-grid location-inputs">
 <label class="wide">Location / Venue Name <input name="location_name" list="venue-choices" placeholder="Choose or enter a venue"></label>
