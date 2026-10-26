@@ -114,7 +114,7 @@ async function disabledScenario(){
 }
 try{
  await ready();
- browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
  const desktop=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
  for(const [url,selector,label] of [
   ['/','h1','home-desktop'],
