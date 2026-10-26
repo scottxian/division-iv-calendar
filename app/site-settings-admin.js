@@ -4,7 +4,7 @@
  const endpoint='https://lxvceqshpjnjjlllbpaq.supabase.co/functions/v1/division-site-settings';
  const settingNames=['website_site_url','website_event_request_url','website_inspector_desk_url',
   'website_grand_lodge_url','website_calendar_fallback_url','calendar_id','calendar_timezone'];
- const groups=[['division','Division'],['lodges','Lodges'],['calendar','Calendar'],['inspectors','Inspectors']];
+ const groups=[['division','Division'],['lodges','Lodges'],['calendar','Calendar']];
  let saved=null;
  function message(msg,bad=false){
   const n=e('website-settings-message');if(!n)return;
@@ -27,16 +27,14 @@
   return result.settings;
  }
  const destinations=[
-  ['','Custom website path or HTTPS URL','Enter a path such as /calendar/ or an HTTPS URL.'],
-  ['index.html#about','About Division IV','About section on the homepage'],
-  ['index.html#community','Community','Community section on the homepage'],
-  ['index.html#contact','Contact','Contact section on the homepage'],
-  ['index.html#inspectors','Inspector Area','Inspector information on the homepage'],
-  ['index.html#home','Homepage','Home section of the website'],
-  ['lodges.html','Lodge Directory','Public lodge directory'],
-  ['calendar.html','Public Calendar','Live embedded public calendar'],
+  ['','Custom website path or HTTPS URL','Enter /calendar/, /events/, or a complete HTTPS URL.'],
+  ['/#about','About Division IV','About section on the homepage'],
+  ['/#community','Community','Community section on the homepage'],
+  ['/#contact','Contact','Contact section on the homepage'],
+  ['/#home','Homepage','Home section of the website'],
+  ['/lodges/','Lodge Directory','Public lodge directory'],
+  ['/calendar/','Public Calendar','Live embedded public calendar'],
   ['@event_requests','Saved: Event Submission Link','Automatically uses the event request URL configured above'],
-  ['@inspector_desk','Saved: Inspector Desk Sign In','Automatically uses the inspector sign-in URL configured above'],
   ['@grand_lodge','Saved: Grand Lodge Finder','Uses the official Grand Lodge directory address above'],
   ['@calendar_fallback','Saved: Backup Calendar','Uses the backup public calendar URL above'],
   ['@site_home','Saved: Website Homepage','Uses the website URL above']
@@ -145,8 +143,8 @@
   if(!e('website-settings-form'))return;
   const form=e('website-settings-form');
   for(const key of settingNames)form.elements[key].value=settings[key]??'';
-  showNavigation(settings.website_navigation);
-  saved=structuredClone(settings);
+  showNavigation((settings.website_navigation||[]).filter(item=>item.group!=='inspectors'));
+  saved=structuredClone({...settings,website_navigation:(settings.website_navigation||[]).filter(item=>item.group!=='inspectors')});
   message('Loaded current website settings.');
  }
  async function loadWebsiteSettings(){
