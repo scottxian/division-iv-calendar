@@ -67,3 +67,13 @@
 .calendar-view-controls button.is-active,.calendar-view-controls button[aria-pressed=true]{background:#102a43;color:white;border-color:#102a43}
 .calendar-view-controls button:focus-visible{outline:3px solid #d7b56e;outline-offset:2px}
 @media(max-width:750px){.calendar-view-controls{padding:0 2px}.calendar-embed iframe{min-height:540px;height:72vh;max-height:700px}}
+
+/* Masons of California / Grand Lodge relationship, accessible on mobile too. */
+.division-affiliation{background:#f0e6d1;color:#17314a;padding:10px clamp(20px,5vw,80px);text-align:center;font-size:12px;line-height:1.55;border-bottom:1px solid #d3c3a7}
+.division-affiliation a{color:#112e4b;text-decoration:underline;text-underline-offset:3px;font-weight:700}
+.division-affiliation a:hover{color:#705123}
+.affiliation-separator{padding:0 9px;color:#8e7447}
+.grand-lodge-footer{flex:1 0 100%;display:block!important;border-top:1px solid #ffffff28;padding-top:16px;font-size:12px;line-height:1.6;color:#c6d1db}
+.grand-lodge-footer a{color:#efd6a0;text-decoration:underline;text-underline-offset:3px}
+#about .body-copy a{color:#183f62;text-decoration:underline;text-underline-offset:3px;font-weight:700}
+@media(max-width:670px){.division-affiliation{padding:10px 18px;font-size:11px}.affiliation-separator{padding:0 4px}.grand-lodge-footer{font-size:11px}}
