@@ -5,6 +5,7 @@ on:
     branches:
       - phase-1-unified-site
       - phase-3-release-candidate
+      - main
   workflow_dispatch:
 
 permissions:
