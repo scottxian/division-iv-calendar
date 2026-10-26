@@ -34,6 +34,10 @@ try{
  assert.ok(await desktop.locator('iframe[src*="calendar.google.com"]').count(),'Calendar embed not found');
  await check(desktop,'Lodge directory','/lodges/','#lodge-search','lodges-desktop.png');
  await check(desktop,'Public event requests','/events/','#public-view','events-desktop.png');
+ await desktop.locator('#nav-signin').click();
+ await desktop.waitForURL(base+'/inspectors/',{timeout:10000});
+ await desktop.locator('#signin-view:not(.hidden)').waitFor();
+ pass.push('Public inspector button routes to Inspector Desk');
  await check(desktop,'Inspector sign-in routing','/inspectors/','#signin-view:not(.hidden)','inspectors-desktop.png');
 
  const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
