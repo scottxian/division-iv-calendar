@@ -157,7 +157,7 @@ const locationNames=['location_name','location_address1','location_address2','lo
 function locationControls(form){
  const toggle=form.elements.location_tbd;
  const inputs=locationNames.map(name=>form.elements[name]).filter(Boolean);
- const details=toggle.closest('details');
+ const details=form.querySelector('.location-details');
  const eventMode=form.elements.event_mode;
  const eventType=form.elements.event_type;
  const virtualField=form.elements.virtual_meeting_url;
@@ -192,11 +192,6 @@ function locationControls(form){
   details.classList.toggle('tbd-selected',toggle.checked&&!online);
   details.classList.toggle('online-selected',online);
   if(online)details.open=true;
- }
- const headerToggle=toggle.closest('.location-header-toggle');
- if(headerToggle){
-  headerToggle.addEventListener('click',e=>e.stopPropagation());
-  headerToggle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.stopPropagation()}});
  }
  toggle.addEventListener('change',()=>{
   update();
