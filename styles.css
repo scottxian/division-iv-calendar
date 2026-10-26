@@ -73,27 +73,31 @@
 #main-nav .nav-inspector-login:hover{background:#d7b56e1a;color:#fff}
 @media(max-width:1050px){#main-nav .nav-inspector-login{display:block;border-radius:0;border:0;border-bottom:1px solid #ffffff22;padding:15px 11px;font-size:14px}}
 
-/* One cohesive Division IV wordmark, used in the masthead and footer. */
-.identity{min-width:0;text-decoration:none}
-.identity .division-wordmark,.footer-brand .division-wordmark{
- display:flex;flex-direction:column;align-items:flex-start;min-width:0
-}
-.identity .brand-affiliation,.footer-brand .brand-affiliation{
- display:block;color:var(--goldlight);font-family:'DM Sans',system-ui,sans-serif;
- font-size:10px;font-weight:700;letter-spacing:.09em;line-height:1.45;
- margin-top:5px;text-transform:uppercase;white-space:nowrap
-}
-.identity:hover .brand-affiliation,.identity:focus-visible .brand-affiliation{color:#fff}
-.identity:focus-visible{outline:2px solid var(--gold);outline-offset:6px;border-radius:3px}
+/* Division IV identity: large home-link emblem, unified name, independent Grand Lodge link. */
+header .division-brand{display:flex;align-items:center;gap:16px;min-width:0;flex-shrink:0}
+header .brand-home{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:5px}
+header .brand-home img{display:block;width:76px;height:76px;object-fit:contain}
+header .brand-copy{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}
+header .brand-name{color:#fff;font-family:'DM Sans',system-ui,sans-serif;font-size:clamp(17px,1.2vw,21px);font-weight:700;letter-spacing:.025em;line-height:1.2;white-space:nowrap}
+header .brand-affiliation{color:var(--goldlight);font-family:'DM Sans',system-ui,sans-serif;font-size:clamp(12px,.92vw,14px);font-weight:650;letter-spacing:0;line-height:1.3;white-space:nowrap;transition:color .15s ease}
+header .brand-affiliation:hover,header .brand-affiliation:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:4px}
+header .brand-name:hover,header .brand-name:focus-visible{color:var(--goldlight)}
+header .brand-home:hover img{filter:brightness(1.15)}
+header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-affiliation:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+.footer-brand .division-wordmark{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+.footer-brand .brand-affiliation{display:block;color:var(--goldlight);font-family:'DM Sans',system-ui,sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;line-height:1.45;margin-top:5px}
+@media(max-width:1050px){header .division-brand{gap:12px}header .brand-home img{width:68px;height:68px}}
 @media(max-width:670px){
- header{gap:10px;padding-left:13px;padding-right:13px}
- .identity{gap:9px}
- .identity img{width:43px;height:43px}
- .identity strong{font-size:13px;letter-spacing:.12em}
- .identity small{font-size:9px;letter-spacing:.28em;margin-top:2px}
- .identity .brand-affiliation{font-size:9px;letter-spacing:.035em;margin-top:4px}
+ header{gap:10px;padding-left:15px;padding-right:15px}
+ header .division-brand{gap:10px}
+ header .brand-home img{width:55px;height:55px}
+ header .brand-copy{gap:3px}
+ header .brand-name{font-size:15px;letter-spacing:0}
+ header .brand-affiliation{font-size:11px}
 }
-@media(max-width:380px){
- .identity img{width:38px;height:38px}
- .identity .brand-affiliation{font-size:8px;letter-spacing:.025em}
+@media(max-width:365px){
+ header .brand-home img{width:45px;height:45px}
+ header .brand-name{font-size:13px}
+ header .brand-affiliation{font-size:10px}
 }
+@media(prefers-reduced-motion:reduce){header .brand-affiliation{transition:none}}
