@@ -291,6 +291,7 @@ $('new-form').onsubmit=async e=>{
   for(const k of ['title','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_phone','poc_email','cost_details'])event[k]=f[k]??'';
   const result=await api('submit',{kind:'new',name:f.contact_name,email:f.contact_email,phone:f.contact_phone,message:f.contact_message,website:f.website||'',turnstile_token:turnstileToken,event});
   notify('Request received.\nRequest ID: '+result.request_code+'\nSave this number. Your event is pending inspector review, not yet published.');
+  const receipt=document.createElement('div');receipt.className='notice';receipt.style.whiteSpace='pre-line';receipt.textContent='Request received! Request ID: '+result.request_code+' — Save this number. Pending inspector approval.'; e.target.append(receipt);
   e.target.reset();syncNewLocation();turnstileToken='';if(window.turnstile)window.turnstile.reset();
  }catch(ex){notify(ex.message,true)}finally{busy(btn,false)}
 };
