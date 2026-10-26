@@ -138,3 +138,11 @@ Database verification on October 25, 2026:
 - A direct private-object request without authorization was denied (required authorization header missing).
 
 Status: **Private document upload, authenticated inspector download, inspector read-only UI permissions, and direct anonymous storage-denial tests PASSED**. The owner explicitly confirmed that the document downloads from the MFA-verified inspector account. Separate administrator upload success is confirmed by the database record and storage object. Remaining security work: test a dedicated disabled inspector's live session denial and complete final staged-domain sign-in and public-function regression tests.
+
+## Disabled inspector live-session enforcement test
+
+The owner deactivated their separate WUSD inspector staff account from the administrator login while retaining their primary administrator account. The disabled inspector could still complete email-link authentication, but could access only the public page; refreshing its existing session prevented use of Inspector Desk functions and returned an `inspector account required`-style denial. This is the intended separation of Supabase Auth identity from the application's enabled staff-account authorization.
+
+A read-only database check after the test confirmed enabled administrator accounts remained active while inspector staff records were disabled. **Result: PASSED — revoked inspector authorization was enforced without requiring the user to sign out.**
+
+The inspector account was not reactivated during this audit. Reactivation can be performed from the authorized administrator account after testing.
