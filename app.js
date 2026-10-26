@@ -662,12 +662,16 @@ async function eventDetail(id){
    edit.onclick=()=>inspectorEditor($('event-editor-host'),initial,
      async fields=>{if(await savePublishedInspectorEdit(ev,fields)){await loadEvents(eventPage);await eventDetail(ev.id);}},
      'Save & Update Calendar');
-   const cancel=document.createElement('button');cancel.className='danger';cancel.textContent='Request Cancellation';
+   const cancel=document.createElement('button');cancel.className='danger';cancel.textContent='Cancel Event';
    cancel.onclick=async()=>{
-    const reason=await divisionQuestion('Why should this event be cancelled?',{title:'Cancellation — step 1 of 2',input:true,confirmLabel:'Continue'});
+    const reason=await divisionQuestion('Cancel '+ev.title+'? Enter the cancellation reason. This will queue removal from Google Calendar.',{title:'Cancel Event',input:true,confirmLabel:'Confirm Cancellation',danger:true});
     if(!reason)return;
-    if(!await divisionQuestion('Submit a cancellation request for '+ev.title+'?\n\nReason: '+reason+'\n\nThe event remains published until the cancellation is approved.',{title:'Cancellation — step 2 of 2',confirmLabel:'Submit cancellation',danger:true}))return;
-    try{const data=await api('submit',{kind:'cancel',name:state.staff?.display_name||state.user,email:state.user,request_code:ev.event_code,reason});toast('Cancellation request '+data.request_code+' created. Approve it under Review Requests.');}catch(ex){toast(ex.message,true)}
+    cancel.disabled=true;
+    try{
+     const result=await api('inspector-cancel-event',{event_id:ev.id,reason});
+     toast(result.notice||'Cancellation approved. Calendar update queued.');
+     await loadEvents(eventPage);await eventDetail(ev.id);
+    }catch(ex){toast(ex.message,true);cancel.disabled=false;}
    };
    actions.append(edit,cancel);
   }
