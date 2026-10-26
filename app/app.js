@@ -264,6 +264,7 @@ async function init(){
    document.head.append(s);
   }
   await identity();
+  if(location.pathname.startsWith('/inspectors/')) show(state.staff?'admin':'signin');
   const qs=new URLSearchParams(location.search);
   const action=qs.get('action');
   if(action==='change'||action==='cancel'){mode(action);$('lookup-code').value=qs.get('id')||qs.get('code')||''}

@@ -1,0 +1,49 @@
+name: Unified site staging checks
+
+on:
+  push:
+    branches:
+      - phase-1-unified-site
+      - phase-3-release-candidate
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out staging
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate navigation, assets, JavaScript, and security boundaries
+        run: node tests/site-smoke.mjs
+
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Check out staging
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser smoke test dependency
+        run: npm install --no-save --ignore-scripts playwright@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test public pages, inspector login route and mobile menu
+        run: node tests/browser-smoke.mjs
+      - name: Save visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unified-site-staging-screenshots
+          path: test-results/
+          if-no-files-found: ignore
