@@ -27,19 +27,19 @@
   return result.settings;
  }
  const destinations=[
-  ['','Custom Wix page or HTTPS URL','Enter a Wix page such as calendar.html or an HTTPS URL.'],
-  ['index.html#about','Wix: About Division IV','About section on the Wix homepage'],
-  ['index.html#community','Wix: Community','Community section on the Wix homepage'],
-  ['index.html#contact','Wix: Contact','Contact section on the Wix homepage'],
-  ['index.html#inspectors','Wix: Inspector Area','Inspector information on the Wix homepage'],
-  ['index.html#home','Wix: Homepage','Home section of the Wix website'],
-  ['lodges.html','Wix: Lodge Directory','Public lodge directory'],
-  ['calendar.html','Wix: Public Calendar','Live embedded public calendar'],
+  ['','Custom website path or HTTPS URL','Enter a path such as /calendar/ or an HTTPS URL.'],
+  ['index.html#about','About Division IV','About section on the homepage'],
+  ['index.html#community','Community','Community section on the homepage'],
+  ['index.html#contact','Contact','Contact section on the homepage'],
+  ['index.html#inspectors','Inspector Area','Inspector information on the homepage'],
+  ['index.html#home','Homepage','Home section of the website'],
+  ['lodges.html','Lodge Directory','Public lodge directory'],
+  ['calendar.html','Public Calendar','Live embedded public calendar'],
   ['@event_requests','Saved: Event Submission Link','Automatically uses the event request URL configured above'],
   ['@inspector_desk','Saved: Inspector Desk Sign In','Automatically uses the inspector sign-in URL configured above'],
   ['@grand_lodge','Saved: Grand Lodge Finder','Uses the official Grand Lodge directory address above'],
   ['@calendar_fallback','Saved: Backup Calendar','Uses the backup public calendar URL above'],
-  ['@site_home','Saved: Website Homepage','Uses the Wix website URL above']
+  ['@site_home','Saved: Website Homepage','Uses the website URL above']
  ];
  const destinationMap=new Map(destinations.map(([value,label,description])=>[value,description]));
  function previewURL(value){
@@ -80,7 +80,7 @@
   choices.setAttribute('aria-label','Choose link destination');
   for(const [value,label] of destinations)choices.add(new Option(label,value));
   const href=document.createElement('input');href.type='text';href.className='website-menu-href';
-  href.value=item.href||'';href.maxLength=1000;href.placeholder='calendar.html or https://...';
+  href.value=item.href||'';href.maxLength=1000;href.placeholder='/calendar/ or https://...';
   href.setAttribute('aria-label','Menu link destination');
   choices.value=href.value!==''&&destinationMap.has(href.value)?href.value:'';
   const help=document.createElement('small');help.className='website-menu-destination-hint';
@@ -95,7 +95,7 @@
   const showDest=()=>{
    const v=choices.value;
    if(v){href.value=v;href.classList.add('hidden');help.textContent=destinationMap.get(v);}
-   else{href.classList.remove('hidden');help.textContent='For custom links, type a Wix page (such as calendar.html) or a complete HTTPS URL.';}
+   else{href.classList.remove('hidden');help.textContent='For custom links, type a path (such as /calendar/) or a complete HTTPS URL.';}
    refresh();
   };
   choices.addEventListener('change',()=>{
@@ -187,7 +187,7 @@
     const result=await request('save',{settings:changes,
       ...(changes.calendar_id!==saved?.calendar_id?{confirm_calendar_change:'CHANGE CALENDAR'}:{})});
     readForm(result);
-    message('Saved. Wix pages will use these settings when they are loaded or refreshed.');
+    message('Saved. Website pages will use these settings when they are loaded or refreshed.');
     if(typeof toast==='function')toast('Website settings saved');
     loadWebsitePreview();
    }catch(ex){message(ex.message,true);if(typeof toast==='function')toast(ex.message,true);}
@@ -202,8 +202,8 @@
    if(home.protocol!=='https:')return;
    const base=home.href.replace(/\/+$/,'');
    e('preview-site-home').href=base+'/';
-   e('preview-site-calendar').href=base+'/calendar.html';
-   e('preview-site-lodges').href=base+'/lodges.html';
+   e('preview-site-calendar').href=base+'/calendar/';
+   e('preview-site-lodges').href=base+'/lodges/';
   }catch(ex){console.warn('Public website preview links are using their saved defaults:',ex);}
  }
  window.loadWebsitePreview=loadWebsitePreview;
