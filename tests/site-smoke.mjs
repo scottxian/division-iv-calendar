@@ -51,8 +51,8 @@ const required={
  'index.html':['href="/events/"','href="/calendar/"','href="/inspectors/"'],
  'calendar/index.html':['href="/events/"'],
  'lodges/index.html':['href="/events/"'],
- 'events/index.html':['/app/app.js?v=43','/app/mfa.js?v=8'],
- 'inspectors/index.html':['/app/app.js?v=43','/app/mfa.js?v=8']
+ 'events/index.html':['/app/app.js?v=44','/app/mfa.js?v=8'],
+ 'inspectors/index.html':['/app/app.js?v=44','/app/mfa.js?v=8']
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
@@ -71,6 +71,7 @@ for(const page of ['events/index.html','inspectors/index.html']){
  }
 }
 if(!read('app/app.js').includes("form.querySelector('.location-details')"))errors.push('Location TBD must find sibling details panel');
+if(!read('app/app.js').includes("child.matches('.location-tbd-control')"))errors.push('Inspector editor must clone the Location TBD control');
 if(read('CNAME').trim()!=='divisionivmasons.org')errors.push('Release candidate CNAME must be divisionivmasons.org');
 if(!read('app/app.js').includes("location.assign('/inspectors/')")||!read('app/app.js').includes("state.loginPurpose==='event-contact'?'/events/':'/inspectors/'")) errors.push('Inspector sign-in must use the Inspector Desk redirect');
 if(!read('app/app.js').includes("location.pathname.startsWith('/inspectors/')"))
