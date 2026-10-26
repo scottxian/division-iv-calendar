@@ -3,7 +3,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV | Inspector Desk</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
 <meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="/app/assets/division-iv-emblem.png"><link rel="stylesheet" href="/app/styles.css?v=17"><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=44"></script>
-<script defer src="/app/lodges-admin.js?v=3"></script><script defer src="/app/site-settings-admin.js?v=2"></script><script defer src="/app/resources.js?v=2"></script>
+<script defer src="/app/lodges-admin.js?v=3"></script><script defer src="/app/site-settings-admin.js?v=3"></script><script defer src="/app/resources.js?v=2"></script>
 <script defer src="/app/mfa.js?v=8"></script>
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
@@ -348,15 +348,15 @@
 <label class="wide">Calendar time zone (IANA name) <input name="calendar_timezone" required maxlength="80"></label>
 <p class="wide help">Changing the Calendar ID also changes the destination for future calendar publishing. Existing Google event links may no longer match. An additional confirmation is required.</p>
 <div class="wide" id="website-menu-editor"><h3>Top Dropdown Menu <span class="chip">Administrators only</span></h3>
-<p class="muted">Manage the menu links shown across the public Division IV pages. These links open public pages or the existing Inspector Desk sign-in; editing a link does not grant anyone additional access.</p>
+<p class="muted">Manage the menu links shown across the public Division IV pages. This editor manages public dropdown links. Inspector Login remains a separate link at the top of the website. Editing links does not change inspector access.</p>
 <details class="website-menu-help" id="website-menu-help">
 <summary>How do I edit menu links? <span class="website-help-hint">Show instructions and examples</span></summary>
 <div class="website-menu-help-body">
-<p><strong>Dropdown:</strong> Choose which top menu contains this link: Division, Lodges, Calendar, or Inspectors. Home is a separate permanent link.</p>
+<p><strong>Dropdown:</strong> Choose Division, Lodges, or Calendar. Home and Inspector Login remain separate permanent links.</p>
 <p><strong>Menu text:</strong> Enter what visitors should read, such as <strong>View Calendar</strong> or <strong>Lodge Directory</strong>.</p>
-<p><strong>Destination:</strong> Pick a common website page or a saved website link. Choose <strong>Custom link</strong> only when you need another page or a secure <code>https://</code> URL. Saved links automatically follow changes you make in the website settings above.</p>
+<p><strong>Destination:</strong> Pick a common website page or a saved website link. Choose <strong>Custom website path or HTTPS URL</strong> to link to another page, such as <code>/events/</code>, or an external <code>https://</code> address. Saved links automatically follow changes you make in the website settings above.</p>
 <p><strong>Order:</strong> Use the arrows to move a link higher or lower. Remove only deletes a link from the dropdown after you save; it does not delete the destination page. Use <strong>Preview</strong> to test where it opens.</p>
-<p><strong>Save:</strong> Click <strong>Save Website Settings</strong> below, then reload a website page to see the updated menu. <strong>Restore saved links</strong> undoes unsaved menu edits.</p>
+<p><strong>Save:</strong> Click <strong>Save Website Settings</strong> below, then reload a website page to see the updated menu. <strong>Undo unsaved menu changes</strong> restores your last saved links.</p>
 <div class="website-menu-examples">
 <div><strong>Website page</strong><code>/calendar/</code><span>Opens the public calendar</span></div>
 <div><strong>Saved link</strong><code>@event_requests</code><span>Uses the event-request address configured above</span></div>
