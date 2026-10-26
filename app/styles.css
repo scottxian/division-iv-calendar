@@ -349,3 +349,18 @@ header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
 /* Show only the MFA verification panel until server-approved step-up. */
 #admin-view.mfa-locked .tabs,
 #admin-view.mfa-locked [id^="tab-"]{display:none!important}
+
+/* Unified clickable Division IV / Grand Lodge of California masthead. */
+a.brand{color:var(--navy);text-decoration:none;min-width:0}
+a.brand:hover .brand-affiliation{color:#795623}
+a.brand:focus-visible{outline:2px solid var(--gold);outline-offset:5px;border-radius:5px}
+.brand-lockup{display:flex;flex-direction:column;align-items:flex-start;min-width:0;line-height:1.3}
+.brand-lockup b{display:block;font:700 24px/1.1 Georgia,serif}
+.brand-lockup small{display:block;color:#64778a;font-size:12px;margin-top:2px}
+.brand-lockup .brand-affiliation{display:block;color:#7b5a2b;font-size:12px;font-weight:700;line-height:1.45;margin-top:4px}
+@media(max-width:500px){
+ .brand{gap:9px}
+ .brand-emblem{width:44px;height:44px}
+ .brand-lockup b{font-size:21px}
+ .brand-lockup .brand-affiliation{font-size:11px}
+}
