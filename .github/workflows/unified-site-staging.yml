@@ -35,8 +35,8 @@ jobs:
           node-version: '22'
       - name: Install pinned browser smoke test dependency
         run: npm install --no-save --ignore-scripts playwright@1.56.1
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Verify preinstalled Chrome on GitHub-hosted runner
+        run: google-chrome --version
       - name: Test public pages, inspector login route and mobile menu
         run: node tests/browser-smoke.mjs
       - name: Save visual evidence
