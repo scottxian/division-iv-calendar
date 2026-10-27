@@ -306,3 +306,7 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
 @media(max-width:1050px){#main-nav .nav-division-direct{font-size:14px;padding:14px 11px;border-bottom:1px solid #ffffff22;display:block}}
 @media(max-width:850px){.public-event-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.public-events-results{grid-template-columns:1fr}}
 @media(max-width:600px){#events-list{padding:18px;margin-bottom:25px}.public-events-intro{flex-direction:column;align-items:flex-start;gap:7px}.public-event-filters{grid-template-columns:1fr}.public-event-card{padding:16px;gap:12px}.public-event-date{min-width:62px;padding-right:12px}.public-event-dialog{padding:20px}.lodge-correction-grid{grid-template-columns:1fr}#lodge-correction{padding:18px 17px}}
+
+/* Entire upcoming event card opens its public details. */
+.upcoming-card-clickable{cursor:pointer}
+.upcoming-card-clickable:focus-visible{outline:3px solid #916b34;outline-offset:3px}

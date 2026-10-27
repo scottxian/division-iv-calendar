@@ -60,6 +60,19 @@
     if(hostedBy)info.append(hostedBy);
     info.append(timing,where,link);
     article.append(date,info);
+    article.classList.add('upcoming-card-clickable');
+    article.tabIndex=0;
+    article.setAttribute('role','link');
+    article.setAttribute('aria-label','Open event details: '+title.textContent);
+    article.addEventListener('click',e=>{
+      if(e.target.closest('a'))return;
+      window.location.assign(link.href);
+    });
+    article.addEventListener('keydown',e=>{
+      if(e.target!==article||!['Enter',' '].includes(e.key))return;
+      e.preventDefault();
+      window.location.assign(link.href);
+    });
     return article;
   }
   const controller=new AbortController();
