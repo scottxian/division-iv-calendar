@@ -1,21 +1,40 @@
-/* The correction form does not store visitor information; it prepares a message in their email app. */
+/* Division IV public directory correction form. Queues reports without requiring email software. */
 (()=>{
  const form=document.getElementById('lodge-correction-form');
  if(!form)return;
  const message=document.getElementById('lodge-correction-status');
- form.addEventListener('submit',e=>{
+ const button=form.querySelector('button[type="submit"]');
+ const endpoint='https://lxvceqshpjnjjlllbpaq.supabase.co/functions/v1/division-corrections?action=submit';
+ const categories={'Meeting schedule':'meeting','Address or location':'location','Directory details':'directory','Other correction':'other'};
+ form.addEventListener('submit',async e=>{
   e.preventDefault();
   if(!form.reportValidity())return;
   const data=new FormData(form);
-  const lodge=String(data.get('lodge')||'').trim().slice(0,130);
-  const topic=String(data.get('type')||'').trim().slice(0,80);
-  const details=String(data.get('details')||'').trim().slice(0,750);
-  const reply=String(data.get('reply')||'').trim().slice(0,140);
-  if(!lodge||!topic||details.length<15){message.textContent='Please provide a lodge, correction type, and a brief explanation.';return;}
-  const subject='Division IV lodge directory correction: '+lodge;
-  const body=['Lodge: '+lodge,'Correction type: '+topic,'','Requested correction:',details,'','Reply contact: '+(reply||'Not provided'),'','Submitted from divisionivmasons.org/lodges/'].join('\n');
-  message.textContent='Your email application should open now. Please review the prepared correction and press Send.';
-  const url='mailto:DivisionIVagl@gmail.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
-  window.location.href=url;
+  const body={
+   lodge:String(data.get('lodge')||'').trim(),
+   category:categories[String(data.get('type')||'')]||'',
+   details:String(data.get('details')||'').trim(),
+   reply:String(data.get('reply')||'').trim(),
+   website:String(data.get('website')||'')
+  };
+  if(!body.category||body.details.length<15){
+   message.textContent='Please select a correction type and describe the change.';
+   return;
+  }
+  button.disabled=true;
+  message.textContent='Submitting your correction for review…';
+  try{
+   const controller=new AbortController();
+   const timeout=setTimeout(()=>controller.abort(),15000);
+   let response;
+   try{response=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),signal:controller.signal});}
+   finally{clearTimeout(timeout);}
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok||!result.ok)throw Error(result.error||'Unable to submit the correction.');
+   form.reset();
+   message.textContent='Correction received. It is now in the private Division IV Administrator review queue. Thank you.';
+  }catch(err){
+   message.textContent=err?.message||'Submission failed. Please try again.';
+  }finally{button.disabled=false;}
  });
 })();

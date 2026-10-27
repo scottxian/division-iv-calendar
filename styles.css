@@ -310,3 +310,6 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
 /* Entire upcoming event card opens its public details. */
 .upcoming-card-clickable{cursor:pointer}
 .upcoming-card-clickable:focus-visible{outline:3px solid #916b34;outline-offset:3px}
+
+/* Concealed antispam field: visible only to automated form fillers. */
+.correction-honeypot{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}

@@ -727,15 +727,16 @@ async function activateInspectorTab(key){
  if($('admin-view').classList.contains('mfa-locked')){
   toast('Complete authenticator verification to access the Inspector Desk.',true);return;
  }
- if((key==='staff'||key==='settings'||key==='lodges')&&state.staff?.role!=='admin'){
+ if((key==='staff'||key==='settings'||key==='lodges'||key==='corrections')&&state.staff?.role!=='admin'){
   toast('Administrator access is required to manage lodges, inspectors or website settings.',true);
   return;
  }
  all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
- for(const k of ['dashboard','lodges','requests','events','resources','history','staff','settings'])
+ for(const k of ['dashboard','lodges','corrections','requests','events','resources','history','staff','settings'])
   $('tab-'+k).classList.toggle('hidden',k!==key);
  if(key==='dashboard'){await Promise.allSettled([loadDashboard(),window.loadCalendarSync?.(),window.loadWebsitePreview?.()]);}
  if(key==='lodges')await window.loadLodges?.();
+ if(key==='corrections')await window.loadCorrections?.();
  if(key==='requests')await loadRequests(0);
  if(key==='events')await loadEvents(0);
  if(key==='resources')await window.loadResources?.();

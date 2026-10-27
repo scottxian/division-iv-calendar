@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Event Submissions | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel a Division IV Masonic event. An authorized inspector reviews requests before publication on the public calendar.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="/app/assets/division-iv-emblem.png"><link rel="stylesheet" href="/app/styles.css?v=18"><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=44"></script>
-<script defer src="/app/lodges-admin.js?v=3"></script><script defer src="/app/site-settings-admin.js?v=2"></script><script defer src="/app/resources.js?v=2"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="/app/assets/division-iv-emblem.png"><link rel="stylesheet" href="/app/styles.css?v=19"><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=45"></script>
+<script defer src="/app/lodges-admin.js?v=3"></script><script defer src="/app/corrections-admin.js?v=1"></script><script defer src="/app/site-settings-admin.js?v=2"></script><script defer src="/app/resources.js?v=2"></script>
 <script defer src="/app/mfa.js?v=8"></script>
 
 <link rel="canonical" href="https://divisionivmasons.org/events/">
@@ -155,6 +155,7 @@
 <button class="tab" data-tab="events" type="button">Manage Published Events</button>
 <button class="tab" data-tab="resources" type="button">Resources</button>
 <button class="tab" data-tab="history" type="button">Status Log</button>
+<button class="tab admin-only hidden" data-tab="corrections" type="button">Corrections</button>
 <button class="tab admin-only hidden" data-tab="lodges" type="button">Lodges</button>
 <button class="tab admin-only hidden" data-tab="staff" type="button">Inspectors</button>
 <button class="tab admin-only hidden" data-tab="settings" type="button">Settings</button>
@@ -182,6 +183,16 @@
 <a id="preview-site-lodges" class="secondary" href="/lodges/" target="_blank" rel="noopener noreferrer">Lodge Directory ↗</a>
 </div></section>
 <section class="dashboard-activity"><h3>Recent activity</h3><div id="dashboard-recent" class="dashboard-list"></div></section>
+</section>
+<section id="tab-corrections" class="panel hidden">
+<div class="review-title"><div><h3>Lodge Directory Corrections</h3><p class="muted">Private administrator queue. Review each request, verify the change with the lodge, update its directory record, then mark the request completed.</p></div>
+<button type="button" class="secondary" id="corrections-refresh">Refresh corrections</button></div>
+<div class="filters">
+<label>Status<select id="corrections-status"><option value="open">Pending and reviewing</option><option value="all">All corrections</option><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="completed">Completed</option><option value="rejected">Rejected</option></select></label>
+</div>
+<p class="help" role="status" aria-live="polite" id="corrections-message">Select Corrections to load requests.</p>
+<div class="corrections-grid"><div><div class="list-head"><strong id="corrections-count">Correction requests</strong><small>Select a correction</small></div><div class="corrections-list" id="corrections-list"></div></div>
+<div id="corrections-detail" class="corrections-detail"><p class="muted">Select a submitted correction to review its details and history.</p></div></div>
 </section>
 <section id="tab-lodges" class="panel hidden">
 

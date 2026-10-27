@@ -6,7 +6,7 @@ import vm from 'node:vm';
 
 const root=process.cwd();
 const pages=['index.html','calendar/index.html','lodges/index.html','events/index.html','inspectors/index.html','calendar.html','lodges.html'];
-const scripts=['script.js','lodges.js','app/app.js','app/bootstrap.js','app/lodges-admin.js','app/site-settings-admin.js','app/resources.js','app/mfa.js'];
+const scripts=['script.js','lodges.js','app/app.js','app/bootstrap.js','app/lodges-admin.js','app/site-settings-admin.js','app/resources.js','app/corrections-admin.js','app/mfa.js'];
 const errors=[];
 let checkedLinks=0;
 
@@ -121,10 +121,39 @@ if(calendarHTML.includes('href="/calendar/" target="_blank"'))
 if(!read('index.html').includes('/home-events.js?v=4'))
  errors.push('Homepage event links should use the updated event-specific navigation');
 if(!read('lodges/index.html').includes('id="lodge-correction-form"')||
-   !read('lodges/index.html').includes('/lodge-correction.js?v=1'))
+   !read('lodges/index.html').includes('/lodge-correction.js?v=2'))
  errors.push('Directory correction reporting is missing');
-for(const file of ['public-events.js','lodge-correction.js','home-events.js']){
+for(const file of ['public-events.js','lodge-correction.js','home-events.js','app/corrections-admin.js']){
  try{new vm.Script(read(file),{filename:file})}catch(e){errors.push(file+': '+e.message)}
+}
+
+
+// Correction queue must remain a private, administrator-only inspector function.
+for(const page of ['events/index.html','inspectors/index.html']){
+ const html=read(page);
+ for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=1"','src="/app/app.js?v=45"']){
+  if(!html.includes(marker))errors.push(page+': missing private correction queue '+marker);
+ }
+}
+const correctionSource=read('supabase/functions/division-corrections/index.ts');
+if(!correctionSource.includes("await requireAdmin(req)")||
+   !correctionSource.includes("payload.aal!=='aal2'")||
+   !correctionSource.includes("staff.role!=='admin'")||
+   !correctionSource.includes("const action=new URL(req.url).searchParams.get('action')||'submit'")){
+ errors.push('Private correction endpoint must verify administrator and MFA access');
+}
+const correctionForm=read('lodges/index.html');
+if(!correctionForm.includes('Submit correction for review')||
+   !correctionForm.includes('name="website"')||
+   !correctionForm.includes('/lodge-correction.js?v=2')){
+ errors.push('Public correction form must submit directly to the private review queue');
+}
+if(read('lodge-correction.js').includes('mailto:')){
+ errors.push('Public correction form must not rely on email software');
+}
+if(!read('app/app.js').includes("key==='corrections'")||
+   !read('app/app.js').includes('window.loadCorrections')){
+ errors.push('Inspector Desk must register the Corrections tab');
 }
 
 console.log('Staged pages:',pages.length,'JS files:',scripts.length,'link/asset references checked:',checkedLinks);
