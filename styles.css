@@ -206,3 +206,52 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
  .homepage-cta-actions{width:100%}
  .homepage-cta-actions .btn{flex:1;min-width:155px}
 }
+
+/* Homepage palette re-balance: warm calendar panel above deep blue Division overview. */
+.upcoming-section{
+ background:linear-gradient(180deg,#f0e8d9 0%,#e8dcc5 100%);
+ border-top:1px solid #d9c8a9;
+ border-bottom:1px solid #d5c09b;
+ color:#142d46
+}
+.upcoming-section .kicker{color:#805f2c}
+.upcoming-section h2{color:#142d46}
+.upcoming-section h2 em{color:#825b24}
+.upcoming-section .upcoming-heading>p{color:#46596a}
+.upcoming-section .upcoming-card{
+ background:#fffdf8;
+ color:#142d46;
+ border-color:#d3c2a5;
+ box-shadow:0 7px 22px #3428140c
+}
+.upcoming-section .upcoming-card:hover{border-color:#9c793e;box-shadow:0 9px 25px #34281419}
+.upcoming-section .upcoming-date{color:#966a2e;border-right-color:#ddcba9}
+.upcoming-section .upcoming-weekday{color:#516273}
+.upcoming-section .upcoming-details h3{color:#142d46}
+.upcoming-section .upcoming-meta{color:#526273}
+.upcoming-section .upcoming-host{color:#805b23}
+.upcoming-section .upcoming-time{color:#142d46}
+.upcoming-section .upcoming-location{color:#526273}
+.upcoming-section .upcoming-card-link{color:#79551f}
+.upcoming-section .upcoming-card-link:hover{color:#142d46}
+.upcoming-section .upcoming-card-link:focus-visible{outline-color:#79551f}
+.upcoming-section .upcoming-status{color:#253950;background:#fffdf8;border-color:#d3c2a5}
+.upcoming-section .upcoming-status.is-error{color:#823d2c}
+.upcoming-section .upcoming-footer span{color:#526273}
+.division-overview{
+ background:linear-gradient(140deg,#163954 0%,#0e2943 100%);
+ color:#f3f6f8;
+ border-top:0;
+ border-bottom:1px solid #ffffff22
+}
+.division-overview .kicker{color:#f0d99d}
+.division-overview .overview-main h2{color:#fff}
+.division-overview .overview-main h2 em{color:#e5c587}
+.division-overview .overview-main p:not(.kicker){color:#d1dde7}
+.division-overview .overview-main p.overview-lead{color:#f3f6f9}
+.division-overview .overview-grand-link{color:#f0d99d}
+.division-overview .overview-grand-link:hover{color:#fff}
+.division-overview .overview-grand-link:focus-visible{outline:2px solid #f0d99d;outline-offset:4px}
+.division-overview .overview-lodges{background:#fffdf8;border-color:#d7c6a7;border-left-color:#c4a05c}
+.division-overview .overview-lodges .kicker{color:#8d6a34}
+.homepage-cta{background:#081e33;border-top:1px solid #cfad69}
