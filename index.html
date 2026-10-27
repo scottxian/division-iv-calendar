@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#091b31"><meta name="description" content="Division IV Masons, part of the Grand Lodge of California. Explore lodge events, fellowship and Division IV resources."><title>Division IV Masons | Grand Lodge of California</title><link rel="icon" href="/assets/favicon.png"><link rel="stylesheet" href="/styles.css?v=5"></head>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#091b31"><meta name="description" content="Division IV Masons, part of the Grand Lodge of California. Explore lodge events, fellowship and Division IV resources."><title>Division IV Masons | Grand Lodge of California</title><link rel="icon" href="/assets/favicon.png"><link rel="stylesheet" href="/styles.css?v=6"></head>
 <body><div class="topline"><span>Division IV • Masonic Community</span><a href="/#events">Explore upcoming events ↗</a></div>
 <header><div class="division-brand"><a class="brand-home" href="/" aria-label="Division IV Masons — home"><img src="/assets/emblem.png" alt="Division IV Masons emblem"></a><div class="brand-copy"><a class="brand-name" href="/">Division IV Masons</a><a class="brand-affiliation" href="https://freemason.org/" target="_blank" rel="noopener noreferrer" aria-label="Grand Lodge of California — official website">Grand Lodge of California</a></div></div><button id="menu-toggle" aria-expanded="false" aria-controls="main-nav" aria-label="Open menu">☰</button><nav id="main-nav" aria-label="Main navigation">
   <a class="nav-home" href="#home" aria-current="page">Home</a>
@@ -6,8 +6,7 @@
     <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="nav-division">Division <span class="nav-chevron" aria-hidden="true">⌄</span></button>
     <div class="nav-submenu" id="nav-division">
       <a href="#about">About Division IV</a>
-      <a href="#community">Community</a>
-      <a href="#contact">Contact</a>
+      <a <a href="#contact">Contact</a>
     </div>
   </div>
   <div class="nav-group">
@@ -28,17 +27,44 @@
 </nav></header>
 <main><section id="home" class="hero"><div class="glow"></div><div class="hero-inner"><p class="eyebrow">BROTHERHOOD • FELLOWSHIP • SERVICE</p><h1>Where our lodges<br><em>come together.</em></h1><p class="lead">Connecting the lodges of Division IV through fellowship, service, and shared events throughout our communities.</p><div class="actions"><a class="btn gold" href="/calendar/">View the Calendar <span>↗</span></a><a class="btn outline" href="/events/" target="_blank" rel="noopener">Submit an Event <span>↗</span></a></div><div class="hero-foot"><span class="rule"></span><span>UNITED IN PURPOSE. CONNECTED IN BROTHERHOOD.</span></div></div><img class="hero-mark" src="/assets/emblem.png" alt="" aria-hidden="true"></section>
 <section class="section dark-section upcoming-section" id="events" aria-labelledby="upcoming-title">
-  <div class="upcoming-heading">
+  <div class="upcoming-inner"><div class="upcoming-heading">
     <div><p class="kicker">OUR CALENDAR</p><h2 id="upcoming-title">Coming up <em>around the Division.</em></h2></div>
-    <p>See what's next across our lodges. These events are drawn from the published Division IV calendar.</p>
+    <p>Dates, times, and host lodges for our next published events.</p>
   </div>
   <div id="upcoming-events" aria-live="polite" aria-busy="true"><p class="upcoming-status">Loading upcoming events…</p></div>
   <div class="upcoming-footer"><span>Times shown in Pacific Time. Event details may change.</span><a class="btn gold" href="/calendar/">View the full calendar ↗</a></div>
 </section>
-<section class="section two-col" id="about"><div><p class="kicker">OUR DIVISION</p><h2>Tradition in common.<br><em>Community in action.</em></h2></div><div class="body-copy"><p>Division IV is part of the Grand Lodge of California, Free and Accepted Masons. We bring together lodges and their members to share meaningful events, recognize achievements, and build connections across our communities. <a href="https://freemason.org/" target="_blank" rel="noopener noreferrer">Visit the Grand Lodge of California ↗</a></p><p>This new home will make it easier to learn what's happening, support neighboring lodges, and find useful information in one place.</p></div></section>
-<section class="section" id="lodges"><p class="kicker">OUR LODGES</p><h2>Every lodge. <em>One division.</em></h2><p class="section-intro">Explore 29 lodges and their meeting schedules across Division IV. Search by lodge, district, city or county, and open each lodge’s official listing.</p><a class="btn navy" href="/lodges/">Browse the Lodge Directory →</a></section>
-<section class="section cream-section" id="community"><p class="kicker">FELLOWSHIP</p><h2>More ways to <em>connect.</em></h2><p class="section-intro">We're preparing a community space for public announcements and conversation, with dedicated private resources for authorized inspectors. These features will be configured before inviting members to join.</p></section>
 
-<section class="section contact" id="contact"><p class="kicker">CONTACT</p><h2>Have an event to share?</h2><p>Use the existing event request form. General contact details will be added once the division confirms the appropriate public contact information.</p><a class="btn gold" href="/events/" target="_blank" rel="noopener">Event Requests ↗</a></section></main>
+<section class="division-overview" id="about" aria-labelledby="about-title">
+  <div class="overview-inner">
+    <div class="overview-main">
+      <p class="kicker">OUR DIVISION</p>
+      <h2 id="about-title">Many lodges.<br><em>One Division.</em></h2>
+      <p class="overview-lead">Division IV brings together lodges organized into districts. Each district is overseen by an inspector who supports its lodges and reports to the Assistant Grand Lecturer.</p>
+      <p>The Assistant Grand Lecturer reports to the Grand Lecturer and Grand Master of the Grand Lodge of California.</p>
+      <a class="overview-grand-link" href="https://freemason.org/" target="_blank" rel="noopener noreferrer">Learn about the Grand Lodge of California ↗</a>
+    </div>
+    <div class="overview-lodges" id="lodges">
+      <p class="kicker">OUR LODGES</p>
+      <div class="overview-count">29 <span>lodges</span></div>
+      <h3>Every lodge. <em>One community.</em></h3>
+      <p>Explore the lodges of Division IV by district, name, city, or county. Find meeting schedules and official lodge listings.</p>
+      <a class="btn navy" href="/lodges/">Browse the Lodge Directory ↗</a>
+    </div>
+  </div>
+</section>
+<section class="homepage-cta" id="contact" aria-labelledby="contact-title">
+  <div class="homepage-cta-inner">
+    <div class="homepage-cta-copy">
+      <p class="kicker">EVENT SUBMISSIONS</p>
+      <h2 id="contact-title">Have an event to share?</h2>
+      <p>Submit your event for inspector review and publication on the Division IV calendar.</p>
+    </div>
+    <div class="homepage-cta-actions">
+      <a class="btn gold" href="/events/">Submit an Event ↗</a>
+      <a class="btn outline" href="/calendar/">View the Calendar ↗</a>
+    </div>
+  </div>
+</section></main>
 <footer><div class="footer-brand"><img src="/assets/emblem.png" alt=""><span class="division-wordmark"><strong>DIVISION IV MASONS</strong><small>Fellowship. Leadership. Service.</small><span class="brand-affiliation">Grand Lodge of California</span></span></div><div class="footer-links"><a href="#home">Back to top ↑</a><a href="/calendar/">Calendar ↗</a><a href="/events/" target="_blank" rel="noopener">Submit Event ↗</a></div><small>Free and Accepted Masons • <a href="https://freemason.org/" target="_blank" rel="noopener noreferrer">freemason.org</a></small></footer>
-<script src="/script.js" defer></script><script src="/home-events.js?v=1" defer></script></body></html>
+<script src="/script.js" defer></script><script src="/home-events.js?v=2" defer></script></body></html>
