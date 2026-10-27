@@ -77,6 +77,31 @@ if(!read('app/app.js').includes("location.assign('/inspectors/')")||!read('app/a
 if(!read('app/app.js').includes("location.pathname.startsWith('/inspectors/')"))
  errors.push('Inspector route does not default to private sign-in');
 
+/* SEO, sharing and indexing checks, with no live network calls. */
+const searchable=['index.html','calendar/index.html','lodges/index.html','events/index.html'];
+for(const file of searchable){
+ const html=read(file);
+ const route=file==='index.html'?'/':file.replace(/index\.html$/,'');
+ const canonical='https://divisionivmasons.org'+route;
+ for(const needle of [
+  'rel="canonical" href="'+canonical+'"',
+  'property="og:title"', 'property="og:description"',
+  'property="og:url" content="'+canonical+'"',
+  'property="og:image" content="https://divisionivmasons.org/assets/emblem.png"',
+  'name="twitter:card" content="summary"'
+ ]){
+  if(!html.includes(needle))errors.push(file+': missing sharing metadata '+needle);
+ }
+ if(!read('sitemap.xml').includes('<loc>'+canonical+'</loc>'))errors.push('Sitemap missing '+canonical);
+}
+if(!read('robots.txt').includes('Sitemap: https://divisionivmasons.org/sitemap.xml'))
+ errors.push('robots.txt does not announce the sitemap');
+if(!read('robots.txt').includes('Disallow: /inspectors/'))
+ errors.push('robots.txt must exclude the Inspector Desk');
+if(!read('inspectors/index.html').includes('name="robots" content="noindex, nofollow, noarchive"'))
+ errors.push('Inspector Desk must declare noindex');
+if(!fileExists('assets/emblem.png'))errors.push('Public preview emblem is missing');
+
 console.log('Staged pages:',pages.length,'JS files:',scripts.length,'link/asset references checked:',checkedLinks);
 if(errors.length){
  for(const e of errors)console.error('FAIL:',e);
