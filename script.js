@@ -11,7 +11,6 @@
   website_site_url:'https://divisionivmasons.org',
   website_navigation:[
    {group:'division',label:'About Division IV',href:'index.html#about'},
-   {group:'division',label:'Community',href:'index.html#community'},
    {group:'division',label:'Contact',href:'index.html#contact'},
    {group:'lodges',label:'Lodge Directory',href:'lodges.html'},
    {group:'lodges',label:'Grand Lodge Finder ↗',href:'@grand_lodge'},
@@ -27,7 +26,7 @@
  let userMode=null,config=base,activeGroups=[];
  const validHttps=url=>{try{const u=new URL(url);return u.protocol==='https:'&&!u.username&&!u.password?u.href:null}catch{return null}};
  const resolve=(value,s,group)=>{
-  // Translate saved Wix-era links while live Supabase settings remain unchanged.
+  // Normalize legacy paths from previously saved website settings.
   if(value==='@event_requests')return '/events/';
   if(value==='@inspector_desk')return '/inspectors/';
   if(value==='@calendar_fallback')return '/calendar/';
