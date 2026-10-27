@@ -321,3 +321,76 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
 .correction-event-link{display:inline-block;color:#6d4b19;text-decoration:underline;text-underline-offset:4px;font-size:13px;font-weight:750}
 .correction-event-link:hover{color:#132e45}
 .correction-event-link:focus-visible{outline:2px solid #926b2c;outline-offset:4px}
+
+
+/* Division IV month calendar: reference-inspired two-column date grid + event timeline. */
+.visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.calendar-hero{padding-top:36px;padding-bottom:31px}
+.calendar-hero h1{font-size:clamp(43px,5vw,67px)}
+.calendar-main{background:#fff;padding-top:38px}
+.calendar-intro{margin-bottom:35px}
+.division-calendar-board{margin:0 auto 38px;scroll-margin-top:90px}
+.calendar-browser-layout{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,1fr);column-gap:clamp(26px,5vw,78px);align-items:start}
+.calendar-month-side{min-width:0}
+.calendar-month-toolbar{display:grid;grid-template-columns:96px minmax(135px,1fr) 96px;align-items:center;gap:12px;margin-bottom:18px}
+.month-arrow{background:#fff;color:#173149;border:1px solid #1d303d;border-radius:25px;min-height:42px;padding:7px 14px;font-size:21px;line-height:1;cursor:pointer;transition:background .15s,color .15s}
+.month-arrow:hover{background:#193a52;color:#fff}
+.month-arrow:focus-visible,.month-date:focus-visible,.month-event-row:focus-visible{outline:3px solid #b9985b;outline-offset:2px}
+.calendar-month-picker{justify-self:center;max-width:100%}
+.calendar-month-picker input{border:0;background:transparent;color:#152b40;font:650 16px/1.3 'DM Sans',system-ui,sans-serif;letter-spacing:.01em;text-align:center;min-width:145px;width:145px;padding:7px 2px;cursor:pointer}
+.calendar-weekday-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid #d9dadd;border-bottom:0;background:#fff}
+.calendar-weekday-row span{font-size:13px;font-weight:750;text-align:center;color:#132d42;padding:15px 1px;border-right:1px solid #d9dadd}
+.calendar-weekday-row span:last-child{border-right:0}
+.calendar-days-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-left:1px solid #d9dadd;border-top:1px solid #d9dadd;background:#fff}
+.calendar-days-grid>.month-date,.calendar-days-grid>.month-blank{aspect-ratio:1 / 1;min-height:58px;border:0;border-right:1px solid #d9dadd;border-bottom:1px solid #d9dadd;position:relative;display:flex;justify-content:center;align-items:center;padding:4px;background:#fff}
+.calendar-days-grid>.month-date{cursor:pointer;color:#19344d;font-size:15px;transition:background .13s}
+.calendar-days-grid>.month-date:hover{background:#f6f0e7}
+.month-date-number{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;position:relative;z-index:1}
+.month-date.has-events .month-date-number{background:#f0d9df;color:#1b2c41}
+.month-date.selected .month-date-number{background:#8b2945!important;color:#fff}
+.month-date.today .month-date-number{outline:2px solid #9b7941;outline-offset:2px}
+.month-date-mark{display:none}
+.calendar-feed-loading{padding:12px;font-size:13px;color:#68788a}
+.calendar-legend{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px 20px;margin:17px 0 0;color:#78818d;font-size:12px}
+.calendar-legend>span{display:flex;align-items:center;gap:8px}
+.legend-dot,.legend-selected,.legend-today{display:inline-block;width:17px;height:17px;border-radius:50%;flex-shrink:0}
+.legend-dot{background:#f0d9df}
+.legend-selected{background:#8b2945;outline:3px solid #f0d9df;outline-offset:2px}
+.legend-today{border:2px solid #9b7941}
+.month-side-actions{display:flex;gap:13px;justify-content:center;margin-top:17px}
+.month-side-actions button{border:0;background:transparent;color:#775a30;text-decoration:underline;text-underline-offset:3px;font-size:12px;font-weight:700;cursor:pointer}
+.month-side-actions button[hidden]{display:none}
+.calendar-events-side{min-width:0}
+.calendar-list-top{display:flex;justify-content:space-between;align-items:start;gap:25px;margin:0 0 17px}
+.calendar-list-top .kicker{font-size:11px;letter-spacing:.15em;color:#997743;margin:0 0 7px}
+.calendar-list-top h3{font:500 clamp(38px,3.3vw,56px)/1.08 'Cormorant Garamond',Georgia,serif;color:#122b43;margin:0 0 8px}
+.month-list-subtitle{font-size:12px;color:#707c88;margin:0}
+.month-filter{display:flex;flex-direction:column;min-width:165px;max-width:220px;gap:7px;color:#25394d;font-size:13px}
+.month-filter select,.month-filter-grid select{min-height:43px;background:#fff;border:1px solid #d7dadb;border-radius:4px;color:#21384d;font:inherit;font-size:14px;padding:8px 34px 8px 10px;width:100%}
+.month-advanced-filters{border-bottom:1px solid #eee9e2;margin-bottom:10px;padding-bottom:9px}
+.month-advanced-filters>summary{font-size:12px;color:#7e5b26;cursor:pointer;display:list-item;list-style-position:inside}
+.month-filter-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) auto;gap:10px;align-items:end;padding:12px 0 6px}
+.month-filter-grid label{display:flex;flex-direction:column;gap:4px;color:#4c5a65;font-size:12px}
+.month-filter-grid button{border:1px solid #d6c39e;background:#faf7f1;color:#644925;padding:11px 13px;border-radius:4px;font-size:12px;font-weight:750;cursor:pointer}
+.month-events-message{font-size:12px;color:#845d27;margin-bottom:8px}
+.month-events-message:empty{display:none}
+.month-event-list{display:flex;flex-direction:column;min-height:260px}
+.month-event-row{display:grid;grid-template-columns:82px minmax(0,1fr) auto;gap:18px;align-items:start;width:100%;min-width:0;text-align:left;padding:22px 6px 22px 0;border:0;border-bottom:1px solid #e3e3e1;background:#fff;color:#102b43;cursor:pointer;transition:background .15s}
+.month-event-row:hover{background:#faf7f2}
+.month-event-date{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:82px;padding:11px 6px;background:#f2eee7}
+.month-event-mon{font-size:10px;font-weight:750;letter-spacing:.09em}
+.month-event-num{font:500 40px/1.04 'Cormorant Garamond',Georgia,serif}
+.month-event-content{min-width:0;display:flex;flex-direction:column;gap:9px;padding-top:2px}
+.month-event-name{font:600 17px/1.43 'DM Sans',system-ui,sans-serif;color:#112c46}
+.month-event-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 15px;color:#546477;font-size:12px;line-height:1.6}
+.month-event-host{color:#897247;font-size:11px;line-height:1.4}
+.month-event-badge{display:inline-flex;justify-self:end;background:#f0ede3;color:#755b2d;padding:7px 9px;border-radius:4px;font-size:11px;white-space:nowrap;margin-top:4px}
+.month-events-empty{border:1px dashed #d8cfc1;background:#fcfaf6;padding:24px;color:#5f6b76;font-size:14px;line-height:1.7}
+.google-calendar-drawer{border:1px solid #dbd4c8;border-radius:8px;background:#faf8f4;padding:0 20px;margin-top:28px}
+.google-calendar-drawer>summary{padding:17px 0;cursor:pointer;font-size:15px;font-weight:700;color:#18354b}
+.google-calendar-drawer>summary span{display:block;font-weight:450;color:#6b7986;font-size:12px;margin-top:4px}
+.google-calendar-drawer[open]{padding-bottom:22px}
+.google-calendar-drawer .calendar-view-controls{margin-bottom:15px}
+@media(max-width:1050px){.calendar-browser-layout{gap:26px}.calendar-month-toolbar{grid-template-columns:68px minmax(135px,1fr) 68px}.month-date-number{width:36px;height:36px}.month-event-row{grid-template-columns:65px minmax(0,1fr);gap:13px}.month-event-badge{grid-column:2;justify-self:start;margin:0}.month-event-date{min-height:72px}.month-event-num{font-size:33px}}
+@media(max-width:850px){.calendar-browser-layout{grid-template-columns:1fr;gap:40px}.calendar-month-side{max-width:650px;width:100%;margin:0 auto}.calendar-days-grid>.month-date,.calendar-days-grid>.month-blank{min-height:49px}.calendar-events-side{width:100%}.month-event-row{grid-template-columns:77px minmax(0,1fr) auto}.month-event-badge{grid-column:auto;margin-top:4px}}
+@media(max-width:600px){.calendar-hero{padding:31px 22px}.calendar-main{padding:25px 18px 60px}.calendar-intro{margin-bottom:24px}.calendar-browser-layout{gap:30px}.calendar-month-toolbar{grid-template-columns:59px minmax(130px,1fr) 59px;gap:7px}.month-arrow{min-height:38px;font-size:20px;padding:5px 7px}.calendar-month-picker input{font-size:14px;min-width:135px;width:135px}.calendar-weekday-row span{padding:11px 0;font-size:11px}.calendar-days-grid>.month-date,.calendar-days-grid>.month-blank{min-height:43px}.month-date-number{height:32px;width:32px;font-size:13px}.calendar-legend{gap:12px;font-size:11px}.calendar-list-top{gap:13px;flex-wrap:wrap}.calendar-list-top h3{font-size:43px}.month-filter{min-width:150px;flex:1}.month-filter-grid{grid-template-columns:1fr 1fr}.month-filter-grid button{grid-column:1/-1}.month-event-row{grid-template-columns:65px minmax(0,1fr);padding:17px 0;gap:12px}.month-event-badge{grid-column:2;justify-self:start;margin:0}.month-event-name{font-size:15px}.month-event-meta{gap:4px 12px;font-size:11px}.month-event-date{min-height:71px}.month-event-num{font-size:34px}.google-calendar-drawer{padding:0 13px}}

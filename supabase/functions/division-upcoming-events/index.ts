@@ -36,19 +36,41 @@ Deno.serve(async req => {
   if (origin && !allowedOrigins.has(origin)) return response({ error: 'Origin not permitted' }, 403, origin);
 
   try {
-    const { data, error } = await db.from('events')
+    // Optional month-scoped calendar browsing. Default response remains future-only
+    // for the existing public homepage and event detail consumers.
+    const month = new URL(req.url).searchParams.get('month');
+    if (month && !/^(20[2-3][0-9])-(0[1-9]|1[0-2])$/.test(month)) {
+      return response({ error: 'Use a valid YYYY-MM month' }, 400, origin);
+    }
+    const year = month ? Number(month.slice(0,4)) : 0;
+    const monthIndex = month ? Number(month.slice(5,7))-1 : 0;
+    // One-day UTC margins ensure Pacific local midnight events aren't omitted.
+    const from = month ? new Date(Date.UTC(year,monthIndex,1)-86400000).toISOString() : '';
+    const until = month ? new Date(Date.UTC(year,monthIndex+1,1)+86400000).toISOString() : '';
+    let query = db.from('events')
       .select('id,title,event_type,hosted_by,district,starts_at,ends_at,timezone,event_mode,location_name,location_address,location_tbd,public_description,attire,invited_audience')
       .eq('status', 'active')
       .not('google_event_id', 'is', null)
-      .not('calendar_last_synced_at', 'is', null)
-      .gt('ends_at', new Date().toISOString())
-      .order('starts_at', { ascending: true })
-      .limit(150);
+      .not('calendar_last_synced_at', 'is', null);
+    query = month
+      ? query.lt('starts_at', until).gt('ends_at', from)
+      : query.gt('ends_at', new Date().toISOString());
+    const { data, error } = await query.order('starts_at', { ascending: true })
+      .limit(month ? 250 : 150);
     if (error) throw error;
+    const isSelectedMonth = (event: any) => {
+      if (!month) return true;
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit'
+      }).formatToParts(new Date(event.starts_at));
+      return parts.find(x => x.type === 'year')?.value + '-' +
+        parts.find(x => x.type === 'month')?.value === month;
+    };
     const events = (data || [])
+      .filter(isSelectedMonth)
       // Do not feature obvious test entries; those must still be cancelled separately.
       .filter((event: any) => !/^(?:testing|test event|this is a test event)$/i.test(String(event.title || '').trim()))
-      .slice(0, 120)
+      .slice(0, month ? 250 : 120)
       .map((event: any) => ({
         id: event.id,
         title: String(event.title || '').slice(0, 180),

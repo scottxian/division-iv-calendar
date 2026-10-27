@@ -111,11 +111,17 @@ for(const page of ['index.html','calendar/index.html','lodges/index.html']){
    errors.push(page+': About Division IV should be a direct navigation link');
 }
 const calendarHTML=read('calendar/index.html');
-for(const field of ['id="public-events-results"','id="event-type-filter"','id="event-lodge-filter"','id="event-district-filter"','id="event-date-filter"','id="public-event-dialog"']){
- if(!calendarHTML.includes(field))errors.push('Calendar missing interactive event-list field '+field);
+for(const field of [
+ 'id="month-days"','id="month-prev"','id="month-next"','id="month-picker"',
+ 'id="month-event-list"','id="month-category-filter"','id="month-lodge-filter"',
+ 'id="month-district-filter"','id="public-event-dialog"','id="classic-calendar"'
+]){
+ if(!calendarHTML.includes(field))errors.push('Calendar missing monthly date-grid element '+field);
 }
-if(!calendarHTML.includes('src="/public-events.js?v=1"'))
- errors.push('Calendar event-directory script is missing');
+if(!calendarHTML.includes('src="/month-calendar.js?v=1"'))
+ errors.push('New monthly calendar script is missing');
+if(calendarHTML.includes('src="/public-events.js?v=1"'))
+ errors.push('Old list-only calendar script must not load on monthly calendar');
 if(calendarHTML.includes('href="/calendar/" target="_blank"'))
  errors.push('Calendar fallback must open Google Calendar rather than itself');
 if(!read('index.html').includes('/home-events.js?v=4'))
@@ -123,7 +129,7 @@ if(!read('index.html').includes('/home-events.js?v=4'))
 if(!read('lodges/index.html').includes('id="lodge-correction-form"')||
    !read('lodges/index.html').includes('/lodge-correction.js?v=3'))
  errors.push('Directory correction reporting is missing');
-for(const file of ['public-events.js','lodge-correction.js','home-events.js','app/corrections-admin.js']){
+for(const file of ['month-calendar.js','public-events.js','lodge-correction.js','home-events.js','app/corrections-admin.js']){
  try{new vm.Script(read(file),{filename:file})}catch(e){errors.push(file+': '+e.message)}
 }
 
@@ -166,6 +172,22 @@ if(read('lodge-correction.js').includes('mailto:')){
 if(!read('app/app.js').includes("key==='corrections'")||
    !read('app/app.js').includes('window.loadCorrections')){
  errors.push('Inspector Desk must register the Corrections tab');
+}
+
+// Month browsing must use only the public, already-published event feed.
+const feed=read('supabase/functions/division-upcoming-events/index.ts');
+if(!feed.includes("searchParams.get('month')") ||
+   !feed.includes(".eq('status', 'active')") ||
+   !feed.includes(".not('google_event_id', 'is', null)") ||
+   !feed.includes(".not('calendar_last_synced_at', 'is', null)") ||
+   !feed.includes('month ? 250 : 150') ||
+   feed.includes('poc_email') || feed.includes('virtual_meeting_url')){
+ errors.push('Month calendar must only query active, synced, public event data');
+}
+if(!read('month-calendar.js').includes('getParts(e.starts_at).month===month') ||
+   !read('month-calendar.js').includes("setAttribute('aria-pressed'") ||
+   !read('month-calendar.js').includes('month-date-mark')){
+ errors.push('Monthly browser must render selected dates and published-event dots');
 }
 
 console.log('Staged pages:',pages.length,'JS files:',scripts.length,'link/asset references checked:',checkedLinks);

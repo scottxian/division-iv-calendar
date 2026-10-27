@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#091b31"><meta name="description" content="Browse Division IV Masonic events, degrees, schools of instruction, and lodge gatherings. See event dates, times, locations, and details."><title>Calendar | Division IV Masons</title><link rel="icon" href="/assets/favicon.png"><link rel="stylesheet" href="/styles.css?v=9">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#091b31"><meta name="description" content="Browse Division IV Masonic events, degrees, schools of instruction, and lodge gatherings. See event dates, times, locations, and details."><title>Calendar | Division IV Masons</title><link rel="icon" href="/assets/favicon.png"><link rel="stylesheet" href="/styles.css?v=13">
 <link rel="canonical" href="https://divisionivmasons.org/calendar/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Division IV Masons">
@@ -39,25 +39,45 @@
 <p>Our live calendar of approved lodge events, degree ceremonies, awards, and fellowship. Events appear after inspector approval. All times are Pacific.</p>
 </section>
 <section class="calendar-main" aria-labelledby="calendar-heading"><div class="calendar-container">
-<div class="calendar-intro"><div><p class="kicker">EVENTS &amp; GATHERINGS</p><h2 id="calendar-heading">Upcoming events</h2><p>Use the searchable list below, or browse by month or agenda in Google Calendar.</p></div>
+<div class="calendar-intro"><div><p class="kicker">EVENTS &amp; GATHERINGS</p><h2 id="calendar-heading">Browse the Division calendar</h2><p>Select a month or day and see approved lodge events beside the calendar. Tap an event for its details.</p></div>
 <div class="calendar-buttons"><a class="btn navy" href="/events/" target="_blank" rel="noopener noreferrer">Submit or change an event ↗</a></div></div>
-<section class="public-events-panel" id="events-list" aria-labelledby="public-events-title"><div class="public-events-intro"><div><p class="kicker">FIND AN EVENT</p><h3 id="public-events-title">Division event directory</h3><p>Search upcoming published events and open individual details. Times are Pacific.</p></div><span id="events-list-count" role="status">Loading events…</span></div>
-<div class="public-event-filters">
-<label>Event type<select id="event-type-filter"><option value="">All event types</option></select></label>
-<label>Host lodge<select id="event-lodge-filter"><option value="">All host lodges</option></select></label>
-<label>District<select id="event-district-filter"><option value="">All districts</option></select></label>
-<label>On or after<input type="date" id="event-date-filter"></label>
-<button class="btn navy" id="event-filters-reset" type="button">Clear filters</button>
-</div><div id="events-list-status" role="status" class="public-events-status"></div>
-<div id="public-events-results" class="public-events-results"></div>
+<section class="division-calendar-board" id="events-list" aria-labelledby="month-browser-heading">
+  <div class="calendar-browser-layout">
+    <div class="calendar-month-side">
+      <div class="calendar-month-toolbar">
+        <button id="month-prev" type="button" class="month-arrow" aria-label="Previous month">←</button>
+        <label class="calendar-month-picker"><span class="visually-hidden">Choose month</span><input type="month" id="month-picker" aria-label="Choose month"></label>
+        <button id="month-next" type="button" class="month-arrow" aria-label="Next month">→</button>
+      </div>
+      <div class="calendar-weekday-row" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+      <div id="month-days" class="calendar-days-grid" role="group" aria-label="Select a day to filter events"><p class="calendar-feed-loading">Loading calendar…</p></div>
+      <div class="calendar-legend" aria-label="Calendar legend"><span><i class="legend-dot"></i> Day with event</span><span><i class="legend-selected"></i> Selected day</span><span><i class="legend-today"></i> Today</span></div>
+      <div class="month-side-actions"><button id="month-today" class="month-today" type="button">This month</button><button id="month-clear-day" class="month-clear-day" type="button" hidden>Show all days</button></div>
+    </div>
+    <div class="calendar-events-side">
+      <div class="calendar-list-top">
+        <div><p class="kicker">DIVISION IV EVENTS</p><h3 id="month-browser-heading">Calendar of Events</h3><p class="month-list-subtitle" id="month-list-summary" aria-live="polite">Loading published events…</p></div>
+        <div class="month-filter"><label for="month-category-filter">Filter by category</label><select id="month-category-filter"><option value="">All categories</option></select></div>
+      </div>
+      <details class="month-advanced-filters"><summary>Filter by lodge or district</summary>
+        <div class="month-filter-grid"><label>Host lodge<select id="month-lodge-filter"><option value="">All lodges</option></select></label><label>District<select id="month-district-filter"><option value="">All districts</option></select></label><button id="month-reset-filters" type="button">Clear filters</button></div>
+      </details>
+      <div id="month-events-message" class="month-events-message" role="status" aria-live="polite"></div>
+      <div id="month-event-list" class="month-event-list" aria-label="Approved events for selected month"></div>
+    </div>
+  </div>
 </section>
 <dialog id="public-event-dialog" class="public-event-dialog" aria-label="Division IV event details"><button type="button" id="public-event-close" class="public-event-close" aria-label="Close event details">✕</button><div id="public-event-detail"></div></dialog>
-<div class="calendar-view-controls" role="group" aria-label="Calendar display mode"><span>Display:</span><button type="button" data-calendar-mode="AGENDA" aria-pressed="false">Agenda</button><button type="button" data-calendar-mode="MONTH" aria-pressed="true">Month</button></div><div class="calendar-embed"><iframe title="Live Division IV Masonic Events Google Calendar" src="https://calendar.google.com/calendar/embed?src=dd8692800e837b4dd367c15738ed95f5fd198e95a30e9d7f1afb98ac3aa3fea5%40group.calendar.google.com&amp;ctz=America%2FLos_Angeles&amp;mode=MONTH&amp;showTitle=0&amp;showCalendars=0" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
-<p class="calendar-help">The calendar above updates as approved events are published. If it doesn't display in your browser, <a id="calendar-external-link" href="https://calendar.google.com/calendar/embed?src=dd8692800e837b4dd367c15738ed95f5fd198e95a30e9d7f1afb98ac3aa3fea5%40group.calendar.google.com&amp;ctz=America%2FLos_Angeles" target="_blank" rel="noopener noreferrer"><u>open the public Google Calendar in a separate tab ↗</u></a>.</p>
+<details class="google-calendar-drawer" id="classic-calendar">
+  <summary>Prefer the classic Google Calendar? <span>Open full calendar view</span></summary>
+  <div class="calendar-view-controls" role="group" aria-label="Google Calendar display mode"><span>Display:</span><button type="button" data-calendar-mode="AGENDA" aria-pressed="false">Agenda</button><button type="button" data-calendar-mode="MONTH" aria-pressed="true">Month</button></div>
+  <div class="calendar-embed"><iframe title="Live Division IV Masonic Events Google Calendar" src="https://calendar.google.com/calendar/embed?src=dd8692800e837b4dd367c15738ed95f5fd198e95a30e9d7f1afb98ac3aa3fea5%40group.calendar.google.com&amp;ctz=America%2FLos_Angeles&amp;mode=MONTH&amp;showTitle=0&amp;showCalendars=0" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+  <p class="calendar-help">If Google Calendar doesn't display in your browser, <a id="calendar-external-link" href="https://calendar.google.com/calendar/embed?src=dd8692800e837b4dd367c15738ed95f5fd198e95a30e9d7f1afb98ac3aa3fea5%40group.calendar.google.com&amp;ctz=America%2FLos_Angeles" target="_blank" rel="noopener noreferrer"><u>open Google Calendar in a separate tab ↗</u></a>.</p>
+</details>
 <div class="calendar-subscriptions"><h3>Stay connected</h3>
 <p>Subscribe once to keep Division IV events in your own calendar application.</p>
 <div class="calendar-buttons">
 <a href="https://calendar.google.com/calendar/u/0/r?cid=dd8692800e837b4dd367c15738ed95f5fd198e95a30e9d7f1afb98ac3aa3fea5%40group.calendar.google.com" target="_blank" rel="noopener noreferrer">Add to Google Calendar ↗</a>
 <a href="webcal://calendar.google.com/calendar/ical/dd8692800e837b4dd367c15738ed95f5fd198e95a30e9d7f1afb98ac3aa3fea5%40group.calendar.google.com/public/basic.ics">Subscribe in Apple / Outlook ↗</a>
 <a href="https://calendar.google.com/calendar/ical/dd8692800e837b4dd367c15738ed95f5fd198e95a30e9d7f1afb98ac3aa3fea5%40group.calendar.google.com/public/basic.ics" target="_blank" rel="noopener noreferrer">Download / use .ics feed ↗</a></div></div>
-</div></section></main><footer><div class="footer-brand"><img src="/assets/emblem.png" alt=""><span class="division-wordmark"><strong>DIVISION IV MASONS</strong><small>Fellowship. Leadership. Service.</small><span class="brand-affiliation">Grand Lodge of California</span></span></div><div class="footer-links"><a href="/">Home ↑</a><a href="/calendar/">Calendar ↗</a></div><small>Free and Accepted Masons • <a href="https://freemason.org/" target="_blank" rel="noopener noreferrer">freemason.org</a></small></footer><script src="/script.js" defer></script><script src="/public-events.js?v=1" defer></script></body></html>
+</div></section></main><footer><div class="footer-brand"><img src="/assets/emblem.png" alt=""><span class="division-wordmark"><strong>DIVISION IV MASONS</strong><small>Fellowship. Leadership. Service.</small><span class="brand-affiliation">Grand Lodge of California</span></span></div><div class="footer-links"><a href="/">Home ↑</a><a href="/calendar/">Calendar ↗</a></div><small>Free and Accepted Masons • <a href="https://freemason.org/" target="_blank" rel="noopener noreferrer">freemason.org</a></small></footer><script src="/script.js" defer></script><script src="/month-calendar.js?v=1" defer></script></body></html>

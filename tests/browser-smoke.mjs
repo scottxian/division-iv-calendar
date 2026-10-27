@@ -30,8 +30,41 @@ try{
  const desktop=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
  await check(desktop,'Homepage','/','h1','home-desktop.png');
  assert.ok(await desktop.locator('a[href="/events/"]').count(),'Homepage missing event request route');
+ // Mock the public read-only month feed for deterministic UI tests.
+ await desktop.route('**/functions/v1/division-upcoming-events?month=*',async route=>{
+   const month=new URL(route.request().url()).searchParams.get('month');
+   const events=[{
+     id:'11111111-1111-4111-8111-111111111111',title:'Mock Published Degree',
+     event_type:'Fellow Craft Degree',hosted_by:'Sample Lodge No. 173',district:'428',
+     starts_at:month+'-06T19:00:00Z',ends_at:month+'-06T20:00:00Z',
+     event_mode:'in_person',location_name:'Sample Masonic Hall',location_tbd:false,
+     public_description:'Calendar browser test entry'
+   },{
+     id:'22222222-2222-4222-8222-222222222222',title:'Mock Division Fellowship',
+     event_type:'Special Event',hosted_by:'Sample Lodge No. 19',district:'428',
+     starts_at:month+'-12T19:00:00Z',ends_at:month+'-12T20:00:00Z',
+     event_mode:'in_person',location_name:'Sample Lodge',location_tbd:false
+   }];
+   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({events})});
+ });
  await check(desktop,'Calendar','/calendar/','h1','calendar-desktop.png');
- assert.ok(await desktop.locator('iframe[src*="calendar.google.com"]').count(),'Calendar embed not found');
+ await desktop.locator('.month-event-row').first().waitFor({state:'visible',timeout:12000});
+ assert.equal(await desktop.locator('.month-event-row').count(),2,'Month list must render the published event feed');
+ assert.equal(await desktop.locator('.month-date.has-events').count(),2,'Calendar must highlight two event dates');
+ const monthText=await desktop.locator('#month-browser-heading').textContent();
+ await desktop.locator('.month-date.has-events').first().click();
+ assert.equal(await desktop.locator('.month-event-row').count(),1,'Selecting a calendar day must filter right-hand event list');
+ await desktop.locator('.month-event-row').first().click();
+ await desktop.locator('#public-event-dialog[open]').waitFor({state:'visible',timeout:7000});
+ assert.equal(await desktop.locator('#public-event-detail h2').textContent(),'Mock Published Degree');
+ await desktop.locator('#public-event-close').click();
+ await desktop.locator('#month-clear-day').click();
+ assert.equal(await desktop.locator('.month-event-row').count(),2,'Clearing selected day restores month list');
+ await desktop.locator('#month-next').click();
+ await desktop.locator('.month-event-row').first().waitFor({state:'visible',timeout:12000});
+ assert.notEqual(await desktop.locator('#month-browser-heading').textContent(),monthText,'Next month must change heading');
+ assert.ok(await desktop.locator('iframe[src*="calendar.google.com"]').count(),'Classic Google Calendar embed must remain');
+ pass.push('Month navigation, event-day markers, event modal, and filtered timeline');
  await check(desktop,'Lodge directory','/lodges/','#lodge-search','lodges-desktop.png');
  await check(desktop,'Public event requests','/events/','#public-view','events-desktop.png');
  await desktop.locator('.choice[data-mode="new"]').click();
