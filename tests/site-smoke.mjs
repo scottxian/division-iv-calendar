@@ -103,6 +103,30 @@ if(!read('inspectors/index.html').includes('name="robots" content="noindex, nofo
  errors.push('Inspector Desk must declare noindex');
 if(!fileExists('assets/emblem.png'))errors.push('Public preview emblem is missing');
 
+
+// Public usability checks (event-specific links, direct Division navigation and correction routing).
+for(const page of ['index.html','calendar/index.html','lodges/index.html']){
+ const html=read(page);
+ if(!html.includes('class="nav-division-direct" href="/#about"'))
+   errors.push(page+': About Division IV should be a direct navigation link');
+}
+const calendarHTML=read('calendar/index.html');
+for(const field of ['id="public-events-results"','id="event-type-filter"','id="event-lodge-filter"','id="event-district-filter"','id="event-date-filter"','id="public-event-dialog"']){
+ if(!calendarHTML.includes(field))errors.push('Calendar missing interactive event-list field '+field);
+}
+if(!calendarHTML.includes('src="/public-events.js?v=1"'))
+ errors.push('Calendar event-directory script is missing');
+if(calendarHTML.includes('href="/calendar/" target="_blank"'))
+ errors.push('Calendar fallback must open Google Calendar rather than itself');
+if(!read('index.html').includes('/home-events.js?v=3'))
+ errors.push('Homepage event links should use the updated event-specific navigation');
+if(!read('lodges/index.html').includes('id="lodge-correction-form"')||
+   !read('lodges/index.html').includes('/lodge-correction.js?v=1'))
+ errors.push('Directory correction reporting is missing');
+for(const file of ['public-events.js','lodge-correction.js','home-events.js']){
+ try{new vm.Script(read(file),{filename:file})}catch(e){errors.push(file+': '+e.message)}
+}
+
 console.log('Staged pages:',pages.length,'JS files:',scripts.length,'link/asset references checked:',checkedLinks);
 if(errors.length){
  for(const e of errors)console.error('FAIL:',e);

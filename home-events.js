@@ -52,10 +52,10 @@
     const where=line(event.event_mode==='hybrid'?location+' · Online option':location);
     where.classList.add('upcoming-location');
     const link=document.createElement('a');
-    link.href='/calendar/';
+    link.href=event.id?'/calendar/?event='+encodeURIComponent(event.id)+'#events-list':'/calendar/';
     link.className='upcoming-card-link';
-    link.textContent='View calendar ↗';
-    link.setAttribute('aria-label','View the Division IV calendar for '+title.textContent);
+    link.textContent='Event details ↗';
+    link.setAttribute('aria-label','View public event details for '+title.textContent);
     info.append(title);
     if(hostedBy)info.append(hostedBy);
     info.append(timing,where,link);

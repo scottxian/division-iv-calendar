@@ -74,8 +74,18 @@
   home.className='nav-home';
   if(onHome)home.setAttribute('aria-current','page');
   nav.append(home);
-  // Inspector access is always a single top-level link, never a public resources dropdown.
+  // A single About destination should not be hidden behind a dropdown.
+  const about=items.filter(item=>item?.group==='division')
+    .map(item=>({label:item.label,href:resolve(item.href,s,'division')}))
+    .filter(item=>item.href&&typeof item.label==='string'&&item.label.trim());
+  if(about.length===1){
+    const direct=link('Division',about[0].href,about[0].href.startsWith('https://'));
+    direct.className='nav-division-direct';direct.addEventListener('click',closeMenu);
+    nav.append(direct);
+  }
+  // Inspector access remains a single direct link.
   for(const [id,title] of groups){
+   if(id==='division'&&about.length===1)continue;
    const wrapper=document.createElement('div');wrapper.className='nav-group';
    const button=document.createElement('button');button.className='nav-trigger';button.type='button';
    button.textContent=title+' ';
@@ -153,6 +163,14 @@
    button.classList.toggle('is-active',chosen);
    button.setAttribute('aria-pressed',String(chosen));
   });
+  const openGoogle=document.getElementById('calendar-external-link');
+  if(openGoogle){
+    const view=new URL('https://calendar.google.com/calendar/embed');
+    view.searchParams.set('src',s.calendar_id||base.calendar_id);
+    view.searchParams.set('ctz',s.calendar_timezone||base.calendar_timezone);
+    view.searchParams.set('mode','AGENDA');
+    openGoogle.href=view.href;
+  }
   const id=encodeURIComponent(s.calendar_id||base.calendar_id);
   const google='https://calendar.google.com/calendar/u/0/r?cid='+id;
   const feed='https://calendar.google.com/calendar/ical/'+id+'/public/basic.ics';
