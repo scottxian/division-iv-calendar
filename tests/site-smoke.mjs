@@ -96,8 +96,8 @@ for(const file of searchable){
 }
 if(!read('robots.txt').includes('Sitemap: https://divisionivmasons.org/sitemap.xml'))
  errors.push('robots.txt does not announce the sitemap');
-if(!read('robots.txt').includes('Disallow: /inspectors/'))
- errors.push('robots.txt must exclude the Inspector Desk');
+if(read('robots.txt').includes('Disallow: /inspectors/'))
+ errors.push('robots.txt must allow the Inspector Desk noindex meta tag to be read');
 if(!read('inspectors/index.html').includes('name="robots" content="noindex, nofollow, noarchive"'))
  errors.push('Inspector Desk must declare noindex');
 if(!fileExists('assets/emblem.png'))errors.push('Public preview emblem is missing');
