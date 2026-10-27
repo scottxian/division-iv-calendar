@@ -81,7 +81,7 @@ if(!read('app/app.js').includes("location.pathname.startsWith('/inspectors/')"))
 const searchable=['index.html','calendar/index.html','lodges/index.html','events/index.html'];
 for(const file of searchable){
  const html=read(file);
- const route=file==='index.html'?'/':file.replace(/index\.html$/,'');
+ const route=file==='index.html'?'/':'/'+file.replace(/index\.html$/,'');
  const canonical='https://divisionivmasons.org'+route;
  for(const needle of [
   'rel="canonical" href="'+canonical+'"',
