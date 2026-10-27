@@ -41,17 +41,24 @@
     info.className='upcoming-details';
     const title=document.createElement('h3');
     title.textContent=String(event.title||'Division IV Event');
-    const timing=line(dateParts(start,{weekday:'long',hour:'numeric',minute:'2-digit',hour12:true})+' PT');
+    const hostName=String(event.hosted_by||'').trim();
+    const hostedBy=hostName?line('Hosted by '+hostName):null;
+    if(hostedBy)hostedBy.classList.add('upcoming-host');
+    const timing=line('Time: '+dateParts(start,{hour:'numeric',minute:'2-digit',hour12:true})+' Pacific');
+    timing.classList.add('upcoming-time');
     const location=event.event_mode==='online'?'Online event':
       event.location_tbd?'Location to be announced':
       event.location_name||'Location to be announced';
     const where=line(event.event_mode==='hybrid'?location+' · Online option':location);
+    where.classList.add('upcoming-location');
     const link=document.createElement('a');
     link.href='/calendar/';
     link.className='upcoming-card-link';
     link.textContent='View calendar ↗';
     link.setAttribute('aria-label','View the Division IV calendar for '+title.textContent);
-    info.append(title,timing,where,link);
+    info.append(title);
+    if(hostedBy)info.append(hostedBy);
+    info.append(timing,where,link);
     article.append(date,info);
     return article;
   }
