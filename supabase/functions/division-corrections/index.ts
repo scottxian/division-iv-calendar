@@ -4,7 +4,7 @@ import {createClient} from 'npm:@supabase/supabase-js@2.57.0';
 const db=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   {auth:{persistSession:false,autoRefreshToken:false}});
 const allowed=new Set(['https://divisionivmasons.org','https://www.divisionivmasons.org','https://scottxian.github.io']);
-const categories=new Set(['meeting','location','directory','other']);
+const categories=new Set(['meeting','location','directory']);
 const statuses=new Set(['pending','reviewing','completed','rejected']);
 const isUuid=(s:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
@@ -50,7 +50,7 @@ async function publicSubmission(req:Request,origin:string){
   const category=typeof body.category==='string'?body.category:'';
   const contact=typeof body.reply==='string'?body.reply.trim().slice(0,255):'';
   if(lodge.length<2||lodge.length>160||details.length<15||details.length>1600||!categories.has(category))
-    return bad('Please provide a lodge, correction type, and clear details',400,origin);
+    return bad('This form accepts lodge directory corrections only. Event changes and cancellations must use the official calendar request form at divisionivmasons.org/events/',400,origin);
   if(contact.length>254||/[\r\n<>]/.test(contact))return bad('Invalid reply contact',400,origin);
   const ip=(req.headers.get('cf-connecting-ip')||req.headers.get('x-forwarded-for')||'').split(',')[0].trim().slice(0,100);
   const secret=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';

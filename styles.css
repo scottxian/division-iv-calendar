@@ -313,3 +313,11 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
 
 /* Concealed antispam field: visible only to automated form fillers. */
 .correction-honeypot{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}
+
+/* Make the boundary between lodge records and individual calendar events explicit. */
+.correction-scope{border-left:4px solid #ad8544;background:#fffdf7;border-radius:4px;padding:16px 19px;margin:16px 0 24px;color:#22394e}
+.correction-scope strong{display:block;font-size:14px;line-height:1.5;color:#18334a}
+#lodge-correction .correction-scope p{margin:7px 0 12px;color:#41566a;font-size:13px;line-height:1.6}
+.correction-event-link{display:inline-block;color:#6d4b19;text-decoration:underline;text-underline-offset:4px;font-size:13px;font-weight:750}
+.correction-event-link:hover{color:#132e45}
+.correction-event-link:focus-visible{outline:2px solid #926b2c;outline-offset:4px}

@@ -121,7 +121,7 @@ if(calendarHTML.includes('href="/calendar/" target="_blank"'))
 if(!read('index.html').includes('/home-events.js?v=4'))
  errors.push('Homepage event links should use the updated event-specific navigation');
 if(!read('lodges/index.html').includes('id="lodge-correction-form"')||
-   !read('lodges/index.html').includes('/lodge-correction.js?v=2'))
+   !read('lodges/index.html').includes('/lodge-correction.js?v=3'))
  errors.push('Directory correction reporting is missing');
 for(const file of ['public-events.js','lodge-correction.js','home-events.js','app/corrections-admin.js']){
  try{new vm.Script(read(file),{filename:file})}catch(e){errors.push(file+': '+e.message)}
@@ -145,8 +145,20 @@ if(!correctionSource.includes("await requireAdmin(req)")||
 const correctionForm=read('lodges/index.html');
 if(!correctionForm.includes('Submit correction for review')||
    !correctionForm.includes('name="website"')||
-   !correctionForm.includes('/lodge-correction.js?v=2')){
+   !correctionForm.includes('/lodge-correction.js?v=3')){
  errors.push('Public correction form must submit directly to the private review queue');
+}
+// Separate standing lodge directory information from individual calendar events.
+if(correctionForm.includes('<option>Other correction</option>') ||
+   !correctionForm.includes('Directory corrections only') ||
+   !correctionForm.includes('href="/events/" class="correction-event-link"') ||
+   !read('lodge-correction.js').includes("'Directory details':'directory'") ||
+   read('lodge-correction.js').includes("'Other correction':'other'")){
+ errors.push('Lodge corrections must route calendar changes through the official event request form');
+}
+if(correctionSource.includes("const categories=new Set(['meeting','location','directory','other'])") ||
+   !correctionSource.includes("const categories=new Set(['meeting','location','directory'])")){
+ errors.push('Correction endpoint must reject unsupported request categories');
 }
 if(read('lodge-correction.js').includes('mailto:')){
  errors.push('Public correction form must not rely on email software');
