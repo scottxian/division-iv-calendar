@@ -17,6 +17,7 @@ for(const page of pages){
  if(!fileExists(page)){errors.push('Missing page: '+page);continue;}
  const html=read(page);
  if(/\b(?:src|href)=["']{2}/.test(html))errors.push(page+': malformed quoted src/href');
+ if (/<a\s+<a\b/i.test(html)) errors.push(page+': malformed duplicate anchor tag');
  const seen=new Set();
  for(const match of html.matchAll(/\bid=["']([^"']+)["']/g)){
   if(seen.has(match[1]))errors.push(page+': duplicate id '+match[1]);

@@ -29,7 +29,6 @@
  const destinations=[
   ['','Custom website path or HTTPS URL','Enter /calendar/, /events/, or a complete HTTPS URL.'],
   ['/#about','About Division IV','About section on the homepage'],
-  ['/#contact','Contact','Contact section on the homepage'],
   ['/#home','Homepage','Home section of the website'],
   ['/lodges/','Lodge Directory','Public lodge directory'],
   ['/calendar/','Public Calendar','Live embedded public calendar'],

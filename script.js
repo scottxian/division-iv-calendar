@@ -11,7 +11,6 @@
   website_site_url:'https://divisionivmasons.org',
   website_navigation:[
    {group:'division',label:'About Division IV',href:'index.html#about'},
-   {group:'division',label:'Contact',href:'index.html#contact'},
    {group:'lodges',label:'Lodge Directory',href:'lodges.html'},
    {group:'lodges',label:'Grand Lodge Finder ↗',href:'@grand_lodge'},
    {group:'calendar',label:'View Division IV Calendar',href:'calendar.html'},
