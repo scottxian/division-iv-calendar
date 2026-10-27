@@ -48,6 +48,8 @@ try{
    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({events})});
  });
  await check(desktop,'Calendar','/calendar/','h1','calendar-desktop.png');
+ const monthPickerWidth=await desktop.locator('#month-picker').evaluate(el=>el.getBoundingClientRect().width);
+ assert.ok(monthPickerWidth>=200,'Month label is too narrow and may overlap its picker icon');
  await desktop.locator('.month-event-row').first().waitFor({state:'visible',timeout:12000});
  assert.equal(await desktop.locator('.month-event-row').count(),2,'Month list must render the published event feed');
  assert.equal(await desktop.locator('.month-date.has-events').count(),2,'Calendar must highlight two event dates');
