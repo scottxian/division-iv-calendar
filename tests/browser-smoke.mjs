@@ -69,6 +69,10 @@ try{
  pass.push('Month navigation, event-day markers, event modal, and filtered timeline');
  await check(desktop,'Lodge directory','/lodges/','#lodge-search','lodges-desktop.png');
  await check(desktop,'Public event requests','/events/','#public-view','events-desktop.png');
+ assert.match(await desktop.locator('#nav-public').textContent(),/Calendar Submissions/);
+ assert.match(await desktop.locator('.hero h1').textContent(),/Calendar submissions/);
+ assert.match(await desktop.locator('.hero p').first().textContent(),/Lodges schedule their own activities/);
+ pass.push('Public submission language preserves lodge scheduling authority');
  await desktop.locator('.choice[data-mode="new"]').click();
  const newTbd=desktop.locator('#new-location-tbd');
  await desktop.locator('#new-form .location-tbd-control').click();
@@ -104,6 +108,38 @@ try{
  await desktop.locator('#notice').getByText('Check your email',{exact:false}).waitFor({timeout:10000});
  assert.equal(capturedRedirect,base+'/inspectors/','Inspector OTP sign-in must explicitly request the Inspector Desk redirect');
  pass.push('Inspector magic-link destination');
+
+ // Inspector review is verified using mocked read-only details; no event is published.
+ await desktop.route('**/functions/v1/division-calendar?action=detail*',async route=>{
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+   request:{id:'11111111-1111-4111-8111-111111111119',request_code:'DIV4-SMOKE-SUBMISSION',
+     request_type:'new',status:'pending',edit_version:0,
+     submitted_at:'2026-11-01T00:00:00Z',requester_name:'Sample Sender',
+     requester_email:'test@example.invalid',proposed_fields:{
+       title:'Mock Degree Listing',event_type:'Fellow Craft Degree',
+       hosted_by:'Sample Lodge No. 173',district:'428',
+       start_local:'2026-11-06T11:00',end_local:'2026-11-06T12:00',
+       event_mode:'in_person',location_name:'Sample Masonic Hall'
+     }},
+   event:null,history:[],calendar:[],email:[]
+  })});
+ });
+ await desktop.evaluate(()=>{
+  document.getElementById('admin-view').classList.remove('hidden');
+  document.getElementById('tab-requests').classList.remove('hidden');
+ });
+ await desktop.evaluate(()=>detail('smoke-submission'));
+ const verify=desktop.locator('#review-actions button',{hasText:'Verify & Publish'});
+ await verify.waitFor({state:'visible',timeout:10000});
+ assert.equal(await desktop.locator('#request-detail').getByText('Awaiting Publication').count()>0,true,
+  'Pending internal state must display as Awaiting Publication');
+ assert.equal(await desktop.locator('#review-actions button',{hasText:'Return for Correction'}).count(),1,
+  'Return for Correction must keep existing inspector workflow');
+ await verify.click();
+ await desktop.locator('#division-confirm-dialog[open]').waitFor({state:'visible',timeout:5000});
+ assert.match(await desktop.locator('#division-dialog-message').textContent(),/not the lodge.s authority to schedule/);
+ await desktop.locator('#division-dialog-no').click(); // No publication request is sent
+ pass.push('Inspector verification actions, status labels and safe confirmation');
 
  // A published event must open a real inspector editor, even when Location TBD lives outside <details>.
  // Intercept the read-only event lookup; no live accounts, event writes, or notifications.

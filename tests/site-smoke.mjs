@@ -52,8 +52,8 @@ const required={
  'index.html':['href="/events/"','href="/calendar/"','href="/inspectors/"'],
  'calendar/index.html':['href="/events/"'],
  'lodges/index.html':['href="/events/"'],
- 'events/index.html':['/app/app.js?v=45','/app/mfa.js?v=8'],
- 'inspectors/index.html':['/app/app.js?v=45','/app/mfa.js?v=8']
+ 'events/index.html':['/app/app.js?v=47','/app/mfa.js?v=8'],
+ 'inspectors/index.html':['/app/app.js?v=47','/app/mfa.js?v=8']
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
@@ -137,7 +137,7 @@ for(const file of ['month-calendar.js','public-events.js','lodge-correction.js',
 // Correction queue must remain a private, administrator-only inspector function.
 for(const page of ['events/index.html','inspectors/index.html']){
  const html=read(page);
- for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=1"','src="/app/app.js?v=45"']){
+ for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=1"','src="/app/app.js?v=47"']){
   if(!html.includes(marker))errors.push(page+': missing private correction queue '+marker);
  }
 }
@@ -189,6 +189,44 @@ if(!read('month-calendar.js').includes('getParts(e.starts_at).month===month') ||
    !read('month-calendar.js').includes('month-date-mark')){
  errors.push('Monthly browser must render selected dates and published-event dots');
 }
+
+
+// Inspector publication terminology: UI labels only, never changed status keys.
+for(const path of ['events/index.html','inspectors/index.html']){
+ const html=read(path);
+ for(const phrase of ['Calendar submissions, made simple.','Review Submissions','Awaiting Publication',
+  'Verified for Publication','Returned for Correction','Not Published',
+  'Lodges schedule their own activities']){
+  if(!html.includes(phrase))errors.push(path+': missing publication terminology '+phrase);
+ }
+ if(/Calendar requests, made simple|Approve & Publish|Pending Approval|<option value="approved">Approved<\/option>/.test(html))
+   errors.push(path+': old permission-oriented terminology remains');
+ if(!html.includes('/app/app.js?v=47')||!html.includes('/app/styles.css?v=21'))
+   errors.push(path+': current publication UI cache version missing');
+}
+const publicationUI=read('app/app.js');
+for(const phrase of ["'Verify & Publish'","'Return for Correction'","'Do Not Publish'",
+ 'Calendar coordination (advisory only)',"pending:'Awaiting Publication'",
+ "approved:'Verified for Publication'","needs_correction:'Returned for Correction'"]){
+ if(!publicationUI.includes(phrase))errors.push('Inspector publication UI missing '+phrase);
+}
+for(const old of ['Approve & Publish','Pending inspector approval','Approve this request']){
+ if(publicationUI.includes(old))errors.push('Permission-oriented UI wording remains: '+old);
+}
+for(const edge of ['division-calendar','division-jobs']){
+ const server=read('supabase/functions/'+edge+'/index.ts');
+ if(!server.includes("'approved'")||!server.includes('event_requests'))
+  errors.push(edge+': expected internal status values or storage identifiers changed');
+}
+const mailer=read('supabase/functions/division-jobs/index.ts');
+for(const phrase of ['Calendar submission received:','awaiting verification for calendar publication',
+ 'Verified for Publication','Returned for Correction','Not Published',
+ 'This means the listing was not published']){
+ if(!mailer.includes(phrase))errors.push('Email template missing '+phrase);
+}
+if(!read('app/app.js').includes('Communicate with the hosts')||
+   !read('app/app.js').includes('This does not prevent publication'))
+ errors.push('Overlapping events must be advisory, not a publication gate');
 
 console.log('Staged pages:',pages.length,'JS files:',scripts.length,'link/asset references checked:',checkedLinks);
 if(errors.length){

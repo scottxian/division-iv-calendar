@@ -60,3 +60,7 @@ The current Apps Script requests are not imported yet. We must preserve request 
 Never paste private credentials in GitHub issues, source files, client-side JavaScript, or ChatGPT messages. Use the Supabase Secrets interface and a password manager.
 
 This repository is **separate from Westfield Hall Pass**.
+
+
+### Calendar language
+Lodges retain independent authority to schedule their activities. The Division IV calendar accepts submissions for verification, coordination, and publication; inspectors do not approve whether a lodge may hold an event. Internal database status values remain unchanged.

@@ -14,7 +14,7 @@
    {group:'lodges',label:'Lodge Directory',href:'lodges.html'},
    {group:'lodges',label:'Grand Lodge Finder ↗',href:'@grand_lodge'},
    {group:'calendar',label:'View Division IV Calendar',href:'calendar.html'},
-   {group:'calendar',label:'Submit / Change Event ↗',href:'@event_requests'}
+   {group:'calendar',label:'Submit / Update Event ↗',href:'@event_requests'}
   ]
  };
  const menu=document.getElementById('menu-toggle');

@@ -68,7 +68,14 @@ const all=(q,p=document)=>[...p.querySelectorAll(q)];
 const fmt=s=>s?new Date(s).toLocaleString('en-US',{timeZone:'America/Los_Angeles',dateStyle:'medium',timeStyle:'short'}):'—';
 const local=s=>s?new Date(s).toLocaleString('sv-SE',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(' ','T'):'';
 const safe=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-const nice=s=>String(s??'').replaceAll('_',' ').replace(/\b\w/g,x=>x.toUpperCase());
+// Human-facing wording only. API and database statuses remain unchanged.
+const nice=s=>{
+ const label={pending:'Awaiting Publication',approved:'Verified for Publication',
+  needs_correction:'Returned for Correction',rejected:'Not Published',
+  new:'Submit an Event',change:'Update an Event',cancel:'Cancel an Event',
+  submitted:'Submitted'};
+ return label[String(s??'')]||String(s??'').replaceAll('_',' ').replace(/\b\w/g,x=>x.toUpperCase());
+};
 function canonicalHost(value){
  const str=String(value||'').replace(/\s+/g,' ').trim();
  const match=str.match(/^(.+?)\s*,?\s*(?:Lodge\s*,?\s*)?(?:(?:No\.?)\s*|#\s*)?(\d+)$/i);
@@ -150,7 +157,7 @@ function mode(k){
  $('new-panel').classList.toggle('hidden',k!=='new');
  $('existing-panel').classList.toggle('hidden',k==='new');
  $('existing-editor').classList.add('hidden');
- $('lookup-title').textContent=k==='cancel'?'Cancel an event':'Change an event';
+ $('lookup-title').textContent=k==='cancel'?'Cancel an Event':'Update an Event';
 }
 function values(form){const f=Object.fromEntries(new FormData(form));all('[type=checkbox]',form).forEach(x=>{if(x.name)f[x.name]=x.checked});return f}
 const locationNames=['location_name','location_address1','location_address2','location_city','location_state','location_zip'];
@@ -288,8 +295,8 @@ $('new-form').onsubmit=async e=>{
   const f=values(e.target),event={};
   for(const k of ['title','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_phone','poc_email','cost_details'])event[k]=f[k]??'';
   const result=await api('submit',{kind:'new',name:f.contact_name,email:f.contact_email,phone:f.contact_phone,message:f.contact_message,website:f.website||'',turnstile_token:turnstileToken,event});
-  notify('Request received.\nRequest ID: '+result.request_code+'\nSave this number. Your event is pending inspector review, not yet published.');
-  const receipt=document.createElement('div');receipt.className='notice';receipt.style.whiteSpace='pre-line';receipt.textContent='Request received! Request ID: '+result.request_code+' — Save this number. Pending inspector approval.'; e.target.append(receipt);
+  notify('Calendar submission received.\nSubmission ID: '+result.request_code+'\nSave this number. Your listing is awaiting inspector verification and publication. Lodges schedule their own events.');
+  const receipt=document.createElement('div');receipt.className='notice';receipt.style.whiteSpace='pre-line';receipt.textContent='Submission received! Submission ID: '+result.request_code+' — Save this number. Awaiting publication verification.'; e.target.append(receipt);
   e.target.reset();syncNewLocation();turnstileToken='';if(window.turnstile)window.turnstile.reset();
  }catch(ex){notify(ex.message,true)}finally{busy(btn,false)}
 };
@@ -297,12 +304,12 @@ $('lookup-button').onclick=async e=>{
  const btn=e.currentTarget;busy(btn,true);
  try{
   const code=$('lookup-code').value.trim().toUpperCase(),email=$('lookup-email').value.trim().toLowerCase();
-  if(!code||!email)throw Error('Enter the original Request ID and contact email.');
+  if(!code||!email)throw Error('Enter the original Submission ID and contact email.');
   const {data:{session}}=await db.auth.getSession();
   if(!session||session.user.email?.toLowerCase()!==email){
     state.loginPurpose='event-contact';
     $('signin-email').value=email;show('signin');
-    notify('Verify the original contact email first. Follow the emailed sign-in link, then return to Change or Cancel.');
+    notify('Verify the original contact email first. Follow the emailed sign-in link, then return to Update or Cancel.');
     return;
   }
   const result=await api('locate',null,{code});
@@ -325,7 +332,7 @@ $('lookup-button').onclick=async e=>{
   $('event-summary').textContent=result.event.event_code+' · '+fmt(result.event.starts_at)+' · '+(result.event.location_name||'Location TBD');
   $('edit-fields').classList.toggle('hidden',state.mode==='cancel');
   $('cancel-label').classList.toggle('hidden',state.mode!=='cancel');
-  $('modify-submit').textContent=state.mode==='cancel'?'Request cancellation →':'Submit changes →';
+  $('modify-submit').textContent=state.mode==='cancel'?'Submit Cancellation →':'Submit Event Update →';
   $('existing-editor').classList.remove('hidden');toast('Event found');
  }catch(ex){notify(ex.message,true)}finally{busy(btn,false)}
 };
@@ -343,27 +350,27 @@ $('modify-form').onsubmit=async e=>{
   const {data:{session}}=await db.auth.getSession();
   if(!session)throw Error('Sign in with the original contact email');
   const result=await api('submit',{kind:state.mode,name:session.user.user_metadata.full_name||session.user.email,email:session.user.email,request_code:state.event.event_code,changes,reason:$('cancel-reason').value,message:$('modify-message').value});
-  notify('Your '+(state.mode==='cancel'?'cancellation':'change')+' request was received.\nRequest ID: '+result.request_code+'\nThe current calendar event stays unchanged until an inspector approves.');
+  notify('Your '+(state.mode==='cancel'?'cancellation':'update')+' submission was received.\nSubmission ID: '+result.request_code+'\nThe existing calendar listing remains unchanged until an inspector verifies and publishes the update.');
   $('existing-editor').classList.add('hidden');
  }catch(ex){notify(ex.message,true)}finally{busy(btn,false)}
 };
 let page=0,historyPage=0;
 async function loadRequests(p=0){
- page=Math.max(0,p);const out=$('request-list');out.textContent='Loading requests…';
+ page=Math.max(0,p);const out=$('request-list');out.textContent='Loading calendar submissions…';
  try{
   const filters={page,search:$('filter-search').value,status:$('filter-status').value,from:$('filter-from').value,to:$('filter-to').value,type:$('filter-type').value,lodge:$('filter-lodge').value,event_from:$('filter-event-from').value,event_to:$('filter-event-to').value};
   const data=await api('requests',null,filters);
-  $('count').textContent=data.total+' request'+(data.total===1?'':'s');
+  $('count').textContent=data.total+' submission'+(data.total===1?'':'s');
   $('page-label').textContent='Page '+(page+1);
   $('prev-page').disabled=page===0;$('next-page').disabled=(page+1)*50>=data.total;
   out.replaceChildren();
-  if(!data.items.length){out.textContent='No requests match your filters.';return}
+  if(!data.items.length){out.textContent='No submissions match your filters.';return}
   for(const item of data.items){
    const b=document.createElement('button');b.className='request-row';
-   b.innerHTML='<span><strong>'+safe(item.event_title||item.request_type+' request')+'</strong><small>'+safe(item.request_code)+' · '+safe(nice(item.request_type))+'</small></span><small class="date">'+safe(fmt(item.submitted_at))+'</small><span class="chip '+safe(item.status)+'">'+safe(nice(item.status))+'</span>';
+   b.innerHTML='<span><strong>'+safe(item.event_title||nice(item.request_type))+'</strong><small>'+safe(item.request_code)+' · '+safe(nice(item.request_type))+'</small></span><small class="date">'+safe(fmt(item.submitted_at))+'</small><span class="chip '+safe(item.status)+'">'+safe(nice(item.status))+'</span>';
    b.onclick=()=>detail(item.id);out.append(b);
   }
- }catch(e){out.textContent='Unable to load requests.';toast(e.message,true)}
+ }catch(e){out.textContent='Unable to load submissions.';toast(e.message,true)}
 }
 $('refresh-requests').onclick=()=>loadRequests(0);
 $('prev-page').onclick=()=>loadRequests(page-1);
@@ -407,7 +414,7 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
  if(details)details.open=false;
  locationControls(f);
  const controls=document.createElement('div');controls.className='form-actions';
- const caption=document.createElement('span');caption.textContent=buttonLabel==='Save & Update Calendar'?'Saving updates the published event and queues Google Calendar synchronization.':'Changes stay in review until an inspector approves them.';
+ const caption=document.createElement('span');caption.textContent=buttonLabel==='Save & Update Calendar'?'Saving updates the published event and queues Google Calendar synchronization.':'Changes await inspector verification before calendar publication.';
  const submit=document.createElement('button');submit.type='submit';submit.className='primary';submit.textContent=buttonLabel;
  const discard=document.createElement('button');discard.type='button';discard.className='secondary';discard.textContent='Discard';
  discard.onclick=()=>host.replaceChildren();
@@ -451,14 +458,14 @@ function calendarState(ev,job){
 }
 function auditAction(h){
  switch(h.action){
-  case 'submitted':return h.request_type==='cancel'?'Cancellation requested':h.request_type==='change'?'Change requested':'Event submitted';
-  case 'approved':return h.request_type==='cancel'?'Cancellation approved':h.request_type==='change'?'Change approved':'Event approved';
-  case 'rejected':return 'Request rejected';
-  case 'needs_correction':return 'Correction requested';
-  case 'inspector_edited':return 'Inspector revised request';
+  case 'submitted':return h.request_type==='cancel'?'Cancellation submitted':h.request_type==='change'?'Event update submitted':'Event submitted';
+  case 'approved':return h.request_type==='cancel'?'Cancellation verified for publication':h.request_type==='change'?'Update verified for publication':'Event verified for publication';
+  case 'rejected':return 'Listing not published';
+  case 'needs_correction':return 'Returned for correction';
+  case 'inspector_edited':return 'Inspector revised submission';
   case 'inspector_updated_published':return 'Inspector updated published event';
   case 'inspector_undo_published':return 'Administrator undid inspector edit';
-  case 'calendar_retry_requested':return 'Google Calendar retry requested';
+  case 'calendar_retry_requested':return 'Google Calendar retry queued';
   default:return nice(h.action);
  }
 }
@@ -479,6 +486,43 @@ function showDifferences(host, before, after){
  }
  host.append(table);
 }
+// Read-only coordination advisory. Calendar overlaps are never publication blockers.
+async function showCoordinationAdvisory(host,fields,currentEventId){
+ const start=String(fields.start_local||'').slice(0,16);
+ const end=String(fields.end_local||'').slice(0,16);
+ if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(start)||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(end)){
+  host.textContent='Calendar coordination: verify the event date and time before publication.';
+  return;
+ }
+ try{
+  const url='https://lxvceqshpjnjjlllbpaq.supabase.co/functions/v1/division-upcoming-events?month='+encodeURIComponent(start.slice(0,7));
+  const response=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});
+  if(!response.ok)throw Error('Public calendar unavailable');
+  const data=await response.json();
+  const localTime=iso=>new Date(iso).toLocaleString('sv-SE',{timeZone:'America/Los_Angeles',
+    year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(' ','T');
+  const lodgeName=String(fields.hosted_by||'').toLowerCase().trim();
+  const district=String(fields.district||'').trim();
+  const matches=(Array.isArray(data.events)?data.events:[]).filter(event=>{
+   if(event.id===currentEventId)return false;
+   const sameLodge=!!lodgeName&&String(event.hosted_by||'').toLowerCase().trim()===lodgeName;
+   const sameDistrict=!!district&&String(event.district||'').trim()===district;
+   if(!sameLodge&&!sameDistrict)return false;
+   return localTime(event.starts_at)<end&&localTime(event.ends_at)>start;
+  });
+  if(!host.isConnected)return;
+  host.replaceChildren();
+  const heading=document.createElement('strong');heading.textContent='Calendar coordination (advisory only)';
+  const note=document.createElement('p');note.textContent=matches.length
+   ?matches.length+' potentially overlapping published event(s) in the same lodge or district: '+matches.slice(0,3).map(e=>e.title).join('; ')+(matches.length>3?'; and more':'')+'. Communicate with the hosts if useful. This does not prevent publication or change the lodge’s authority to schedule.'
+   :'No overlapping published events found for this lodge or district in the selected month. This check does not include unpublished submissions.';
+  host.append(heading,note);
+ }catch{
+  host.textContent='Calendar coordination check unavailable. Inspectors may review the public calendar manually. Publication is not blocked.';
+ }
+}
+
 async function detail(id){
  const target=$('request-detail');target.classList.remove('hidden');target.textContent='Loading…';
  try{
@@ -486,20 +530,25 @@ async function detail(id){
   const submitted={...eventFormValues(event),...p};
   const effective={...eventFormValues(event),...(r.inspector_edits??p)};
   const address=[effective.location_address1,effective.location_address2,effective.location_city,effective.location_state,effective.location_zip].filter(Boolean).join(', ')||effective.location_address||'—';
-  const pairs=[['Request ID',r.request_code],['Request type',nice(r.request_type)],['Submitted',fmt(r.submitted_at)],['Status',nice(r.status)],['Title',effective.title],['Event type',effective.event_type],['Hosting lodge',effective.hosted_by],['District',effective.district?('No. '+effective.district):'—'],['Start',effective.start_local],['End',effective.end_local],['Description',effective.public_description],['Event format',nice(effective.event_mode||'in_person')],['Venue',effective.location_tbd?'Location TBD':effective.location_name],['Address',effective.location_tbd?'Location TBD':address],['Event POC name',effective.poc_name],['Event POC phone',effective.poc_phone],['Event POC email',effective.poc_email],['Cost',effective.cost_details],['Attire',effective.attire],['Audience',effective.invited_audience],['Registration URL',effective.registration_url],['Payment URL',effective.payment_url],['Flyer / invitation URL',effective.flyer_url],['Cancellation reason',effective.reason],['Contact',r.requester_name],['Email',r.requester_email],['Telephone',r.requester_phone],['Message',r.requester_message]];
-  target.innerHTML='<div class="review-title"><div><h2>'+safe(effective.title||nice(r.request_type))+'</h2><p class="muted">'+safe(r.request_code)+'</p></div><span class="chip '+safe(r.status)+'">'+safe(nice(r.status))+'</span></div><div class="detail-grid">'+pairs.map(([k,v])=>'<div><small>'+safe(k)+'</small>'+safe(v??'—')+'</div>').join('')+'</div><h3>Inspector revisions</h3><p class="help">The submitted details remain unchanged. Saved inspector corrections are recorded separately.</p><div id="request-diff"></div><div id="inspector-editor-host"></div><hr><h3>Review &amp; delivery</h3><label>Message to submitter (optional)<textarea id="review-note" rows="2"></textarea></label><div class="review-actions" id="review-actions"></div><div id="delivery-summary"></div><h3>Request history</h3><div class="timeline" id="item-history"></div>';
+  const pairs=[['Submission ID',r.request_code],['Submission type',nice(r.request_type)],['Submitted',fmt(r.submitted_at)],['Status',nice(r.status)],['Title',effective.title],['Event type',effective.event_type],['Hosting lodge',effective.hosted_by],['District',effective.district?('No. '+effective.district):'—'],['Start',effective.start_local],['End',effective.end_local],['Description',effective.public_description],['Event format',nice(effective.event_mode||'in_person')],['Venue',effective.location_tbd?'Location TBD':effective.location_name],['Address',effective.location_tbd?'Location TBD':address],['Event POC name',effective.poc_name],['Event POC phone',effective.poc_phone],['Event POC email',effective.poc_email],['Cost',effective.cost_details],['Attire',effective.attire],['Audience',effective.invited_audience],['Registration URL',effective.registration_url],['Payment URL',effective.payment_url],['Flyer / invitation URL',effective.flyer_url],['Cancellation reason',effective.reason],['Contact',r.requester_name],['Email',r.requester_email],['Telephone',r.requester_phone],['Message',r.requester_message]];
+  target.innerHTML='<div class="review-title"><div><h2>'+safe(effective.title||nice(r.request_type))+'</h2><p class="muted">'+safe(r.request_code)+'</p></div><span class="chip '+safe(r.status)+'">'+safe(nice(r.status))+'</span></div><div class="detail-grid">'+pairs.map(([k,v])=>'<div><small>'+safe(k)+'</small>'+safe(v??'—')+'</div>').join('')+'</div><h3>Inspector revisions</h3><p class="help">The submitted details remain unchanged. Saved inspector corrections are recorded separately.</p><div id="request-diff"></div><div id="inspector-editor-host"></div><hr><h3>Review &amp; delivery</h3><label>Message to submitter (optional)<textarea id="review-note" rows="2"></textarea></label><div class="review-actions" id="review-actions"></div><div id="delivery-summary"></div><h3>Submission history</h3><div class="timeline" id="item-history"></div>';
   showDifferences($('request-diff'),submitted,effective);
+  const advisory=document.createElement('div');
+  advisory.className='coordination-advisory';advisory.setAttribute('role','status');
+  advisory.textContent='Checking published calendar events for possible scheduling overlaps…';
+  target.querySelector('.detail-grid')?.insertAdjacentElement('afterend',advisory);
+  void showCoordinationAdvisory(advisory,effective,d.event?.id||r.event_id);
   const actions=$('review-actions');
   if(['pending','needs_correction'].includes(r.status)){
    if(['new','change'].includes(r.request_type)){
-    const edit=document.createElement('button');edit.className='secondary';edit.textContent=r.inspector_edits?'Edit Saved Revision':'Edit Request';
+    const edit=document.createElement('button');edit.className='secondary';edit.textContent=r.inspector_edits?'Edit Saved Revision':'Edit Submission';
     edit.onclick=()=>inspectorEditor($('inspector-editor-host'),effective,async fields=>{
       const result=await api('inspector-edit',{id,expected_version:r.edit_version,fields});
       toast(result.notice||'Revision saved');await detail(id);
     });
     actions.append(edit);
    }
-   for(const [decision,label,style] of [['approved','Approve & Publish','primary'],['needs_correction','Hold — Needs Correction','secondary'],['rejected','Reject','danger']]){
+   for(const [decision,label,style] of [['approved','Verify & Publish','primary'],['needs_correction','Return for Correction','secondary'],['rejected','Do Not Publish','danger']]){
     const button=document.createElement('button');button.className=style;button.textContent=label;
     button.onclick=()=>{
       if($('inspector-editor-host')?.querySelector('form')){toast('Save or discard your edits before reviewing.',true);return;}
@@ -508,13 +557,13 @@ async function detail(id){
     actions.append(button);
    }
   }else{
-   actions.textContent='Decision recorded. The original approval remains in the history.';
+   actions.textContent='Publication decision recorded. The original record remains in the history.';
   }
   const jobs=d.calendar||[],job=jobs[0],status=d.event?calendarState(d.event,job):null;
   const sent=(d.email||[]).filter(x=>x.status==='sent').length;
   const pending=(d.email||[]).filter(x=>['pending','sending'].includes(x.status)).length;
   const failures=(d.email||[]).filter(x=>x.status==='failed').length;
-  $('delivery-summary').innerHTML='<p><b>Google Calendar:</b> '+safe(status?.label||(r.status==='approved'?'Queued':'Not scheduled'))+'</p>'+(job?.last_error?'<p class="notice error">'+safe(job.last_error)+'</p>':'')+'<p><b>Email notifications:</b> '+sent+' sent'+(pending?', '+pending+' queued':'')+(failures?', '+failures+' failed':'')+'</p>';
+  $('delivery-summary').innerHTML='<p><b>Google Calendar:</b> '+safe(status?.label||(r.status==='approved'?'Queued':'Not yet published'))+'</p>'+(job?.last_error?'<p class="notice error">'+safe(job.last_error)+'</p>':'')+'<p><b>Email notifications:</b> '+sent+' sent'+(pending?', '+pending+' queued':'')+(failures?', '+failures+' failed':'')+'</p>';
   const hist=$('item-history');
   for(const h of d.history||[]){
    const box=document.createElement('div');
@@ -533,7 +582,7 @@ async function detail(id){
  }catch(e){target.textContent=e.message;toast(e.message,true)}
 }
 async function review(id,decision,version){
- if(['approved','rejected'].includes(decision)&&!await divisionQuestion(decision==='approved'?'Approve this request and queue Google Calendar publication?':'Reject this request?',{title:decision==='approved'?'Approve request':'Reject request',confirmLabel:decision==='approved'?'Approve & publish':'Reject request',danger:decision==='rejected'}))return;
+ if(['approved','rejected'].includes(decision)&&!await divisionQuestion(decision==='approved'?'Verify this submission and queue Google Calendar publication? This verifies the listing, not the lodge’s authority to schedule its event.':'Mark this submission as not publishable? This does not cancel or prohibit the lodge activity.',{title:decision==='approved'?'Verify submission':'Do not publish',confirmLabel:decision==='approved'?'Verify & Publish':'Do Not Publish',danger:decision==='rejected'}))return;
  try{
   const note=$('review-note')?.value||'';
   if(decision==='needs_correction'&&!note.trim())throw Error('Explain what needs correction in the message to the submitter');
@@ -562,8 +611,8 @@ async function loadDashboard(){
   const d=await api('dashboard'),counts=d.counts||{};
   stats.replaceChildren();
   const cards=[
-    {name:'Pending requests',value:counts.pending||0,kind:'requests',filter:'pending'},
-    {name:'Needs correction',value:counts.corrections||0,kind:'requests',filter:'needs_correction'},
+    {name:'Awaiting Publication',value:counts.pending||0,kind:'requests',filter:'pending'},
+    {name:'Returned for Correction',value:counts.corrections||0,kind:'requests',filter:'needs_correction'},
     {name:'Calendar failures',value:counts.failed||0,kind:'events',filter:null},
     {name:'Syncing / queued',value:counts.queued||0,kind:'events',filter:null}
   ];
@@ -582,12 +631,12 @@ async function loadDashboard(){
   for(const req of d.requests||[]){
    const btn=dashboardElement('button','dashboard-entry');
    btn.type='button';
-   btn.append(dashboardElement('strong','',req.title||'Event request'),
+   btn.append(dashboardElement('strong','',req.title||'Event submission'),
      dashboardElement('small','muted',(req.code||'')+' · '+nice(req.status)+' · '+fmt(req.submitted_at)));
    btn.onclick=async()=>{await activateInspectorTab('requests');await detail(req.id)};
    requests.append(btn);
   }
-  if(!d.requests?.length)requests.append(dashboardElement('p','muted','No requests waiting for review.'));
+  if(!d.requests?.length)requests.append(dashboardElement('p','muted','No submissions awaiting verification.'));
   for(const item of d.failures||[]){
    const box=dashboardElement('div','dashboard-entry dashboard-error');
    box.append(dashboardElement('strong','',item.title||'Event'),
@@ -613,7 +662,7 @@ async function loadDashboard(){
   for(const item of d.recent||[]){
    const btn=dashboardElement('button','dashboard-entry');
    btn.type='button';
-   btn.append(dashboardElement('strong','',item.event_title||'Event request'),
+   btn.append(dashboardElement('strong','',item.event_title||'Event submission'),
      dashboardElement('span','',auditAction(item)),
      dashboardElement('small','muted',fmt(item.at)+' · '+(item.actor||'System')));
    btn.onclick=async()=>{
@@ -761,7 +810,7 @@ async function loadHistory(p=0){
    left.append(title,action,meta);
    row.append(left);
    if(h.request_id||h.event_id){
-    const navigate=document.createElement('button');navigate.type='button';navigate.className='secondary';navigate.textContent=h.request_id?'View Request':'View Event';
+    const navigate=document.createElement('button');navigate.type='button';navigate.className='secondary';navigate.textContent=h.request_id?'View Submission':'View Event';
     navigate.onclick=async()=>{
      const key=h.request_id?'requests':'events';
      await activateInspectorTab(key);
@@ -892,7 +941,7 @@ async function loadStaff(){
      const remove=document.createElement('button');remove.type='button';remove.className='danger';
      remove.textContent='Remove inspector';
      remove.onclick=async()=>{
-      if(!await divisionQuestion('Remove access for '+(s.display_name||s.email)+'?\n\nTheir past approvals and history will be preserved. Access can be restored later.',{title:'Remove inspector',confirmLabel:'Remove access',danger:true}))return;
+      if(!await divisionQuestion('Remove access for '+(s.display_name||s.email)+'?\n\nTheir previous publication decisions and history will be preserved. Access can be restored later.',{title:'Remove inspector',confirmLabel:'Remove access',danger:true}))return;
       try{const result=await api('staff-remove',{id:s.id});toast(result.message);await loadStaff();}
       catch(ex){toast(ex.message,true);}
      };

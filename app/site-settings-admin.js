@@ -32,7 +32,7 @@
   ['/#home','Homepage','Home section of the website'],
   ['/lodges/','Lodge Directory','Public lodge directory'],
   ['/calendar/','Public Calendar','Live embedded public calendar'],
-  ['@event_requests','Saved: Event Submission Link','Automatically uses the event request URL configured above'],
+  ['@event_requests','Saved: Event Submission Link','Automatically uses the calendar submission URL configured above'],
   ['@grand_lodge','Saved: Grand Lodge Finder','Uses the official Grand Lodge directory address above'],
   ['@calendar_fallback','Saved: Backup Calendar','Uses the backup public calendar URL above'],
   ['@site_home','Saved: Website Homepage','Uses the website URL above']

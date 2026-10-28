@@ -2,18 +2,18 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Inspector Desk | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="/app/assets/division-iv-emblem.png"><link rel="stylesheet" href="/app/styles.css?v=19"><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=45"></script>
-<script defer src="/app/lodges-admin.js?v=3"></script><script defer src="/app/corrections-admin.js?v=1"></script><script defer src="/app/site-settings-admin.js?v=3"></script><script defer src="/app/resources.js?v=2"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/png" href="/app/assets/division-iv-emblem.png"><link rel="stylesheet" href="/app/styles.css?v=21"><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=47"></script>
+<script defer src="/app/lodges-admin.js?v=3"></script><script defer src="/app/corrections-admin.js?v=1"></script><script defer src="/app/site-settings-admin.js?v=4"></script><script defer src="/app/resources.js?v=2"></script>
 <script defer src="/app/mfa.js?v=8"></script>
 <meta name="robots" content="noindex, nofollow, noarchive">
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
 <header><div class="container topbar">
 <div class="division-brand"><a class="brand-home" href="/" aria-label="Division IV Masons — home"><img class="brand-emblem" src="/app/assets/division-iv-emblem.png" width="72" height="72" alt="Division IV Masons emblem"></a><div class="brand-copy"><a class="brand-name" href="/">Division IV Masons</a><a class="brand-affiliation" href="https://freemason.org/" target="_blank" rel="noopener noreferrer" aria-label="Grand Lodge of California — official website">Grand Lodge of California</a></div></div>
-<nav aria-label="Main navigation"><button id="nav-public" class="nav-btn active" type="button">Event Requests</button><a href="/calendar/" class="nav-btn">View Calendar</a><button id="nav-admin" class="nav-btn hidden" type="button">Inspector Desk</button><button id="nav-signin" class="nav-btn" type="button">Inspector Sign In</button><button id="nav-signout" class="nav-btn hidden" type="button">Sign Out</button></nav>
+<nav aria-label="Main navigation"><button id="nav-public" class="nav-btn active" type="button">Calendar Submissions</button><a href="/calendar/" class="nav-btn">View Calendar</a><button id="nav-admin" class="nav-btn hidden" type="button">Inspector Desk</button><button id="nav-signin" class="nav-btn" type="button">Inspector Sign In</button><button id="nav-signout" class="nav-btn hidden" type="button">Sign Out</button></nav>
 </div></header>
 <noscript><div class="container banner">JavaScript must be enabled to sign in or submit an event.</div></noscript><main class="container" id="content">
-<div class="hero"><div class="eyebrow">Division IV · Masonic Events</div><h1>Calendar requests, made simple.</h1><p>Submit an event, change the details, or request a cancellation. An authorized inspector reviews each request before it reaches the public calendar.</p><p><a href="/calendar/" class="secondary" style="display:inline-block;text-decoration:none;font-size:15px">View the Public Calendar →</a></p></div>
+<div class="hero"><div class="eyebrow">Division IV · Masonic Events</div><h1>Calendar submissions, made simple.</h1><p>Submit, update, or cancel a calendar listing. Lodges schedule their own activities; inspectors verify submission details for accurate, coordinated publication—not permission to hold an event.</p><p><a href="/calendar/" class="secondary" style="display:inline-block;text-decoration:none;font-size:15px">View the Public Calendar →</a></p></div>
 <div id="notice" class="notice hidden" role="status" aria-live="polite"></div>
 <datalist id="host-choices"></datalist>
 <datalist id="venue-choices"><option value="Lodge Hall"></option><option value="Masonic Temple"></option></datalist>
@@ -24,13 +24,13 @@
 <section id="public-view">
 <div id="banner" class="banner hidden" role="status">Public event submissions are currently unavailable. Please contact a Division IV inspector.</div>
 <div class="choices" role="group" aria-label="What would you like to do?">
-<button type="button" class="choice" data-mode="new"><span class="symbol">＋</span><strong>New Event</strong><small>Add an event to the Division IV calendar</small></button>
-<button type="button" class="choice" data-mode="change"><span class="symbol">✎</span><strong>Change an Event</strong><small>Change only the details you need</small></button>
-<button type="button" class="choice" data-mode="cancel"><span class="symbol">×</span><strong>Cancel an Event</strong><small>Request cancellation of an existing event</small></button>
+<button type="button" class="choice" data-mode="new"><span class="symbol">＋</span><strong>Submit an Event</strong><small>Add an event to the Division IV calendar</small></button>
+<button type="button" class="choice" data-mode="change"><span class="symbol">✎</span><strong>Update an Event</strong><small>Change only the details you need</small></button>
+<button type="button" class="choice" data-mode="cancel"><span class="symbol">×</span><strong>Cancel an Event</strong><small>Submit a cancellation for an existing calendar listing</small></button>
 </div>
 
 <section id="new-panel" class="panel hidden">
-<h2>New Event</h2><p class="muted">Fields marked * are required. Optional information can be added below.</p>
+<h2>Submit an Event</h2><p class="muted">Fields marked * are required. Optional information can be added below.</p>
 <form id="new-form">
 <div class="form-title">Event details</div>
 <div class="form-grid">
@@ -65,7 +65,7 @@
 <label class="wide">Flyer or invitation link <input name="flyer_url" type="url" placeholder="https://example.org/event-flyer"></label>
 </div></details>
 <div class="form-title">Event point of contact (published on calendar)</div>
-<p class="help">Enter the person members should call with questions about the event. This may be different from the person submitting the request. The POC name, phone number and email will be visible on the public Google Calendar.</p>
+<p class="help">Enter the person members should call with questions about the event. This may be different from the person submitting the event. The POC name, phone number and email will be visible on the public Google Calendar.</p>
 <div class="form-grid">
 <label><span class="field-caption">POC name <span class="req" aria-label="required">*</span></span><input name="poc_name" maxlength="150" autocomplete="off" required placeholder="Contact person's full name"></label>
 <label><span class="field-caption">POC phone <span class="req" aria-label="required">*</span></span><input name="poc_phone" type="tel" maxlength="50" autocomplete="off" required placeholder="Phone number to publish"></label>
@@ -80,13 +80,13 @@
 </div>
 <input name="website" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" placeholder="Leave blank">
 <div id="turnstile-widget" aria-label="Anti-spam verification"></div>
-<div class="form-actions"><span>Submission does not publish the event immediately.</span><button type="submit" class="primary">Submit for Review →</button></div>
+<div class="form-actions"><span>Submission does not publish the event immediately.</span><button type="submit" class="primary">Submit for Publication →</button></div>
 </form></section>
 <section id="existing-panel" class="panel hidden">
-<h2 id="lookup-title">Change an Event</h2>
-<p>Enter the <strong>original Request ID</strong> from your submission confirmation or approval email. If you cannot find it, ask an inspector.</p>
+<h2 id="lookup-title">Update an Event</h2>
+<p>Enter the <strong>original Submission ID</strong> from your confirmation or publication email. Older emails may call this the <strong>Request ID</strong>—the number has not changed. If you cannot find it, ask an inspector.</p>
 <div class="form-grid">
-<label><span class="field-caption">Original Request ID <span class="req" aria-label="required">*</span></span><input id="lookup-code" placeholder="DIV4-20261018-..." autocapitalize="characters"></label>
+<label><span class="field-caption">Original Submission ID <span class="req" aria-label="required">*</span></span><input id="lookup-code" placeholder="DIV4-20261018-..." autocapitalize="characters"></label>
 <label><span class="field-caption">Original contact email <span class="req" aria-label="required">*</span></span><input type="email" id="lookup-email" placeholder="name@example.com"></label>
 </div><p class="help">We'll verify the original email before displaying the event.</p>
 <button type="button" class="primary" id="lookup-button">Verify &amp; Find Event →</button>
@@ -132,10 +132,10 @@
 <p class="help">Inspector accounts must be enabled by an administrator. If your email does not arrive, check Junk/Spam.</p>
 </section>
 <section id="admin-view" class="hidden">
-<div class="admin-head"><div><div class="eyebrow">Inspector Desk</div><h2 id="welcome">Review Requests</h2></div><span class="chip" id="staff-role">Inspector</span></div>
+<div class="admin-head"><div><div class="eyebrow">Inspector Desk</div><h2 id="welcome">Review Submissions</h2></div><span class="chip" id="staff-role">Inspector</span></div>
 <div class="tabs">
 <button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
-<button class="tab" data-tab="requests" type="button">Review Requests</button>
+<button class="tab" data-tab="requests" type="button">Review Submissions</button>
 <button class="tab" data-tab="events" type="button">Manage Published Events</button>
 <button class="tab" data-tab="resources" type="button">Resources</button>
 <button class="tab" data-tab="history" type="button">Status Log</button>
@@ -146,11 +146,11 @@
 </div>
 <section id="tab-dashboard" class="panel">
 <div class="review-title"><div><h3>Inspector Dashboard</h3>
-<p class="muted">Requests, calendar delivery problems, and recent changes—all in one place.</p></div>
+<p class="muted">Submissions awaiting publication, calendar delivery problems, and recent changes—all in one place.</p></div>
 <button class="secondary" id="dashboard-refresh" type="button">Refresh</button></div>
 <div class="dashboard-stats" id="dashboard-stats" aria-live="polite"></div>
 <div class="dashboard-columns">
-<section><h3>Requests needing attention</h3><div id="dashboard-requests" class="dashboard-list"></div></section>
+<section><h3>Submissions needing verification</h3><div id="dashboard-requests" class="dashboard-list"></div></section>
 <section><h3>Calendar delivery failures</h3><div id="dashboard-failures" class="dashboard-list"></div></section>
 </div>
 <section class="dashboard-activity" id="dashboard-sync-panel">
@@ -215,8 +215,8 @@
 <div id="tab-requests" class="hidden">
 <section class="panel">
 <div class="filters">
-<label>Request ID / submitter <input id="filter-search" placeholder="Search request or name"></label>
-<label>Status <select id="filter-status"><option value="pending" selected>Pending</option><option value="all">All statuses</option><option value="approved">Approved</option><option value="needs_correction">Needs Correction</option><option value="rejected">Rejected</option></select></label>
+<label>Submission ID / submitter <input id="filter-search" placeholder="Search submission or name"></label>
+<label>Status <select id="filter-status"><option value="pending" selected>Awaiting Publication</option><option value="all">All statuses</option><option value="approved">Verified for Publication</option><option value="needs_correction">Returned for Correction</option><option value="rejected">Not Published</option></select></label>
 <label>Event type <select id="filter-type"><option value="">All types</option></select></label>
 <label>Lodge <input id="filter-lodge" placeholder="Search lodge"></label>
 <label>Event date from <input id="filter-event-from" type="date"></label>
@@ -225,7 +225,7 @@
 <label>Submitted through <input id="filter-to" type="date"></label>
 <button type="button" class="secondary" id="refresh-requests">Apply Filters</button>
 </div>
-<div class="list-head"><strong id="count">Requests</strong><small>Click an event to see details</small></div>
+<div class="list-head"><strong id="count">Submissions</strong><small>Select a submission to verify its details</small></div>
 <div id="request-list" class="request-list"></div>
 <div class="pagination"><button type="button" class="secondary" id="prev-page">← Previous</button><span id="page-label">Page 1</span><button type="button" class="secondary" id="next-page">Next →</button></div>
 </section><section id="request-detail" class="panel hidden" aria-live="polite"></section>
@@ -298,25 +298,25 @@
 </section>
 <section id="tab-history" class="panel hidden">
 <h3>Status Log</h3>
-<p class="muted">See which event changed, who made the change, and when. Open a request or event to see its full record.</p>
+<p class="muted">See which event changed, who made the change, and when. Open a submission or event to see its full record.</p>
 <div class="filters">
 <label>Activity type
 <select id="log-action">
 <option value="">All activity</option>
 <option value="submitted">Submissions</option>
-<option value="approved">Approvals and cancellations</option>
+<option value="approved">Publications and cancellations</option>
 <option value="inspector_edited">Inspector draft corrections</option>
 <option value="inspector_updated_published">Published event edits</option>
 <option value="inspector_undo_published">Administrator undo</option>
 <option value="calendar_retry_requested">Calendar retries</option>
 <option value="needs_correction">Needs correction</option>
-<option value="rejected">Rejections</option>
+<option value="rejected">Not published</option>
 </select>
 </label>
 <button id="refresh-history" class="secondary" type="button">Refresh</button>
 </div><div id="history-content" class="timeline"></div><div class="pagination"><button id="history-prev" type="button" class="secondary">← Previous</button><span id="history-page">Page 1</span><button id="history-next" type="button" class="secondary">Next →</button></div></section>
 <section id="tab-staff" class="panel hidden"><h3>Inspectors</h3>
-<p class="muted">Administrators manage inspector sign-in, district assignments, and private contact records here. Removing access preserves earlier approvals and activity history.</p>
+<p class="muted">Administrators manage inspector sign-in, district assignments, and private contact records here. Removing access preserves previous publication decisions and activity history.</p>
 <div id="staff-list"></div>
 <div class="form-actions"><button type="button" id="toggle-removed" class="secondary">Show removed inspectors</button><button id="staff-new" type="button" class="secondary">Add New Inspector</button></div>
 <hr>
@@ -352,7 +352,7 @@
 <p class="muted">Edit public website destinations in one place. The public website uses these settings when loaded. Only administrators can save them.</p>
 <form id="website-settings-form" class="form-grid">
 <label class="wide">Public website address <input type="url" name="website_site_url" required></label>
-<label class="wide">Event submission and change-request URL <input type="url" name="website_event_request_url" required></label>
+<label class="wide">Event submission and update URL <input type="url" name="website_event_request_url" required></label>
 <label class="wide">Inspector Desk / sign-in URL <input type="url" name="website_inspector_desk_url" required></label>
 <label class="wide">Grand Lodge finder URL <input type="url" name="website_grand_lodge_url" required></label>
 <label class="wide">Backup public calendar URL <input type="url" name="website_calendar_fallback_url" required></label>
@@ -371,7 +371,7 @@
 <p><strong>Save:</strong> Click <strong>Save Website Settings</strong> below, then reload a website page to see the updated menu. <strong>Undo unsaved menu changes</strong> restores your last saved links.</p>
 <div class="website-menu-examples">
 <div><strong>Website page</strong><code>/calendar/</code><span>Opens the public calendar</span></div>
-<div><strong>Saved link</strong><code>@event_requests</code><span>Uses the event-request address configured above</span></div>
+<div><strong>Saved link</strong><code>@event_requests</code><span>Uses the calendar submission address configured above</span></div>
 <div><strong>External page</strong><code>https://example.org/page</code><span>Opens a secure external website</span></div>
 </div>
 <p class="help"><strong>Privacy:</strong> Only signed-in administrators can load or save these settings. This does not make private inspector data public.</p>
@@ -386,7 +386,7 @@
 <label>Calendar subscription links included in outgoing emails <textarea id="email-links" rows="6" placeholder="Google Calendar: https://...&#10;Apple / Outlook: https://..."></textarea></label>
 <p class="help">You and Morrison can update these links. They appear in emails once the email provider is configured.</p>
 <button type="button" id="save-links" class="secondary">Save Email Links</button>
-<hr><p class="muted">Public submissions, automatic calendar publishing, and outgoing email delivery are being tested before launch.</p>
+<hr><p class="muted">Calendar submissions are verified for accuracy and coordination before publication. Lodges retain full authority to schedule their own activities.</p>
 </section>
 </section>
 </main>
