@@ -245,7 +245,7 @@ for(const page of ['index.html','calendar/index.html','lodges/index.html','event
 }
 for(const svg of ['assets/embroidery/division-iv-patch.svg','assets/embroidery/division-iv-polo.svg']){
  const content=read(svg);
- if(!content.includes('<svg')||!content.includes('gold-compasses')||
+ if(!content.includes('<svg')||!content.includes('masonic-compasses')||
   content.includes('<image')||content.includes('linearGradient'))
   errors.push('Embroidery file must be simple flat vector artwork: '+svg);
 }
