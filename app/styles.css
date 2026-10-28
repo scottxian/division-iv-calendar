@@ -191,7 +191,7 @@ details.location-details.form-section .location-tbd-toggle{margin:0}
 /* Division IV gold-on-blue identity, applied to all public and inspector views. */
 header{background:var(--navy);border-bottom:3px solid var(--gold)}
 .brand{color:#f2ca70}.brand b{color:#f2ca70}.brand small{color:#f3e3b7}
-.brand-emblem{height:54px;width:54px;object-fit:cover;border:1px solid #d8b76f;border-radius:9px;flex-shrink:0}
+.brand-emblem{height:54px;width:54px;object-fit:contain;border:0;border-radius:50%;background:transparent;flex-shrink:0}
 header .nav-btn{color:#f0e0b8}header .nav-btn:hover,header .nav-btn.active{background:#254764;color:#ffe3a0}
 header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
 .eyebrow{color:#906622}.primary{border-color:var(--navy)}.primary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
@@ -354,7 +354,7 @@ header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
 header{background:#0b2138;border-bottom:1px solid #ffffff24}
 header .topbar{min-height:104px}
 header .division-brand{display:flex;align-items:center;gap:16px;min-width:0}
-header .brand-home{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:5px}
+header .brand-home{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%}
 header .brand-home img{display:block;width:76px;height:76px;object-fit:contain}
 header .brand-copy{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
 header .brand-name{font:700 clamp(17px,1.3vw,21px)/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.025em;color:white;text-decoration:none;white-space:nowrap}

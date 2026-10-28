@@ -97,6 +97,15 @@ try{
  await desktop.locator('#signin-view:not(.hidden)').waitFor();
  pass.push('Public inspector button routes to Inspector Desk');
  await check(desktop,'Inspector sign-in routing','/inspectors/','#signin-view:not(.hidden)','inspectors-desktop.png');
+ const brandLogo=desktop.locator('header img.brand-emblem');
+ const brandStyle=await brandLogo.evaluate(el=>{
+   const css=getComputedStyle(el);
+   return {borderWidth:css.borderTopWidth,borderRadius:css.borderTopLeftRadius,objectFit:css.objectFit,displayWidth:el.getBoundingClientRect().width};
+ });
+ assert.equal(brandStyle.borderWidth,'0px','Inspector Desk header logo must not have an added square border');
+ assert.equal(brandStyle.objectFit,'contain','Inspector Desk header logo must preserve its circular shape');
+ assert.ok(brandStyle.displayWidth>=70,'Inspector Desk emblem should not appear unnecessarily small');
+ pass.push('Circular Inspector Desk logo without legacy rounded-square outline');
  // Intercept the OTP endpoint so this checks the destination without emailing anyone.
  let capturedRedirect=null;
  await desktop.route('**/auth/v1/otp?*',async route=>{

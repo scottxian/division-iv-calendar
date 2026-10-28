@@ -201,7 +201,7 @@ for(const path of ['events/index.html','inspectors/index.html']){
  }
  if(/Calendar requests, made simple|Approve & Publish|Pending Approval|<option value="approved">Approved<\/option>/.test(html))
    errors.push(path+': old permission-oriented terminology remains');
- if(!html.includes('/app/app.js?v=47')||!html.includes('/app/styles.css?v=21'))
+ if(!html.includes('/app/app.js?v=47')||!html.includes('/app/styles.css?v=22'))
    errors.push(path+': current publication UI cache version missing');
 }
 const publicationUI=read('app/app.js');
@@ -267,6 +267,14 @@ for(const name of ['patch','polo']){
    errors.push(svg+': use clear vector IV and flat stitch-friendly art');
   }
  }
+}
+
+
+// The Inspector Desk and calendar submissions share the circular-emblem header.
+const brandingCSS=read('app/styles.css');
+if(!brandingCSS.includes('object-fit:contain;border:0;border-radius:50%;background:transparent')||
+  brandingCSS.includes('object-fit:cover;border:1px solid #d8b76f;border-radius:9px')){
+ errors.push('Private header must not draw a square gold frame around the approved circle emblem');
 }
 
 console.log('Staged pages:',pages.length,'JS files:',scripts.length,'link/asset references checked:',checkedLinks);
