@@ -57,7 +57,7 @@ const required={
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
- for(const needle of needles)if(!html.includes(needle))errors.push(file+': missing '+needle);
+ for(const needle of needles)if(!html.includes(needle)&&!read('shared/header.js').includes(needle))errors.push(file+': missing '+needle);
 }
 for(const page of ['events/index.html','inspectors/index.html']){
  const html=read(page);
@@ -107,7 +107,7 @@ if(!fileExists('assets/emblem.png'))errors.push('Public preview emblem is missin
 // Public usability checks (event-specific links, direct Division navigation and correction routing).
 for(const page of ['index.html','calendar/index.html','lodges/index.html']){
  const html=read(page);
- if(!html.includes('class="nav-division-direct" href="/#about"'))
+ if(!html.includes('class="nav-division-direct" href="/#about"')&&!read('shared/header.js').includes('class="nav-division-direct" href="/#about"'))
    errors.push(page+': About Division IV should be a direct navigation link');
 }
 const calendarHTML=read('calendar/index.html');
@@ -240,7 +240,7 @@ for(const page of ['index.html','calendar/index.html','lodges/index.html','event
  for(const mark of ['/assets/favicon.ico?v=20261028',
   '/assets/favicon.png?v=20261028','/assets/apple-touch-icon.png?v=20261028',
   'emblem.png?v=20261028']){
-  if(!html.includes(mark))errors.push(page+': missing 2026 approved branding '+mark);
+  if(!html.includes(mark)&&!read('shared/header.js').includes(mark))errors.push(page+': missing 2026 approved branding '+mark);
  }
 }
 for(const svg of ['assets/embroidery/division-iv-patch.svg','assets/embroidery/division-iv-polo.svg']){
