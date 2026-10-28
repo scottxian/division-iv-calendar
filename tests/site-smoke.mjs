@@ -228,6 +228,28 @@ if(!read('app/app.js').includes('Communicate with the hosts')||
    !read('app/app.js').includes('This does not prevent publication'))
  errors.push('Overlapping events must be advisory, not a publication gate');
 
+
+// Confirm updated Division IV emblem and browser icons are present and referenced.
+for(const image of ['assets/emblem.png','assets/favicon.png','assets/favicon.ico',
+ 'assets/apple-touch-icon.png','app/assets/division-iv-emblem.png']){
+ if(!fileExists(image)||fs.statSync(path.join(root,image)).size<8000)
+  errors.push('Missing or invalid new Division IV branding image: '+image);
+}
+for(const page of ['index.html','calendar/index.html','lodges/index.html','events/index.html','inspectors/index.html']){
+ const html=read(page);
+ for(const mark of ['/assets/favicon.ico?v=20261028',
+  '/assets/favicon.png?v=20261028','/assets/apple-touch-icon.png?v=20261028',
+  'emblem.png?v=20261028']){
+  if(!html.includes(mark))errors.push(page+': missing 2026 approved branding '+mark);
+ }
+}
+for(const svg of ['assets/embroidery/division-iv-patch.svg','assets/embroidery/division-iv-polo.svg']){
+ const content=read(svg);
+ if(!content.includes('<svg')||!content.includes('gold-compasses')||
+  content.includes('<image')||content.includes('linearGradient'))
+  errors.push('Embroidery file must be simple flat vector artwork: '+svg);
+}
+
 console.log('Staged pages:',pages.length,'JS files:',scripts.length,'link/asset references checked:',checkedLinks);
 if(errors.length){
  for(const e of errors)console.error('FAIL:',e);

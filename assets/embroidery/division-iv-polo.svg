@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="90mm" height="90mm" viewBox="0 0 1000 1000" role="img" aria-label="Division IV embroidery artwork, square and compasses with compass rose">
+<title>Division IV Masons — Flat embroidery artwork</title>
+<desc>Three solid thread colors. Artwork for digitization, not machine stitch data. All lettering is vector paths.</desc>
+<g id="navy-ground" fill="#082342"><circle cx="500" cy="500" r="470"/></g>
+<g id="muted-gold-compass-rose" fill="#9B845C">
+<polygon points="500.0,215.0 545.0,425.0 500.0,420.0 455.0,425.0"/>
+<polygon points="785.0,500.0 575.0,545.0 580.0,500.0 575.0,455.0"/>
+<polygon points="500.0,785.0 455.0,575.0 500.0,580.0 545.0,575.0"/>
+<polygon points="215.0,500.0 425.0,455.0 420.0,500.0 425.0,545.0"/>
+</g>
+<g id="gold-border" fill="none" stroke="#E3B54A" stroke-width="33"><circle cx="500" cy="500" r="449"/></g>
+<path id="square-navy-separation" d="M 286 590 L 500 761 L 714 590" fill="none" stroke="#082342" stroke-width="93" stroke-linecap="square" stroke-linejoin="miter"/>
+<path id="gold-square" d="M 286 590 L 500 761 L 714 590" fill="none" stroke="#E3B54A" stroke-width="64" stroke-linecap="square" stroke-linejoin="miter"/>
+<g id="gold-compasses" fill="#E3B54A" stroke="#082342" stroke-width="10" stroke-linejoin="round">
+<path id="compass-left" d="M 490 298 L 523 317 L 301 717 L 232 786 Z"/>
+<path id="compass-right" d="M 510 298 L 477 317 L 699 717 L 768 786 Z"/>
+</g>
+<circle id="compass-pivot" cx="500" cy="282" r="47" fill="#E3B54A" stroke="#082342" stroke-width="12"/>
+<ellipse id="roman-four-clear-space" cx="500" cy="515" rx="146" ry="126" fill="#082342"/>
+<path id="roman-four" d="M 360.00,592.29 L 360.00,578.63 L 381.57,578.63 L 381.57,437.37 L 360.00,437.37 L 360.00,423.71 L 446.71,423.71 L 446.71,437.37 L 425.03,437.37 L 425.03,578.63 L 446.71,578.63 L 446.71,592.29 L 360.00,592.29 Z M 640.00,423.71 L 640.00,437.37 L 625.91,437.37 L 562.32,592.29 L 535.48,592.29 L 471.89,437.37 L 455.95,437.37 L 455.95,423.71 L 535.01,423.71 L 535.01,437.37 L 518.64,437.37 L 564.13,549.04 L 609.98,437.37 L 589.89,437.37 L 589.89,423.71 L 640.00,423.71 Z" fill="#E3B54A" stroke="#082342" stroke-width="0" stroke-linejoin="round"/>
+</svg>
