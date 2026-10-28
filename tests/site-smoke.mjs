@@ -88,7 +88,7 @@ for(const file of searchable){
   'rel="canonical" href="'+canonical+'"',
   'property="og:title"', 'property="og:description"',
   'property="og:url" content="'+canonical+'"',
-  'property="og:image" content="https://divisionivmasons.org/assets/emblem.png"',
+  'property="og:image" content="https://divisionivmasons.org/assets/emblem.png',
   'name="twitter:card" content="summary"'
  ]){
   if(!html.includes(needle))errors.push(file+': missing sharing metadata '+needle);
