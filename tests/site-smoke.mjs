@@ -277,6 +277,34 @@ if(!brandingCSS.includes('object-fit:contain;border:0;border-radius:50%;backgrou
  errors.push('Private header must not draw a square gold frame around the approved circle emblem');
 }
 
+
+// One header include and one branding stylesheet across public and inspector pages.
+const headerInclude=read('shared/header.js');
+const headerCSS=read('shared/header.css');
+for(const id of ['nav-public','nav-admin','nav-signin','nav-signout','main-nav','menu-toggle']){
+ if(!headerInclude.includes(id))errors.push('Shared header must preserve navigation/auth ID '+id);
+}
+for(const phrase of ['division-header-inner','brand-affiliation','/app/assets/division-iv-emblem.png']){
+ if(!headerInclude.includes(phrase))errors.push('Brand header include missing '+phrase);
+}
+if(!headerCSS.includes('header.division-site-header .brand-home img') ||
+   !headerCSS.includes('header.division-site-header .division-header-inner'))
+ errors.push('Shared header must control both logo and header dimensions');
+for(const page of ['index.html','calendar/index.html','lodges/index.html','events/index.html','inspectors/index.html']){
+ const markup=read(page);
+ const mode=page==='events/index.html'||page==='inspectors/index.html'?'app':'public';
+ if(!markup.includes('<header data-division-header="'+mode+'"></header>'))
+  errors.push(page+': shared header placeholder missing');
+ if(markup.includes('class="division-brand"'))
+  errors.push(page+': duplicate hard-coded branding remains');
+ if(!markup.includes('/shared/header.css?v=1')||!markup.includes('/shared/header.js?v=1'))
+  errors.push(page+': shared header assets missing');
+ const includeIndex=markup.indexOf('/shared/header.js?v=1');
+ const initIndex=markup.indexOf(mode==='app'?'/app/bootstrap.js':'/script.js?v=2');
+ if(includeIndex<0||initIndex<0||includeIndex>initIndex)
+  errors.push(page+': header must load ahead of navigation/auth scripts');
+}
+
 console.log('Staged pages:',pages.length,'JS files:',scripts.length,'link/asset references checked:',checkedLinks);
 if(errors.length){
  for(const e of errors)console.error('FAIL:',e);

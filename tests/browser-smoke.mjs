@@ -29,6 +29,21 @@ try{
  browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  const desktop=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
  await check(desktop,'Homepage','/','h1','home-desktop.png');
+ await desktop.locator('header[data-header-ready="true"]').waitFor();
+ const headerIdentity=async page=>page.locator('header .division-brand').evaluate(el=>{
+  const img=el.querySelector('img.brand-emblem');
+  const header=el.closest('header');
+  return {name:el.querySelector('.brand-name')?.textContent,
+   affiliation:el.querySelector('.brand-affiliation')?.textContent,
+   image:new URL(img.getAttribute('src'),location.origin).pathname,
+   logoWidth:Math.round(img.getBoundingClientRect().width),
+   headerHeight:Math.round(header.getBoundingClientRect().height),
+   border:getComputedStyle(img).borderTopWidth};
+ });
+ const homeIdentity=await headerIdentity(desktop);
+ assert.equal(homeIdentity.name,'Division IV Masons');
+ assert.equal(homeIdentity.image,'/app/assets/division-iv-emblem.png');
+ assert.equal(homeIdentity.border,'0px','Public header logo should not have a box border');
  assert.ok(await desktop.locator('a[href="/events/"]').count(),'Homepage missing event request route');
  // Mock the public read-only month feed for deterministic UI tests.
  await desktop.route('**/functions/v1/division-upcoming-events?month=*',async route=>{
@@ -97,6 +112,13 @@ try{
  await desktop.locator('#signin-view:not(.hidden)').waitFor();
  pass.push('Public inspector button routes to Inspector Desk');
  await check(desktop,'Inspector sign-in routing','/inspectors/','#signin-view:not(.hidden)','inspectors-desktop.png');
+ await desktop.locator('header[data-header-ready="true"]').waitFor();
+ const inspectorIdentity=await headerIdentity(desktop);
+ assert.deepEqual(inspectorIdentity,homeIdentity,
+   'Inspector Desk must share identical masthead branding, image and desktop dimensions');
+ assert.equal(await desktop.locator('#nav-signin').count(),1,
+   'Inspector auth controls must survive shared header include');
+ pass.push('Shared public/inspector header identity and functional inspector navigation');
  const brandLogo=desktop.locator('header img.brand-emblem');
  const brandStyle=await brandLogo.evaluate(el=>{
    const css=getComputedStyle(el);
