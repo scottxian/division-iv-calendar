@@ -250,6 +250,25 @@ for(const svg of ['assets/embroidery/division-iv-patch.svg','assets/embroidery/d
   errors.push('Embroidery file must be simple flat vector artwork: '+svg);
 }
 
+
+// Embroidery source artwork must be vector-only, with thread-ready flat colors.
+// Keep the older opaque oval from obscuring the square and compasses.
+for(const name of ['patch','polo']){
+ const svg='assets/embroidery/division-iv-'+name+'.svg';
+ const png='assets/embroidery/division-iv-'+name+'.png';
+ if(!fileExists(svg)||!fileExists(png))errors.push('Missing embroidery artwork for '+name);
+ else {
+  const art=read(svg);
+  for(const color of ['#0B2749','#E3B54A','#98865E']){
+   if(!art.includes(color))errors.push(svg+': expected flat thread color '+color);
+  }
+  if(art.includes('roman-four-clear-space')||art.includes('linearGradient')||
+     art.includes('<image')||art.includes('<text')||!art.includes('id="roman-IV"')){
+   errors.push(svg+': use clear vector IV and flat stitch-friendly art');
+  }
+ }
+}
+
 console.log('Staged pages:',pages.length,'JS files:',scripts.length,'link/asset references checked:',checkedLinks);
 if(errors.length){
  for(const e of errors)console.error('FAIL:',e);
