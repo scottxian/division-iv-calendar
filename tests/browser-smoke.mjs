@@ -71,7 +71,7 @@ try{
  await check(desktop,'Public event requests','/events/','#public-view','events-desktop.png');
  assert.match(await desktop.locator('#nav-public').textContent(),/Calendar Submissions/);
  assert.match(await desktop.locator('.hero h1').textContent(),/Calendar submissions/);
- assert.match(await desktop.locator('.hero p').first().textContent(),/Lodges schedule their own activities/);
+ assert.match(await desktop.locator('.hero p').first().textContent(),/Each lodge retains full authority over its own activities and scheduling/);
  pass.push('Public submission language preserves lodge scheduling authority');
  await desktop.locator('.choice[data-mode="new"]').click();
  const newTbd=desktop.locator('#new-location-tbd');

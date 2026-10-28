@@ -196,7 +196,7 @@ for(const path of ['events/index.html','inspectors/index.html']){
  const html=read(path);
  for(const phrase of ['Calendar submissions, made simple.','Review Submissions','Awaiting Publication',
   'Verified for Publication','Returned for Correction','Not Published',
-  'Lodges schedule their own activities']){
+  'Each lodge retains full authority over its own activities and scheduling']){
   if(!html.includes(phrase))errors.push(path+': missing publication terminology '+phrase);
  }
  if(/Calendar requests, made simple|Approve & Publish|Pending Approval|<option value="approved">Approved<\/option>/.test(html))
