@@ -52,8 +52,8 @@ const required={
  'index.html':['href="/events/"','href="/calendar/"','href="/inspectors/"'],
  'calendar/index.html':['href="/events/"'],
  'lodges/index.html':['href="/events/"'],
- 'events/index.html':['/app/app.js?v=47','/app/mfa.js?v=8'],
- 'inspectors/index.html':['/app/app.js?v=47','/app/mfa.js?v=8']
+ 'events/index.html':['/app/app.js?v=48','/app/mfa.js?v=8'],
+ 'inspectors/index.html':['/app/app.js?v=48','/app/mfa.js?v=8']
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
@@ -71,6 +71,19 @@ for(const page of ['events/index.html','inspectors/index.html']){
   if(html.slice(openSummary,closeSummary).includes('location-tbd'))errors.push(page+': Location TBD cannot be nested inside summary');
  }
 }
+// POC positions are optional, reusable database-backed suggestions that still allow custom titles.
+for(const page of ['events/index.html','inspectors/index.html']){
+ const html=read(page);
+ if(!html.includes('<datalist id="poc-position-choices">')||
+    (html.match(/name="poc_position" list="poc-position-choices"/g)||[]).length!==2)
+  errors.push(page+': missing free-text POC position comboboxes');
+}
+if(!read('app/app.js').includes("position:'poc-position-choices'")||
+   !read('supabase/functions/division-calendar/index.ts').includes("from('poc_positions')")||
+   !read('supabase/functions/division-calendar/index.ts').includes("'poc_name','poc_position','poc_phone'")||
+   !read('supabase/functions/division-jobs/index.ts').includes("POC position: "))
+ errors.push('Database-backed POC positions must carry through submission, editor, and calendar sync');
+
 if(!read('app/app.js').includes("form.querySelector('.location-details')"))errors.push('Location TBD must find sibling details panel');
 if(!read('app/app.js').includes("child.matches('.location-tbd-control')"))errors.push('Inspector editor must clone the Location TBD control');
 if(read('CNAME').trim()!=='divisionivmasons.org')errors.push('Release candidate CNAME must be divisionivmasons.org');
@@ -137,7 +150,7 @@ for(const file of ['month-calendar.js','public-events.js','lodge-correction.js',
 // Correction queue must remain a private, administrator-only inspector function.
 for(const page of ['events/index.html','inspectors/index.html']){
  const html=read(page);
- for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=1"','src="/app/app.js?v=47"']){
+ for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=1"','src="/app/app.js?v=48"']){
   if(!html.includes(marker))errors.push(page+': missing private correction queue '+marker);
  }
 }
@@ -201,7 +214,7 @@ for(const path of ['events/index.html','inspectors/index.html']){
  }
  if(/Calendar requests, made simple|Approve & Publish|Pending Approval|<option value="approved">Approved<\/option>/.test(html))
    errors.push(path+': old permission-oriented terminology remains');
- if(!html.includes('/app/app.js?v=47')||!html.includes('/app/styles.css?v=22'))
+ if(!html.includes('/app/app.js?v=48')||!html.includes('/app/styles.css?v=22'))
    errors.push(path+': current publication UI cache version missing');
 }
 const publicationUI=read('app/app.js');
