@@ -237,7 +237,7 @@ async function init(){
   const hostList=$('host-choices');hostList.replaceChildren();
   for(const name of hostNames){const opt=document.createElement('option');opt.value=name;hostList.append(opt)}
   // Only suggest public event details or general examples; never reuse submitted private contact information.
-  const suggestionLists={venue:'venue-choices',city:'city-choices',cost:'cost-choices',attire:'attire-choices',audience:'audience-choices'};
+  const suggestionLists={venue:'venue-choices',city:'city-choices',cost:'cost-choices',attire:'attire-choices',audience:'audience-choices',position:'poc-position-choices'};
   for(const [field,listId] of Object.entries(suggestionLists)){
    const list=$(listId);
    if(!list)continue;
@@ -293,7 +293,7 @@ $('new-form').onsubmit=async e=>{
  e.preventDefault();const btn=e.submitter;busy(btn,true);
  try{
   const f=values(e.target),event={};
-  for(const k of ['title','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_phone','poc_email','cost_details'])event[k]=f[k]??'';
+  for(const k of ['title','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_position','poc_phone','poc_email','cost_details'])event[k]=f[k]??'';
   const result=await api('submit',{kind:'new',name:f.contact_name,email:f.contact_email,phone:f.contact_phone,message:f.contact_message,website:f.website||'',turnstile_token:turnstileToken,event});
   notify('Calendar submission received.\nSubmission ID: '+result.request_code+'\nSave this number. Your listing is awaiting inspector verification and publication. Lodges schedule their own events.');
   const receipt=document.createElement('div');receipt.className='notice';receipt.style.whiteSpace='pre-line';receipt.textContent='Submission received! Submission ID: '+result.request_code+' — Save this number. Awaiting publication verification.'; e.target.append(receipt);
@@ -315,7 +315,7 @@ $('lookup-button').onclick=async e=>{
   const result=await api('locate',null,{code});
   state.event=result.event;state.original={};
   const form=$('modify-form');
-  for(const k of ['title','event_type','hosted_by','district','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','public_description','location_tbd','poc_name','poc_phone','poc_email','cost_details']){
+  for(const k of ['title','event_type','hosted_by','district','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','public_description','location_tbd','poc_name','poc_position','poc_phone','poc_email','cost_details']){
     const v=k==='location_address1'?(result.event.location_address1||result.event.location_address||''):(result.event[k]??'');
     state.original[k]=v;
     if(form.elements[k]){
@@ -379,7 +379,7 @@ $('next-page').onclick=()=>loadRequests(page+1);
 /* Inspector review and published-event management. The original submission is never overwritten. */
 const editorFields=['title','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','public_description',
  'location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd',
- 'attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_phone','poc_email','cost_details'];
+ 'attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_position','poc_phone','poc_email','cost_details'];
 function eventFormValues(e={}){
  const output={};
  for(const key of editorFields)output[key]=e[key]??'';
@@ -409,7 +409,7 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
   else field.value=initial[key]??(key==='location_state'?'CA':'');
  }
  // Older published events can have no dedicated POC; allow those to be edited without inventing contact data.
- for(const key of ['poc_name','poc_phone','poc_email'])if(!initial[key]&&f.elements[key])f.elements[key].required=false;
+ for(const key of ['poc_name','poc_position','poc_phone','poc_email'])if(!initial[key]&&f.elements[key])f.elements[key].required=false;
  const details=f.querySelector('.location-details');
  if(details)details.open=false;
  locationControls(f);
@@ -530,7 +530,7 @@ async function detail(id){
   const submitted={...eventFormValues(event),...p};
   const effective={...eventFormValues(event),...(r.inspector_edits??p)};
   const address=[effective.location_address1,effective.location_address2,effective.location_city,effective.location_state,effective.location_zip].filter(Boolean).join(', ')||effective.location_address||'—';
-  const pairs=[['Submission ID',r.request_code],['Submission type',nice(r.request_type)],['Submitted',fmt(r.submitted_at)],['Status',nice(r.status)],['Title',effective.title],['Event type',effective.event_type],['Hosting lodge',effective.hosted_by],['District',effective.district?('No. '+effective.district):'—'],['Start',effective.start_local],['End',effective.end_local],['Description',effective.public_description],['Event format',nice(effective.event_mode||'in_person')],['Venue',effective.location_tbd?'Location TBD':effective.location_name],['Address',effective.location_tbd?'Location TBD':address],['Event POC name',effective.poc_name],['Event POC phone',effective.poc_phone],['Event POC email',effective.poc_email],['Cost',effective.cost_details],['Attire',effective.attire],['Audience',effective.invited_audience],['Registration URL',effective.registration_url],['Payment URL',effective.payment_url],['Flyer / invitation URL',effective.flyer_url],['Cancellation reason',effective.reason],['Contact',r.requester_name],['Email',r.requester_email],['Telephone',r.requester_phone],['Message',r.requester_message]];
+  const pairs=[['Submission ID',r.request_code],['Submission type',nice(r.request_type)],['Submitted',fmt(r.submitted_at)],['Status',nice(r.status)],['Title',effective.title],['Event type',effective.event_type],['Hosting lodge',effective.hosted_by],['District',effective.district?('No. '+effective.district):'—'],['Start',effective.start_local],['End',effective.end_local],['Description',effective.public_description],['Event format',nice(effective.event_mode||'in_person')],['Venue',effective.location_tbd?'Location TBD':effective.location_name],['Address',effective.location_tbd?'Location TBD':address],['Event POC name',effective.poc_name],['Event POC position',effective.poc_position],['Event POC phone',effective.poc_phone],['Event POC email',effective.poc_email],['Cost',effective.cost_details],['Attire',effective.attire],['Audience',effective.invited_audience],['Registration URL',effective.registration_url],['Payment URL',effective.payment_url],['Flyer / invitation URL',effective.flyer_url],['Cancellation reason',effective.reason],['Contact',r.requester_name],['Email',r.requester_email],['Telephone',r.requester_phone],['Message',r.requester_message]];
   target.innerHTML='<div class="review-title"><div><h2>'+safe(effective.title||nice(r.request_type))+'</h2><p class="muted">'+safe(r.request_code)+'</p></div><span class="chip '+safe(r.status)+'">'+safe(nice(r.status))+'</span></div><div class="detail-grid">'+pairs.map(([k,v])=>'<div><small>'+safe(k)+'</small>'+safe(v??'—')+'</div>').join('')+'</div><h3>Inspector revisions</h3><p class="help">The submitted details remain unchanged. Saved inspector corrections are recorded separately.</p><div id="request-diff"></div><div id="inspector-editor-host"></div><hr><h3>Review &amp; delivery</h3><label>Message to submitter (optional)<textarea id="review-note" rows="2"></textarea></label><div class="review-actions" id="review-actions"></div><div id="delivery-summary"></div><h3>Submission history</h3><div class="timeline" id="item-history"></div>';
   showDifferences($('request-diff'),submitted,effective);
   const advisory=document.createElement('div');
@@ -703,7 +703,7 @@ async function eventDetail(id){
  try{
   const d=await api('event-detail',null,{id}),ev=d.event,initial=eventFormValues(ev);
   const job=d.calendar?.[0],status=calendarState(ev,job);
-  host.innerHTML='<h2>'+safe(ev.title)+'</h2><p class="muted">'+safe(ev.event_code)+' · '+safe(nice(ev.status))+'</p><p><b>Starts:</b> '+safe(fmt(ev.starts_at))+' · <b>Location:</b> '+safe(ev.location_name||'Location TBD')+'</p><p><b>Event point of contact:</b> '+safe(ev.poc_name||'Not provided')+(ev.poc_phone?' · '+safe(ev.poc_phone):'')+(ev.poc_email?' · '+safe(ev.poc_email):'')+'</p>'+(ev.cost_details?'<p><b>Cost:</b> '+safe(ev.cost_details)+'</p>':'')+'<p><b>Google Calendar:</b> <span class="chip '+status.tone+'">'+safe(status.label)+'</span></p>'+(job?.last_error?'<p class="notice error">Sync issue: '+safe(job.last_error)+'</p>':'')+'<div class="review-actions" id="event-actions"></div><div id="event-editor-host"></div><h3>Recent history</h3><div id="event-history" class="timeline"></div>';
+  host.innerHTML='<h2>'+safe(ev.title)+'</h2><p class="muted">'+safe(ev.event_code)+' · '+safe(nice(ev.status))+'</p><p><b>Starts:</b> '+safe(fmt(ev.starts_at))+' · <b>Location:</b> '+safe(ev.location_name||'Location TBD')+'</p><p><b>Event point of contact:</b> '+safe(ev.poc_name||'Not provided')+(ev.poc_position?' ('+safe(ev.poc_position)+')':'')+(ev.poc_phone?' · '+safe(ev.poc_phone):'')+(ev.poc_email?' · '+safe(ev.poc_email):'')+'</p>'+(ev.cost_details?'<p><b>Cost:</b> '+safe(ev.cost_details)+'</p>':'')+'<p><b>Google Calendar:</b> <span class="chip '+status.tone+'">'+safe(status.label)+'</span></p>'+(job?.last_error?'<p class="notice error">Sync issue: '+safe(job.last_error)+'</p>':'')+'<div class="review-actions" id="event-actions"></div><div id="event-editor-host"></div><h3>Recent history</h3><div id="event-history" class="timeline"></div>';
   const actions=$('event-actions');
   if(ev.status==='active'){
    const edit=document.createElement('button');edit.className='secondary';edit.textContent='Edit Published Event';
