@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Inspector Desk | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=22"><link rel="stylesheet" href="/shared/header.css?v=1"><script defer src="/shared/header.js?v=1"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=47"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=22"><link rel="stylesheet" href="/shared/header.css?v=1"><script defer src="/shared/header.js?v=1"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=48"></script>
 <script defer src="/app/lodges-admin.js?v=3"></script><script defer src="/app/corrections-admin.js?v=1"></script><script defer src="/app/site-settings-admin.js?v=4"></script><script defer src="/app/resources.js?v=2"></script>
 <script defer src="/app/mfa.js?v=8"></script>
 <meta name="robots" content="noindex, nofollow, noarchive">
@@ -13,6 +13,7 @@
 <div class="hero"><div class="eyebrow">Division IV · Masonic Events</div><h1>Calendar submissions, made simple.</h1><p>Submit a new event, update an existing listing, or report a cancellation. Division IV inspectors verify submissions for accuracy and coordinate their publication on the public calendar. Each lodge retains full authority over its own activities and scheduling.</p><p><a href="/calendar/" class="secondary" style="display:inline-block;text-decoration:none;font-size:15px">View the Public Calendar →</a></p></div>
 <div id="notice" class="notice hidden" role="status" aria-live="polite"></div>
 <datalist id="host-choices"></datalist>
+<datalist id="poc-position-choices"></datalist>
 <datalist id="venue-choices"><option value="Lodge Hall"></option><option value="Masonic Temple"></option></datalist>
 <datalist id="city-choices"></datalist>
 <datalist id="cost-choices"><option value="Free"></option><option value="Donation"></option><option value="No charge"></option><option value="Pay at the door"></option></datalist>
@@ -62,9 +63,10 @@
 <label class="wide">Flyer or invitation link <input name="flyer_url" type="url" placeholder="https://example.org/event-flyer"></label>
 </div></details>
 <div class="form-title">Event point of contact (published on calendar)</div>
-<p class="help">Enter the person members should call with questions about the event. This may be different from the person submitting the event. The POC name, phone number and email will be visible on the public Google Calendar.</p>
+<p class="help">Enter the person members should call with questions about the event. This may be different from the person submitting the event. The POC name, position, phone number and email will be visible on the public Google Calendar.</p>
 <div class="form-grid">
 <label><span class="field-caption">POC name <span class="req" aria-label="required">*</span></span><input name="poc_name" maxlength="150" autocomplete="off" required placeholder="Contact person's full name"></label>
+<label>POC position / office <input name="poc_position" list="poc-position-choices" maxlength="120" autocomplete="off" placeholder="Choose or type a title"></label>
 <label><span class="field-caption">POC phone <span class="req" aria-label="required">*</span></span><input name="poc_phone" type="tel" maxlength="50" autocomplete="off" required placeholder="Phone number to publish"></label>
 <label><span class="field-caption">POC email <span class="req" aria-label="required">*</span></span><input name="poc_email" type="email" maxlength="250" autocomplete="off" required placeholder="Email address to publish"></label>
 </div>
@@ -100,6 +102,7 @@
 <label>End date and time <input type="datetime-local" name="end_local"></label>
 <label class="wide">Public event description <textarea name="public_description" rows="4" placeholder="Event details for the public calendar"></textarea></label>
 <label>Event POC name (public) <input name="poc_name" maxlength="150"></label>
+<label>Event POC position (public) <input name="poc_position" list="poc-position-choices" maxlength="120" placeholder="Choose or type a title"></label>
 <label>Event POC phone (public) <input name="poc_phone" type="tel" maxlength="50"></label>
 <label>Event POC email (public) <input name="poc_email" type="email" maxlength="250"></label>
 <label>Cost (optional) <input name="cost_details" list="cost-choices" maxlength="180" placeholder="Free, $20, dinner $25, donation..."></label>
