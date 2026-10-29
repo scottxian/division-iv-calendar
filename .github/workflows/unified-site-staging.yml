@@ -41,6 +41,9 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Test public pages, inspector login route and mobile menu
         run: node tests/browser-smoke.mjs
+      - name: Verify live website, backend access boundaries and responsive layout (read-only)
+        if: github.ref == 'refs/heads/main'
+        run: node tests/live-site-smoke.mjs
       - name: Save visual evidence
         if: always()
         uses: actions/upload-artifact@v4
