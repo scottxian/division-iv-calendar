@@ -50,12 +50,13 @@ async function syncCalendar(job:any,token:string){
     .order('submitted_at',{ascending:true}).limit(1).maybeSingle();
   if(contactError)throw Error('Unable to load event point of contact: '+contactError.message);
   const pocName=String(e.poc_name||contactRequest?.requester_name||'').trim();
+   const pocPosition=String(e.poc_position||'').trim();
   const pocPhone=String(e.poc_phone||contactRequest?.requester_phone||'').trim();
   const pocEmail=String(e.poc_email||'').trim();
   const host=safe(e.hosted_by).trim();
   const title=safe(e.title).trim();
   const calendarTitle=(e.event_type==='Division School of Instruction' ? title : (host && !title.toLowerCase().startsWith((host+':').toLowerCase()) ? host+': '+title : title)).slice(0,1024);
-  const contactDetails=[pocName?'Point of contact: '+safe(pocName):'',pocPhone?'POC phone: '+safe(pocPhone):'',pocEmail?'POC email: '+safe(pocEmail):''].filter(Boolean).join('\n');
+  const contactDetails=[pocName?'Point of contact: '+safe(pocName):'',pocPosition?'POC position: '+safe(pocPosition):'',pocPhone?'POC phone: '+safe(pocPhone):'',pocEmail?'POC email: '+safe(pocEmail):''].filter(Boolean).join('\n');
   let onlineLink=String(e.virtual_meeting_url||'').trim();
   if(e.event_mode==='online'&&!onlineLink){
    // Older approval functions may have retained the link only in the source request.
