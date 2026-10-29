@@ -3,7 +3,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Inspector Desk | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
 <meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=22"><link rel="stylesheet" href="/shared/header.css?v=1"><script defer src="/shared/header.js?v=1"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=48"></script>
-<script defer src="/app/lodges-admin.js?v=3"></script><script defer src="/app/corrections-admin.js?v=1"></script><script defer src="/app/site-settings-admin.js?v=4"></script><script defer src="/app/resources.js?v=2"></script>
+<script defer src="/app/lodges-admin.js?v=4"></script><script defer src="/app/corrections-admin.js?v=1"></script><script defer src="/app/site-settings-admin.js?v=4"></script><script defer src="/app/resources.js?v=2"></script>
 <script defer src="/app/mfa.js?v=8"></script>
 <meta name="robots" content="noindex, nofollow, noarchive">
 </head><body>
@@ -197,6 +197,7 @@
 <form id="lodge-edit-form" class="form-grid hidden">
 <label>Lodge name <input name="lodge_name" maxlength="150" required></label>
 <label>Lodge number <input name="lodge_number" maxlength="12" required></label>
+<label>Lodge abbreviation (admin only) <input name="abbreviation" maxlength="20" autocomplete="off" placeholder="Optional · 20 characters maximum"></label>
 <label>District <select name="district" required><option value="402">402</option><option value="404">404</option><option value="410">410</option><option value="414">414</option><option value="418">418</option><option value="422">422</option><option value="428">428</option><option value="438">438</option></select></label>
 <label>State <input name="state" maxlength="2" value="CA" required></label>
 <label class="wide">Meeting address <input name="address_line1" maxlength="240" required></label>
