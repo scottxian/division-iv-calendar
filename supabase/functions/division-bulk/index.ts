@@ -169,7 +169,7 @@ Deno.serve(async req=>{
   if(!/\.xlsx$/i.test(filename))throw Error('An Excel .xlsx file is required.');
   const confirmations=new Set((Array.isArray(body.confirmed_rows)?body.confirmed_rows:[]).map(Number));
   const items=await inspect(rows,staff);
-  const hash=await digest(JSON.stringify(rows));
+  const hash=await digest(JSON.stringify({rows,confirmed_rows:[...confirmations].filter(Number.isInteger).sort((a,b)=>a-b)}));
   const batchKey=staff.id+':'+hash;
   const {data:existing,error:existingError}=await db.from('bulk_event_imports').select('*').eq('batch_key',batchKey).maybeSingle();
   if(existingError)throw Error(existingError.message);

@@ -34,7 +34,7 @@ function loadReader(){
  if(readerPromise)return readerPromise;
  readerPromise=new Promise((resolve,reject)=>{
   const script=document.createElement('script');
-  script.src='https://cdn.jsdelivr.net/npm/read-excel-file@9.3.10/bundle/read-excel-file.min.js';
+  script.src='https://cdn.jsdelivr.net/npm/read-excel-file@9.3.13/bundle/read-excel-file.min.js';
   script.async=true;
   script.onload=()=>window.readXlsxFile?resolve(window.readXlsxFile):reject(Error('Excel reader did not load.'));
   script.onerror=()=>reject(Error('The Excel reader could not load. Check your internet connection and retry.'));
