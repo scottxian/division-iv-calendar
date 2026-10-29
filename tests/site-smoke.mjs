@@ -250,6 +250,8 @@ for(const edge of ['division-calendar','division-jobs']){
   errors.push(edge+': expected internal status values or storage identifiers changed');
 }
 const mailer=read('supabase/functions/division-jobs/index.ts');
+if(!mailer.includes("from './calendar-format.mjs'")||!mailer.includes('calendarNotes(e,{onlineLink,contactDetails})')||!mailer.includes("eq('lodge_number',number)"))
+ errors.push('Calendar publishing must use lodge abbreviation and district note formatting');
 for(const phrase of ['Calendar submission received:','awaiting verification for calendar publication',
  'Verified for Publication','Returned for Correction','Not Published',
  'This means the listing was not published']){
