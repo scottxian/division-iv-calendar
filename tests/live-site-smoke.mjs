@@ -57,6 +57,8 @@ try{
   assert.equal(res?.status(),200,label+' returned non-200');
   await page.locator('header[data-header-ready="true"]').waitFor({state:'attached',timeout:15000});
   await page.locator('h1').first().waitFor({state:'visible',timeout:15000});
+  // DOMContentLoaded does not guarantee image decode, especially on the first cold load.
+  await page.locator('header img.brand-emblem').evaluate(async img=>{await img.decode()});
   const identity=await page.locator('header .division-brand').evaluate(el=>{
    const img=el.querySelector('img.brand-emblem');
    return {name:el.querySelector('.brand-name')?.textContent?.trim(),
