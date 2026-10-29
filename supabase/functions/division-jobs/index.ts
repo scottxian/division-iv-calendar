@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { calendarTitle, calendarNotes, lodgeNumberFromHost } from './calendar-format.mjs';
 const url=Deno.env.get('SUPABASE_URL')!;
 const key=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const db=createClient(url,key,{auth:{persistSession:false}});
@@ -53,9 +54,19 @@ async function syncCalendar(job:any,token:string){
    const pocPosition=String(e.poc_position||'').trim();
   const pocPhone=String(e.poc_phone||contactRequest?.requester_phone||'').trim();
   const pocEmail=String(e.poc_email||'').trim();
-  const host=safe(e.hosted_by).trim();
-  const title=safe(e.title).trim();
-  const calendarTitle=(e.event_type==='Division School of Instruction' ? title : (host && !title.toLowerCase().startsWith((host+':').toLowerCase()) ? host+': '+title : title)).slice(0,1024);
+  // Read the short name from the live lodge database. Older events usually have no lodge_id.
+  let lodge:any=null;
+  if(e.event_type!=='Division School of Instruction'){
+   const number=lodgeNumberFromHost(e.hosted_by);
+   if(e.lodge_id||number){
+    const query=db.from('lodges').select('id,lodge_name,lodge_number,abbreviation').eq('active',true);
+    const {data,error:lodgeError}=await (e.lodge_id?query.eq('id',e.lodge_id):query.eq('lodge_number',number)).maybeSingle();
+    if(lodgeError)throw Error('Unable to look up lodge abbreviation: '+lodgeError.message);
+    lodge=data;
+    if(!lodge?.abbreviation)console.warn('Lodge abbreviation unavailable for '+safe(e.hosted_by)+'; using host name');
+   }
+  }
+  const summary=calendarTitle(e,lodge);
   const contactDetails=[pocName?'Point of contact: '+safe(pocName):'',pocPosition?'POC position: '+safe(pocPosition):'',pocPhone?'POC phone: '+safe(pocPhone):'',pocEmail?'POC email: '+safe(pocEmail):''].filter(Boolean).join('\n');
   let onlineLink=String(e.virtual_meeting_url||'').trim();
   if(e.event_mode==='online'&&!onlineLink){
@@ -64,9 +75,9 @@ async function syncCalendar(job:any,token:string){
     .eq('approved_event_id',e.id).eq('request_type','new').limit(1).maybeSingle();
    onlineLink=String(sourceRequest?.proposed_fields?.virtual_meeting_url||'').trim();
   }
-  const text=[e.public_description||'',e.event_mode==='online'&&onlineLink?'Online meeting: '+onlineLink:'',e.hosted_by?'Hosted by '+e.hosted_by:'',e.cost_details?'Cost: '+safe(e.cost_details):'',contactDetails,e.registration_url?'Registration: '+e.registration_url:'',e.payment_url?'Payment: '+e.payment_url:''].filter(Boolean).join('\n\n');
+  const text=calendarNotes(e,{onlineLink,contactDetails});
   const venue=e.event_mode==='online'?(onlineLink||e.location_name||'Online'):[e.location_name,e.location_address].filter(Boolean).join(', ')||(e.location_tbd?'Location TBD':'');
-  const payload={id:googleId,summary:calendarTitle,description:text,location:venue,start:{dateTime:e.starts_at,timeZone:'America/Los_Angeles'},end:{dateTime:e.ends_at,timeZone:'America/Los_Angeles'}};
+  const payload={id:googleId,summary,description:text,location:venue,start:{dateTime:e.starts_at,timeZone:'America/Los_Angeles'},end:{dateTime:e.ends_at,timeZone:'America/Los_Angeles'}};
   // Deterministic Google event ID avoids duplicates if an insert succeeds before logging does.
   let response=await calendar('PUT','/'+googleId,token,payload);
   if(response.status===404){response=await calendar('POST','',token,payload);if(response.status===409)response=await calendar('PUT','/'+googleId,token,payload)}
