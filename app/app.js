@@ -781,12 +781,13 @@ async function activateInspectorTab(key){
   return;
  }
  all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
- for(const k of ['dashboard','lodges','corrections','requests','events','resources','history','staff','settings'])
+ for(const k of ['dashboard','import','lodges','corrections','requests','events','resources','history','staff','settings'])
   $('tab-'+k).classList.toggle('hidden',k!==key);
  if(key==='dashboard'){await Promise.allSettled([loadDashboard(),window.loadCalendarSync?.(),window.loadWebsitePreview?.()]);}
  if(key==='lodges')await window.loadLodges?.();
  if(key==='corrections')await window.loadCorrections?.();
  if(key==='requests')await loadRequests(0);
+ if(key==='import')await window.loadBulkImport?.();
  if(key==='events')await loadEvents(0);
  if(key==='resources')await window.loadResources?.();
  if(key==='history')await loadHistory(0);
@@ -974,5 +975,6 @@ async function loadSettings(){
 $('save-links').onclick=async()=>{
  try{await api('settings-save',{key:'public_email_links',value:$('email-links').value});toast('Email links saved')}catch(e){toast(e.message,true)}
 };
+window.openBulkSubmission=async id=>{await activateInspectorTab('requests');await detail(id)};
 window.divisionAppReady = true;
 acceptRedirect().finally(init);

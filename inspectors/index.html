@@ -4,7 +4,7 @@
 <title>Division IV Inspector Desk | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
 <meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=22"><link rel="stylesheet" href="/shared/header.css?v=1"><script defer src="/shared/header.js?v=1"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=48"></script>
 <script defer src="/app/lodges-admin.js?v=4"></script><script defer src="/app/corrections-admin.js?v=1"></script><script defer src="/app/site-settings-admin.js?v=4"></script><script defer src="/app/resources.js?v=2"></script>
-<script defer src="/app/mfa.js?v=8"></script>
+<script defer src="/app/mfa.js?v=8"></script><script defer src="/app/bulk-import.js?v=1"></script>
 <meta name="robots" content="noindex, nofollow, noarchive">
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
@@ -136,6 +136,7 @@
 <div class="tabs">
 <button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
 <button class="tab" data-tab="requests" type="button">Review Submissions</button>
+<button class="tab" data-tab="import" type="button">Import Events</button>
 <button class="tab" data-tab="events" type="button">Manage Published Events</button>
 <button class="tab" data-tab="resources" type="button">Resources</button>
 <button class="tab" data-tab="history" type="button">Status Log</button>
@@ -231,6 +232,21 @@
 <div class="pagination"><button type="button" class="secondary" id="prev-page">← Previous</button><span id="page-label">Page 1</span><button type="button" class="secondary" id="next-page">Next →</button></div>
 </section><section id="request-detail" class="panel hidden" aria-live="polite"></section>
 </div>
+
+<section id="tab-import" class="panel hidden">
+<div class="review-title"><div><h3>Import New Events</h3>
+<p class="muted">Inspectors and administrators can submit multiple new listings from the Division IV Excel template. Each event enters the existing approval queue separately. No event is published automatically.</p></div></div>
+<div class="bulk-import-help">
+<p><strong>Use the Division IV New Event Upload Template (.xlsx).</strong> Fill in up to 25 events on the <strong>New Events</strong> sheet. One populated row equals one new event; no Upload? Yes/No field is required.</p>
+<p>Dates and times are Pacific. Lodge numbers are checked against the live directory; the server supplies the official lodge name and district. A spreadsheet can contain invalid rows: valid rows may still be submitted.</p>
+</div>
+<label class="bulk-file-label">Choose Excel spreadsheet <input id="bulk-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-describedby="bulk-status"></label>
+<p class="help" id="bulk-status" role="status" aria-live="polite">Choose the Division IV new-events workbook to preview your submissions.</p>
+<p id="bulk-summary" class="bulk-summary" aria-live="polite"></p>
+<div id="bulk-preview" class="bulk-preview" aria-label="Event import validation preview"></div>
+<div class="form-actions"><button id="bulk-submit" type="button" class="primary" disabled>Submit valid events to approval queue</button></div>
+<section id="bulk-results" class="bulk-results" aria-live="polite"></section>
+</section>
 <section id="tab-events" class="hidden">
 <section class="panel">
 <h3>Manage Published Events</h3>

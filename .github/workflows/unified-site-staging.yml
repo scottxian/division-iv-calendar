@@ -26,6 +26,8 @@ jobs:
         run: node tests/site-smoke.mjs
       - name: Test Google Calendar publishing title and notes
         run: node tests/calendar-publishing.mjs
+      - name: Test Inspector Desk Excel import integration
+        run: node tests/bulk-import-smoke.mjs
 
   browser-smoke:
     runs-on: ubuntu-latest

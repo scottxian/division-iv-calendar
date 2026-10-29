@@ -89,6 +89,26 @@ async function syncCalendar(job:any,token:string){
 async function sendEmail(job:any){
  const apiKey=Deno.env.get('RESEND_API_KEY'),from=Deno.env.get('MAIL_FROM');
  if(!apiKey||!from)throw Error('Transactional email not configured');
+
+ if(job.message_type==='bulk_import_summary'){
+  const batchId=String(job.idempotency_key||'').split(':')[1]||'';
+  if(!/^[0-9a-f-]{36}$/i.test(batchId))throw Error('Invalid bulk import message reference');
+  const {data:batch,error}=await db.from('bulk_event_imports').select('filename,importer_email,source_count,submitted_count,skipped_count,error_count').eq('id',batchId).maybeSingle();
+  if(error||!batch)throw Error('Bulk import summary unavailable: '+(error?.message||'Missing batch'));
+  const subject='[Division IV] '+batch.submitted_count+' new calendar submission(s) from Excel';
+  const body='A Division IV inspector or administrator uploaded an Excel file for calendar review.\n\n'+
+   'Uploaded by: '+batch.importer_email+'\nFile: '+batch.filename+
+   '\nRows reviewed: '+batch.source_count+'\nSubmitted to queue: '+batch.submitted_count+
+   '\nSkipped: '+batch.skipped_count+'\nErrors: '+batch.error_count+
+   '\n\nEach submission awaits individual verification and approval. No events were automatically published.\n\nInspector Desk: https://divisionivmasons.org/inspectors/';
+  const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{authorization:'Bearer '+apiKey,'content-type':'application/json','Idempotency-Key':job.idempotency_key},
+    body:JSON.stringify({from,to:[job.recipient_email],subject,text:body})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error('Bulk import notification failed: '+JSON.stringify(data).slice(0,250));
+  await db.from('email_deliveries').update({provider_message_id:data.id||null,sent_at:new Date().toISOString()}).eq('id',job.id);
+  return;
+ }
+
  const {data:r}=await db.from('event_requests').select('*').eq('id',job.request_id).maybeSingle();
  const {data:settings}=await db.from('system_settings').select('setting_value').eq('setting_key','public_email_links').maybeSingle();
  if(!r)throw Error('Request no longer available');

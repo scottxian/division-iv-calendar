@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+/** Bulk importer integration checks: read-only, no calendar writes. */
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const read=f=>fs.readFileSync(f,'utf8');
+const html=read('inspectors/index.html');
+const app=read('app/app.js');
+const client=read('app/bulk-import.js');
+const api=read('supabase/functions/division-bulk/index.ts');
+const worker=read('supabase/functions/division-jobs/index.ts');
+new vm.Script(client,{filename:'app/bulk-import.js'});
+assert.match(html,/data-tab="import"/);
+assert.match(html,/id="tab-import"/);
+for(const id of ['bulk-file','bulk-status','bulk-summary','bulk-preview','bulk-submit','bulk-results'])
+ assert.ok(html.includes('id="'+id+'"'),id);
+assert.match(html,/app\/bulk-import\.js\?v=1/);
+assert.match(app,/window\.loadBulkImport/);
+assert.match(app,/window\.openBulkSubmission/);
+assert.match(app,/\['dashboard','import','lodges'/);
+assert.match(client,/read-excel-file@9\.3\.10/);
+assert.match(client,/sheet:'New Events'/);
+assert.match(client,/row_number:heading\+index\+2/);
+assert.match(client,/entries\.length>25/);
+assert.match(client,/confirmed_rows/);
+assert.match(client,/status==='invalid'/);
+assert.match(client,/location_tbd/);
+assert.match(api,/claims\.aal!=='aal2'/);
+assert.match(api,/staff\.role/);
+assert.match(api,/bulk_import_new_request/);
+assert.match(api,/bulk_event_imports/);
+assert.match(api,/event_requests/);
+assert.match(api,/status:'completed'/);
+assert.match(api,/message_type:'bulk_import_summary'/);
+assert.ok(!api.includes(".from('events').insert("),'Bulk importer must not directly publish events');
+assert.ok(!api.includes(".from('calendar_jobs').insert("),'Bulk importer must not bypass review');
+assert.match(worker,/job\.message_type==='bulk_import_summary'/);
+assert.match(worker,/Each submission awaits individual verification and approval/);
+assert.match(api,/Possible matching event/);
+console.log('PASS: Division IV new-event Excel importer UI, authentication, deduplication, review queue and email wiring');
