@@ -4,7 +4,7 @@ const service = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const db = createClient(url, service, {auth:{persistSession:false,autoRefreshToken:false}});
 const publicHosts = new Set(['scottxian.github.io','calendar.divisionivmasons.org','divisionivmasons.org','www.divisionivmasons.org']);
 const allowed = new Set(['https://divisionivmasons.org','https://www.divisionivmasons.org','https://scottxian.github.io','https://calendar.divisionivmasons.org','http://localhost:5173','http://127.0.0.1:5173']);
-const fields=['title','event_type','hosted_by','district','start_local','end_local','event_mode','location_name','location_address','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','virtual_meeting_url','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_phone','poc_email','cost_details'];
+const fields=['title','event_type','hosted_by','district','start_local','end_local','event_mode','location_name','location_address','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','virtual_meeting_url','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_position','poc_phone','poc_email','cost_details'];
 const choices=new Set(['new','change','cancel']);
 const locationKeys=['location_name','location_address1','location_address2','location_city','location_state','location_zip'];
 function checkLocation(p:any){
@@ -40,7 +40,7 @@ function sanitize(p:any,patch=false){
  for(const f of fields){
   if(!Object.hasOwn(p||{},f)) continue;
   if(f==='location_tbd'){obj[f]=Boolean(p[f]);continue;}
-  const lim=f==='public_description'?4000:f==='title'?180:f==='poc_name'?150:f==='poc_phone'?50:f==='poc_email'?250:f==='cost_details'?180:1000;
+  const lim=f==='public_description'?4000:f==='title'?180:f==='poc_name'?150:f==='poc_position'?120:f==='poc_phone'?50:f==='poc_email'?250:f==='cost_details'?180:1000;
   obj[f]=clean(p[f],lim);
   if(f==='poc_email'&&obj[f]&&!goodEmail(String(obj[f])))throw Error('Enter a valid event point-of-contact email');
   if(['registration_url','payment_url','flyer_url','virtual_meeting_url'].includes(f)&&obj[f]&&!parseUrl(obj[f]))throw Error('Enter a valid http(s) URL for '+f.replaceAll('_',' '));
@@ -105,9 +105,9 @@ Deno.serve(async req=>{
   const a=await auth(req);
   if(a.staff && !['config','me','locate','submit'].includes(action)) await verifiedMfaRequired(a.user,a.token);
   if(action==='config'){
-   const [types,enabled,districts,hosts,lodges]=await Promise.all([db.from('event_types').select('label').eq('enabled',true).order('sort_order'),setting('public_submissions_enabled',false),setting('district_numbers',[]),db.from('events').select('hosted_by,location_name,location_city,attire,invited_audience,cost_details').eq('status','active').order('created_at',{ascending:false}).limit(1000),db.from('lodges').select('lodge_name,lodge_number').eq('active',true).limit(1000)]);
+   const [types,enabled,districts,hosts,lodges,positions]=await Promise.all([db.from('event_types').select('label').eq('enabled',true).order('sort_order'),setting('public_submissions_enabled',false),setting('district_numbers',[]),db.from('events').select('hosted_by,location_name,location_city,attire,invited_audience,cost_details').eq('status','active').order('created_at',{ascending:false}).limit(1000),db.from('lodges').select('lodge_name,lodge_number').eq('active',true).limit(1000),db.from('poc_positions').select('title').eq('active',true).order('sort_order',{ascending:true}).order('title')]);
    const publicSuggestions=(field:string)=>[...new Set((hosts.data||[]).map((x:any)=>String(x[field]||'').trim()).filter(Boolean))].slice(0,100);
-   return json({event_types:(types.data||[]).map((x:any)=>x.label),districts,suggestions:{venue:publicSuggestions('location_name'),city:publicSuggestions('location_city'),attire:publicSuggestions('attire'),audience:publicSuggestions('invited_audience'),cost:publicSuggestions('cost_details')},hosts:[...(hosts.data||[]).map((x:any)=>x.hosted_by),...(lodges.data||[]).map((x:any)=>[x.lodge_name,x.lodge_number?'No. '+x.lodge_number:''].filter(Boolean).join(' '))].filter(Boolean),public_submissions_enabled:enabled,turnstile_site_key:Deno.env.get('TURNSTILE_SITE_KEY')||null,turnstile_ready:Boolean(Deno.env.get('TURNSTILE_SITE_KEY')&&Deno.env.get('TURNSTILE_SECRET')),logged_in:!!a.user,staff:a.staff},200,origin);
+   return json({event_types:(types.data||[]).map((x:any)=>x.label),districts,suggestions:{venue:publicSuggestions('location_name'),city:publicSuggestions('location_city'),attire:publicSuggestions('attire'),audience:publicSuggestions('invited_audience'),cost:publicSuggestions('cost_details'),position:(positions.data||[]).map((x:any)=>x.title)},hosts:[...(hosts.data||[]).map((x:any)=>x.hosted_by),...(lodges.data||[]).map((x:any)=>[x.lodge_name,x.lodge_number?'No. '+x.lodge_number:''].filter(Boolean).join(' '))].filter(Boolean),public_submissions_enabled:enabled,turnstile_site_key:Deno.env.get('TURNSTILE_SITE_KEY')||null,turnstile_ready:Boolean(Deno.env.get('TURNSTILE_SITE_KEY')&&Deno.env.get('TURNSTILE_SECRET')),logged_in:!!a.user,staff:a.staff},200,origin);
   }
   if(action==='me'){
    const mfa=a.staff?await staffMfaState(a.user,a.token):null;
