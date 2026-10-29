@@ -24,6 +24,8 @@ jobs:
           node-version: '22'
       - name: Validate navigation, assets, JavaScript, and security boundaries
         run: node tests/site-smoke.mjs
+      - name: Test Google Calendar publishing title and notes
+        run: node tests/calendar-publishing.mjs
 
   browser-smoke:
     runs-on: ubuntu-latest
