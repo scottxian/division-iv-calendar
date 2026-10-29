@@ -7,6 +7,13 @@ import vm from 'node:vm';
 const root=process.cwd();
 const pages=['index.html','calendar/index.html','lodges/index.html','events/index.html','inspectors/index.html','calendar.html','lodges.html'];
 
+const scripts=['script.js','lodges.js','app/app.js','app/bootstrap.js','app/lodges-admin.js','app/site-settings-admin.js','app/resources.js','app/corrections-admin.js','app/mfa.js'];
+const errors=[];
+let checkedLinks=0;
+
+const read=name=>fs.readFileSync(path.join(root,name),'utf8');
+const fileExists=name=>fs.existsSync(path.join(root,name))&&fs.statSync(path.join(root,name)).isFile();
+
 // Admin-only lodge abbreviation: never include it in public lodge payloads or inspector view.
 for(const filename of ['events/index.html','inspectors/index.html']){
  const html=read(filename);
@@ -23,12 +30,6 @@ if(publicSelection.includes('abbreviation')||!lodgeApi.includes("select(publicFi
    !lodgeApi.includes("if(staff.role!=='admin'&&['all','save','history'].includes(action))"))
  errors.push('Lodge abbreviation must only be returned by administrator API, never by public lookup');
 
-const scripts=['script.js','lodges.js','app/app.js','app/bootstrap.js','app/lodges-admin.js','app/site-settings-admin.js','app/resources.js','app/corrections-admin.js','app/mfa.js'];
-const errors=[];
-let checkedLinks=0;
-
-const read=name=>fs.readFileSync(path.join(root,name),'utf8');
-const fileExists=name=>fs.existsSync(path.join(root,name))&&fs.statSync(path.join(root,name)).isFile();
 
 for(const page of pages){
  if(!fileExists(page)){errors.push('Missing page: '+page);continue;}
