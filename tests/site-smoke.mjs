@@ -6,6 +6,23 @@ import vm from 'node:vm';
 
 const root=process.cwd();
 const pages=['index.html','calendar/index.html','lodges/index.html','events/index.html','inspectors/index.html','calendar.html','lodges.html'];
+
+// Admin-only lodge abbreviation: never include it in public lodge payloads or inspector view.
+for(const filename of ['events/index.html','inspectors/index.html']){
+ const html=read(filename);
+ const form=html.match(/<form id="lodge-edit-form"[\s\S]*?<\/form>/)?.[0]||'';
+ if(!form.includes('name="abbreviation" maxlength="20"')||!html.includes('/app/lodges-admin.js?v=4'))
+  errors.push(filename+': administrator-only, 20-character lodge abbreviation form field missing');
+}
+const lodgeAdminClient=read('app/lodges-admin.js');
+if(!lodgeAdminClient.includes("'lodge_name','lodge_number','abbreviation','district'"))
+ errors.push('Lodge editor does not save the abbreviation');
+const lodgeApi=read('supabase/functions/division-lodges/index.ts');
+const publicSelection=lodgeApi.match(/const publicFields='([^']+)'/)?.[1]||'';
+if(publicSelection.includes('abbreviation')||!lodgeApi.includes("select(publicFields+',active,abbreviation')")||
+   !lodgeApi.includes("if(staff.role!=='admin'&&['all','save','history'].includes(action))"))
+ errors.push('Lodge abbreviation must only be returned by administrator API, never by public lookup');
+
 const scripts=['script.js','lodges.js','app/app.js','app/bootstrap.js','app/lodges-admin.js','app/site-settings-admin.js','app/resources.js','app/corrections-admin.js','app/mfa.js'];
 const errors=[];
 let checkedLinks=0;
