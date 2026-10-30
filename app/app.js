@@ -234,7 +234,7 @@ window.divisionRefreshIdentity=identity;
 const allowedDistrictDivisions=new Map([[1,'Division I'],[2,'Division II'],[3,'Division III'],[4,'Division IV'],[10,'Division X']]);
 function districtDivision(code){
  const value=String(code??'').trim();
- if(!/^\\d{3,4}$/.test(value))return null;
+ if(!/^\d{3,4}$/.test(value))return null;
  const division=Math.floor(Number(value)/100);
  return allowedDistrictDivisions.has(division)?division:null;
 }
