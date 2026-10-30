@@ -57,7 +57,7 @@
  target.classList.add('division-site-header');
  const inner=document.createElement('div');
  inner.className='division-header-inner';
- inner.innerHTML=brand+publicNavigation.join('')+tools;
+ inner.innerHTML=brand+publicNavigation+tools;
  target.replaceChildren(inner);
  target.dataset.headerReady='true';
 })();

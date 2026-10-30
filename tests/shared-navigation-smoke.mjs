@@ -13,7 +13,7 @@ for(const path of ['index.html','calendar/index.html','lodges/index.html','event
  assert.match(content,/shared\/header\.css\?v=2/,path);
  assert.match(content,/script\.js\?v=3/,path);
 }
-assert.match(header,/brand\+publicNavigation\.join\(''\)\+tools/);
+assert.match(header,/brand\+publicNavigation\+tools/);
 assert.match(header,/id="main-nav"/);
 assert.match(header,/id="menu-toggle"/);
 assert.match(header,/data-division-header/);
