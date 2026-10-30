@@ -28,6 +28,7 @@ assert.match(client,/location_tbd/);
 assert.match(api,/claims\.aal!=='aal2'/);
 assert.match(api,/staff\.role/);
 assert.match(api,/bulk_import_new_request/);
+assert.match(api,/n<3\|\|n>500/,'Importer must accept rows 3–27 in simplified Excel template');
 assert.match(api,/bulk_event_imports/);
 assert.match(api,/confirmed_rows:/);
 assert.match(html,/app\/app\.js\?v=50/);

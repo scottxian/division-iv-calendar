@@ -145,7 +145,7 @@ function inputRows(body:any){
  const numbers=new Set<number>();
  for(const row of body.rows){
   if(!row||typeof row!=='object'||Array.isArray(row))throw Error('Invalid event row.');
-  const n=Number(row.row_number);if(!Number.isInteger(n)||n<6||n>500||numbers.has(n))throw Error('Invalid or repeated spreadsheet row number.');
+  const n=Number(row.row_number);if(!Number.isInteger(n)||n<3||n>500||numbers.has(n))throw Error('Invalid or repeated spreadsheet row number.');
   numbers.add(n);
  }
  return body.rows;
