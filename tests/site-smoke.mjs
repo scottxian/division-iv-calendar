@@ -21,10 +21,33 @@ for(const filename of ['events/index.html','inspectors/index.html']){
  if(!form.includes('name="abbreviation" maxlength="20"')||!html.includes('/app/lodges-admin.js?v=5'))
   errors.push(filename+': administrator-only, 20-character lodge abbreviation form field missing');
 }
+const messageClient=read('app/app.js');
+const resourceClient=read('app/resources.js');
+const correctionClient=read('app/corrections-admin.js');
+const websiteClient=read('app/site-settings-admin.js');
+const inspectorHtml=read('inspectors/index.html');
+if(!inspectorHtml.includes('id="resources-editor-message"')||
+ !inspectorHtml.includes('id="resources-category-message" class="edit-action-feedback"')||
+ !inspectorHtml.includes('app/resources.js?v=3')||
+ !inspectorHtml.includes('app/site-settings-admin.js?v=5')||
+ !inspectorHtml.includes('app/corrections-admin.js?v=2')||
+ !messageClient.includes("function actionFeedback(")||
+ !messageClient.includes("formFeedback(f,'Not saved: ")||
+ !messageClient.includes("formFeedback(e.target,'Inspector record not saved: ")||
+ !messageClient.includes("actionFeedback($('event-actions')")||
+ !messageClient.includes("actionFeedback($('review-actions')")||
+ !messageClient.includes("actionFeedback($('staff-list')")||
+ !messageClient.includes("actionFeedback(btn,'Email links saved.')")||
+ !resourceClient.includes("editorNotice('Document details not saved: ")||
+ !resourceClient.includes("editorNotice('Document not saved: ")||
+ !correctionClient.includes("const detailNotice=(msg,bad=false)")||
+ !websiteClient.includes("form.addEventListener('invalid'")){
+ errors.push('Inspector Desk editing screens must show persistent feedback adjacent to actions.');
+}
 const lodgeAdminClient=read('app/lodges-admin.js');
 if(!read('inspectors/index.html').includes('id="lodge-save-message"')||
  !read('inspectors/index.html').includes('app/lodges-admin.js?v=5')||
- !read('inspectors/index.html').includes('app/styles.css?v=25')||
+ !read('inspectors/index.html').includes('app/styles.css?v=26')||
  !lodgeAdminClient.includes("form.addEventListener('invalid'")||
  !lodgeAdminClient.includes("saveFeedback(data.notice")||
  !lodgeAdminClient.includes("saveFeedback('Lodge changes were not saved:")||
@@ -79,8 +102,8 @@ const required={
  'index.html':['href="/events/"','href="/calendar/"','href="/inspectors/"'],
  'calendar/index.html':['href="/events/"'],
  'lodges/index.html':['href="/events/"'],
- 'events/index.html':['/app/app.js?v=53','/app/mfa.js?v=9'],
- 'inspectors/index.html':['/app/app.js?v=53','/app/mfa.js?v=9']
+ 'events/index.html':['/app/app.js?v=54','/app/mfa.js?v=9'],
+ 'inspectors/index.html':['/app/app.js?v=54','/app/mfa.js?v=9']
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
@@ -177,7 +200,7 @@ for(const file of ['month-calendar.js','public-events.js','lodge-correction.js',
 // Correction queue must remain a private, administrator-only inspector function.
 for(const page of ['events/index.html','inspectors/index.html']){
  const html=read(page);
- for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=1"','src="/app/app.js?v=53"']){
+ for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=2"','src="/app/app.js?v=54"']){
   if(!html.includes(marker))errors.push(page+': missing private correction queue '+marker);
  }
 }
@@ -241,7 +264,7 @@ for(const path of ['events/index.html','inspectors/index.html']){
  }
  if(/Calendar requests, made simple|Approve & Publish|Pending Approval|<option value="approved">Approved<\/option>/.test(html))
    errors.push(path+': old permission-oriented terminology remains');
- if(!html.includes('/app/app.js?v=53')||!html.includes('/app/styles.css?v=25'))
+ if(!html.includes('/app/app.js?v=54')||!html.includes('/app/styles.css?v=26'))
    errors.push(path+': current publication UI cache version missing');
 }
 const districtClient=read('app/app.js');
