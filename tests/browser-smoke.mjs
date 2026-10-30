@@ -224,6 +224,38 @@ try{
  await editor.locator('textarea[name=public_description]').fill('TEST EDIT VERIFIED');
  assert.equal(await editor.locator('textarea[name=public_description]').inputValue(),'TEST EDIT VERIFIED');
  pass.push('Published event edit button opens functional editor without saving');
+ // Read-only validation checks: the browser refuses invalid edits before a save request.
+ await editor.locator('[name="title"]').fill('');
+ await editor.locator('button[type="submit"]').click();
+ await editor.locator('.edit-action-feedback.error').waitFor({state:'visible'});
+ assert.match(await editor.locator('.edit-action-feedback.error').textContent(),/Not saved:/);
+ pass.push('Event editor displays a local validation error without writing');
+
+ await desktop.locator('#tab-staff').evaluate(el=>el.classList.remove('hidden'));
+ const staffForm=desktop.locator('#staff-form');
+ await staffForm.locator('[name="email"]').fill('');
+ await staffForm.locator('button[type="submit"]').click();
+ await staffForm.locator('.edit-action-feedback.error').waitFor({state:'visible'});
+ assert.match(await staffForm.locator('.edit-action-feedback.error').textContent(),/Not saved:/);
+ pass.push('Inspector profile form displays a local validation error without writing');
+
+ await desktop.locator('#tab-settings').evaluate(el=>el.classList.remove('hidden'));
+ const websiteForm=desktop.locator('#website-settings-form');
+ await websiteForm.locator('[name="website_site_url"]').fill('');
+ await websiteForm.locator('button[type="submit"]').click();
+ assert.match(await desktop.locator('#website-settings-message').textContent(),/Not saved/);
+ pass.push('Website settings validation message appears by Save without writing');
+
+ await desktop.locator('#tab-lodges').evaluate(el=>el.classList.remove('hidden'));
+ await desktop.locator('#lodge-edit-panel').evaluate(el=>el.classList.remove('hidden'));
+ const lodgeForm=desktop.locator('#lodge-edit-form');
+ await lodgeForm.evaluate(el=>el.classList.remove('hidden'));
+ await lodgeForm.locator('[name="lodge_name"]').fill('');
+ await lodgeForm.locator('button[type="submit"]').click();
+ await lodgeForm.locator('#lodge-save-message').waitFor({state:'visible'});
+ assert.match(await lodgeForm.locator('#lodge-save-message').textContent(),/Not saved/);
+ pass.push('Lodge form validation message appears by Save without writing');
+
 
 
  const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
