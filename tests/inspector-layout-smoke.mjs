@@ -25,5 +25,5 @@ assert.match(html,/id="bulk-submit" type="button" class="primary hidden" disable
 assert.doesNotMatch(html,/class="bulk-import-help"/);
 assert.match(upload,/submit\.classList\.toggle\('hidden',!eligible\)/);
 assert.match(html,/app\/mfa\.js\?v=9/);
-assert.match(html,/app\/bulk-import\.js\?v=7/);
+assert.match(html,/app\/bulk-import\.js\?v=8/);
 console.log('PASS: Inspector Desk grouped dropdown navigation, accessible tabs, MFA badge, and importer');
