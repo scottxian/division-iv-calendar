@@ -178,6 +178,51 @@ function mode(k){
  $('lookup-title').textContent=k==='cancel'?'Cancel an Event':'Update an Event';
 }
 function values(form){const f=Object.fromEntries(new FormData(form));all('[type=checkbox]',form).forEach(x=>{if(x.name)f[x.name]=x.checked});return f}
+function composedCalendarTitle(form){
+ const name=String(form.elements.event_name?.value||'').trim();
+ const host=String(form.elements.hosted_by?.value||'').trim();
+ const eventType=String(form.elements.event_type?.value||'');
+ const district=String(form.elements.district?.value||'');
+ const override=String(form.elements.calendar_title_override?.value||'').trim();
+ if(form.querySelector('.calendar-title-override-toggle')?.checked&&override)return override;
+ if(!name)return form.elements.title?.dataset.originalTitle||'';
+ if(eventType==='District School of Instruction'&&/^\\d{3,4}$/.test(district))
+  return 'District '+district+' School of Instruction';
+ if(eventType==='Division School of Instruction')
+  return name.toLowerCase().startsWith('division school of instruction')?name:'Division School of Instruction: '+name;
+ if(!host)return '';
+ const lodge=(state.config?.lodge_titles||[]).find(x=>{
+  const number=String(x.number||'').trim(),lodgeName=String(x.name||'').trim();
+  return [lodgeName+' Lodge No. '+number,lodgeName+' No. '+number,x.abbreviation,lodgeName]
+   .some(v=>v&&String(v).toLowerCase()===host.toLowerCase());
+ });
+ const prefix=String(lodge?.abbreviation||host).trim();
+ let item=name;
+ for(const p of [prefix,host])if(item.toLowerCase().startsWith((p+': ').toLowerCase()))item=item.slice(p.length+2).trim();
+ return prefix+': '+item;
+}
+function titleControls(form){
+ const hidden=form.elements.title,preview=form.querySelector('.calendar-title-preview span');
+ const toggle=form.querySelector('.calendar-title-override-toggle');
+ const override=form.elements.calendar_title_override;
+ if(!hidden)return ()=>{};
+ hidden.dataset.originalTitle=hidden.value||'';
+ function update(){
+  if(toggle&&override){
+   override.disabled=!toggle.checked;
+   if(!toggle.checked)override.value='';
+  }
+  const title=composedCalendarTitle(form);
+  hidden.value=title;
+  if(preview)preview.textContent=title||'Enter an event name and hosting lodge.';
+  if(preview&&title.length>180)preview.textContent+=' (Too long; maximum 180 characters)';
+ }
+ for(const name of ['event_name','hosted_by','event_type','district','calendar_title_override']){
+  const node=form.elements[name];node?.addEventListener('input',update);node?.addEventListener('change',update);
+ }
+ toggle?.addEventListener('change',update);
+ update();return update;
+}
 const locationNames=['location_name','location_address1','location_address2','location_city','location_state','location_zip'];
 function locationControls(form){
  const toggle=form.elements.location_tbd;
@@ -197,15 +242,6 @@ function locationControls(form){
    label?.classList.toggle('hidden',divisionWide);
    const mark=label?.querySelector('.req');
    if(mark)mark.classList.toggle('hidden',divisionWide);
-  }
-  // Pre-fill fixed District School of Instruction titles on new event submissions.
-  if(form.id==='new-form'){
-   const titleField=form.elements.title;
-   const districtSchool=eventType?.value==='District School of Instruction';
-   const generated=(districtSchool&&districtField?.value)
-    ? 'District '+districtField.value+' School of Instruction':'';
-   if(generated){titleField.value=generated;titleField.readOnly=true;}
-   else if(titleField.readOnly){titleField.readOnly=false;titleField.value='';}
   }
   if(virtualField){
    const label=virtualField.closest('label');
@@ -240,6 +276,7 @@ function locationControls(form){
  return update;
 }
 const syncNewLocation=locationControls($('new-form'));
+const syncNewTitle=titleControls($('new-form'));
 const syncEditLocation=locationControls($('modify-form'));
 async function identity(){
  const m=await api('me');state.user=m.email;state.staff=m.staff;
@@ -289,7 +326,7 @@ function preserveExistingDistrict(select,value){
 }
 async function init(){
  try{
-  const conf=await api('config');state.config=conf;
+  const conf=await api('config');state.config=conf;syncNewTitle();
   const hostNames=[...new Set((conf.hosts||[]).map(canonicalHost).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
   const hostList=$('host-choices');hostList.replaceChildren();
   for(const name of hostNames){const opt=document.createElement('option');opt.value=name;hostList.append(opt)}
@@ -347,11 +384,11 @@ $('new-form').onsubmit=async e=>{
  e.preventDefault();const btn=e.submitter;busy(btn,true);
  try{
   const f=values(e.target),event={};
-  for(const k of ['title','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_position','poc_phone','poc_email','cost_details'])event[k]=f[k]??'';
+  for(const k of ['title','event_name','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_position','poc_phone','poc_email','cost_details'])event[k]=f[k]??'';
   const result=await api('submit',{kind:'new',name:f.contact_name,email:f.contact_email,phone:f.contact_phone,message:f.contact_message,website:f.website||'',turnstile_token:turnstileToken,event});
   notify('Calendar submission received.\nSubmission ID: '+result.request_code+'\nSave this number. Your listing is awaiting inspector verification and publication. Lodges schedule their own events.');
   const receipt=document.createElement('div');receipt.className='notice';receipt.style.whiteSpace='pre-line';receipt.textContent='Submission received! Submission ID: '+result.request_code+' — Save this number. Awaiting publication verification.'; e.target.append(receipt);
-  e.target.reset();syncNewLocation();turnstileToken='';if(window.turnstile)window.turnstile.reset();
+  e.target.reset();syncNewLocation();syncNewTitle();turnstileToken='';if(window.turnstile)window.turnstile.reset();
  }catch(ex){notify(ex.message,true)}finally{busy(btn,false)}
 };
 $('lookup-button').onclick=async e=>{
@@ -434,7 +471,7 @@ $('prev-page').onclick=()=>loadRequests(page-1);
 $('next-page').onclick=()=>loadRequests(page+1);
 
 /* Inspector review and published-event management. The original submission is never overwritten. */
-const editorFields=['title','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','public_description',
+const editorFields=['title','event_name','calendar_title_override','event_type','hosted_by','district','start_local','end_local','event_mode','virtual_meeting_url','public_description',
  'location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd',
  'attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_position','poc_phone','poc_email','cost_details'];
 function eventFormValues(e={}){
@@ -476,7 +513,21 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
  for(const key of ['poc_name','poc_position','poc_phone','poc_email'])if(!initial[key]&&f.elements[key])f.elements[key].required=false;
  const details=f.querySelector('.location-details');
  if(details)details.open=false;
+ // The override is restricted to authenticated inspector/admin editing.
+ const overrideLabel=document.createElement('label');overrideLabel.className='wide calendar-override-label';
+ const enable=document.createElement('input');enable.type='checkbox';enable.className='calendar-title-override-toggle';
+ enable.checked=Boolean(initial.calendar_title_override);
+ overrideLabel.append(enable,document.createTextNode(' Override calendar title (Inspector/Admin)'));
+ const titleLabel=document.createElement('label');titleLabel.className='wide calendar-override-field';
+ titleLabel.textContent='Custom final calendar title';
+ const overrideInput=document.createElement('input');overrideInput.type='text';overrideInput.name='calendar_title_override';overrideInput.maxLength=180;
+ overrideInput.value=initial.calendar_title_override||'';
+ titleLabel.append(overrideInput);
+ f.append(overrideLabel,titleLabel);
+ if(!initial.event_name&&f.elements.event_name)f.elements.event_name.required=false; // legacy titles stay intact
  locationControls(f);
+ const updateTitle=titleControls(f);
+ overrideInput.addEventListener('input',updateTitle);
  const controls=document.createElement('div');controls.className='form-actions';
  f.addEventListener('input',()=>formFeedback(f));
  f.addEventListener('change',()=>formFeedback(f));

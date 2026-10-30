@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Event Submissions | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel a Division IV Masonic event. An inspector verifies submissions for accurate, coordinated publication on the Division calendar. Lodges independently schedule their activities.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=27"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=56"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=27"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=57"></script>
 <script defer src="/app/lodges-admin.js?v=5"></script><script defer src="/app/corrections-admin.js?v=2"></script><script defer src="/app/site-settings-admin.js?v=5"></script><script defer src="/app/resources.js?v=3"></script>
 <script defer src="/app/mfa.js?v=9"></script>
 
@@ -48,7 +48,9 @@
 <form id="new-form">
 <div class="form-title">Event details</div>
 <div class="form-grid">
-<label class="wide"><span class="field-caption">Event title <span class="req" aria-label="required">*</span></span><input name="title" maxlength="180" required placeholder="Example: Entered Apprentice Degree"></label>
+<label class="wide"><span class="field-caption">Event Name <span class="req" aria-label="required">*</span></span><input name="event_name" maxlength="180" required placeholder="Example: Entered Apprentice Degree"><span class="help">Enter only the activity. The hosting lodge is added automatically.</span></label>
+<input name="title" type="hidden">
+<div class="wide calendar-title-preview" role="status" aria-live="polite"><strong>Final Google Calendar title:</strong> <span>Enter an event name and hosting lodge.</span></div>
 <label><span class="field-caption">Event type <span class="req" aria-label="required">*</span></span><select id="event-type" name="event_type" required><option value="">Choose event type</option></select></label>
 <label><span class="field-caption">Hosting lodge or organization <span class="req" aria-label="required">*</span></span><input name="hosted_by" list="host-choices" maxlength="180" autocomplete="off" required placeholder="Type or choose a lodge (e.g., Lodge No. 123)"></label>
 <label><span class="field-caption">District <span class="req" aria-label="required">*</span></span><select name="district" id="new-district" required><option value="">Choose district</option></select></label>
