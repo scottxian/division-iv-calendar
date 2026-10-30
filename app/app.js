@@ -847,6 +847,10 @@ async function activateInspectorTab(key){
   return;
  }
  all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
+ all('.desk-nav-menu').forEach(menu=>{
+  menu.classList.toggle('active',!!menu.querySelector('.tab.active'));
+  menu.open=false;
+ });
  for(const k of ['dashboard','import','lodges','corrections','requests','events','resources','history','staff','settings'])
   $('tab-'+k).classList.toggle('hidden',k!==key);
  if(key==='dashboard'){await Promise.allSettled([loadDashboard(),window.loadCalendarSync?.(),window.loadWebsitePreview?.()]);}
@@ -861,6 +865,21 @@ async function activateInspectorTab(key){
  if(key==='settings')await Promise.allSettled([loadSettings(),window.loadWebsiteSettings?.()]);
 }
 all('.tab').forEach(t=>t.onclick=()=>activateInspectorTab(t.dataset.tab));
+// Native details/summary menus support keyboard, touch, and mouse.
+const deskMenus=all('.desk-nav-menu');
+for(const menu of deskMenus){
+ menu.querySelector('summary').addEventListener('click',()=>{
+  for(const other of deskMenus)if(other!==menu)other.open=false;
+ });
+}
+document.addEventListener('click',event=>{
+ if(!event.target.closest('.desk-tabs'))for(const menu of deskMenus)menu.open=false;
+});
+document.addEventListener('keydown',event=>{
+ if(event.key!=='Escape')return;
+ const current=deskMenus.find(menu=>menu.open);
+ if(current){current.open=false;current.querySelector('summary').focus();}
+});
 async function loadHistory(p=0){
  historyPage=Math.max(0,p);
  const el=$('history-content');el.textContent='Loading activity…';

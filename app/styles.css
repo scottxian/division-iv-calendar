@@ -445,8 +445,25 @@ body.inspector-desk-mode #content{padding-top:18px}
 body.inspector-desk-mode #admin-view>.admin-head{margin:8px 0 16px;gap:12px}
 body.inspector-desk-mode #admin-view>.admin-head h2{margin:3px 0 0;font-size:clamp(23px,2.8vw,29px)}
 .admin-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-body.inspector-desk-mode #admin-view .tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;gap:4px;scrollbar-width:thin;scrollbar-color:#b8c7d8 transparent}
-body.inspector-desk-mode #admin-view .tabs .tab{flex:0 0 auto;white-space:nowrap;padding:10px 11px;font-size:13px}
+/* Inspector Desk: grouped navigation. No horizontal scrolling or clipped admin tabs. */
+body.inspector-desk-mode #admin-view .desk-tabs{display:flex;flex-wrap:wrap;align-items:center;overflow:visible;gap:4px;padding-bottom:0}
+body.inspector-desk-mode #admin-view .desk-tabs>.tab,
+body.inspector-desk-mode #admin-view .desk-nav-menu>summary{flex:0 0 auto;white-space:nowrap;padding:10px 11px;font-size:13px;line-height:1.5;font-weight:700}
+body.inspector-desk-mode #admin-view .desk-nav-menu{position:relative;flex:0 0 auto}
+body.inspector-desk-mode #admin-view .desk-nav-menu>summary{display:flex;align-items:center;gap:7px;border-radius:8px 8px 0 0;color:var(--muted);list-style:none;cursor:pointer;user-select:none}
+body.inspector-desk-mode #admin-view .desk-nav-menu>summary::-webkit-details-marker{display:none}
+body.inspector-desk-mode #admin-view .desk-nav-menu>summary:hover,
+body.inspector-desk-mode #admin-view .desk-nav-menu>summary:focus-visible,
+body.inspector-desk-mode #admin-view .desk-nav-menu[open]>summary,
+body.inspector-desk-mode #admin-view .desk-nav-menu.active>summary{background:#e9f0f7;color:var(--navy)}
+body.inspector-desk-mode #admin-view .desk-nav-menu>summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+body.inspector-desk-mode #admin-view .desk-nav-chevron{border-right:solid 1.6px currentColor;border-bottom:solid 1.6px currentColor;transform:translateY(-2px) rotate(45deg);width:7px;height:7px;display:inline-block}
+body.inspector-desk-mode #admin-view .desk-nav-menu[open] .desk-nav-chevron{transform:translateY(2px) rotate(225deg)}
+body.inspector-desk-mode #admin-view .desk-nav-popover{position:absolute;top:100%;left:0;min-width:220px;max-width:min(290px,calc(100vw - 32px));padding:6px;background:#fff;border:1px solid var(--border);border-radius:0 10px 10px 10px;box-shadow:0 14px 32px #142d4630;z-index:50;display:flex;flex-direction:column;gap:2px}
+body.inspector-desk-mode #admin-view .desk-nav-menu:last-child .desk-nav-popover{left:auto;right:0;border-radius:10px 0 10px 10px}
+body.inspector-desk-mode #admin-view .desk-nav-popover .tab{width:100%;font-size:13px;text-align:left;white-space:normal;flex:none;border-radius:6px;padding:10px 12px}
+@media(max-width:700px){body.inspector-desk-mode #admin-view .desk-tabs{gap:2px}body.inspector-desk-mode #admin-view .desk-tabs>.tab,body.inspector-desk-mode #admin-view .desk-nav-menu>summary{padding:9px 10px;font-size:12px}}
+
 body.inspector-desk-mode #admin-view>.panel,
 body.inspector-desk-mode #admin-view>section>.panel{margin-top:15px}
 #admin-mfa-security.verified-mfa{display:inline-flex;align-items:center;margin:0;padding:5px 9px;border-radius:20px;background:#e9f3ed;color:#24613e;font-size:12px;font-weight:700;white-space:nowrap}

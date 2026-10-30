@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Inspector Desk | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=26"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=54"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=27"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=55"></script>
 <script defer src="/app/lodges-admin.js?v=5"></script><script defer src="/app/corrections-admin.js?v=2"></script><script defer src="/app/site-settings-admin.js?v=5"></script><script defer src="/app/resources.js?v=3"></script>
 <script defer src="/app/mfa.js?v=9"></script><script defer src="/app/bulk-import.js?v=7"></script>
 <meta name="robots" content="noindex, nofollow, noarchive">
@@ -133,18 +133,28 @@
 </section>
 <section id="admin-view" class="hidden">
 <div class="admin-head"><div><div class="eyebrow">Inspector Desk</div><h2 id="welcome">Review Submissions</h2></div><div class="admin-status"><span class="chip" id="staff-role">Inspector</span></div></div>
-<div class="tabs">
+<nav class="tabs desk-tabs" aria-label="Inspector Desk sections">
 <button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
 <button class="tab" data-tab="requests" type="button">Review Submissions</button>
+<details class="desk-nav-menu">
+<summary>Events <span class="desk-nav-chevron" aria-hidden="true"></span></summary>
+<div class="desk-nav-popover" role="group" aria-label="Event management">
 <button class="tab" data-tab="import" type="button">Import Events</button>
 <button class="tab" data-tab="events" type="button">Manage Published Events</button>
+</div>
+</details>
 <button class="tab" data-tab="resources" type="button">Resources</button>
 <button class="tab" data-tab="history" type="button">Status Log</button>
-<button class="tab admin-only hidden" data-tab="corrections" type="button">Corrections</button>
-<button class="tab admin-only hidden" data-tab="lodges" type="button">Lodges</button>
-<button class="tab admin-only hidden" data-tab="staff" type="button">Inspectors</button>
-<button class="tab admin-only hidden" data-tab="settings" type="button">Settings</button>
+<details class="desk-nav-menu admin-only hidden">
+<summary>Administration <span class="desk-nav-chevron" aria-hidden="true"></span></summary>
+<div class="desk-nav-popover" role="group" aria-label="Administration">
+<button class="tab" data-tab="corrections" type="button">Corrections</button>
+<button class="tab" data-tab="lodges" type="button">Lodges</button>
+<button class="tab" data-tab="staff" type="button">Inspectors</button>
+<button class="tab" data-tab="settings" type="button">Settings</button>
 </div>
+</details>
+</nav>
 <section id="tab-dashboard" class="panel">
 <div class="review-title"><div><h3>Inspector Dashboard</h3>
 <p class="muted">Submissions awaiting publication, calendar delivery problems, and recent changes—all in one place.</p></div>
