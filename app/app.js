@@ -231,6 +231,34 @@ async function identity(){
  if(wasLocked&&!blocked&&state.view==='admin')void activateInspectorTab('dashboard');
 }
 window.divisionRefreshIdentity=identity;
+const allowedDistrictDivisions=new Map([[1,'Division I'],[2,'Division II'],[3,'Division III'],[4,'Division IV'],[10,'Division X']]);
+function districtDivision(code){
+ const value=String(code??'').trim();
+ if(!/^\\d{3,4}$/.test(value))return null;
+ const division=Math.floor(Number(value)/100);
+ return allowedDistrictDivisions.has(division)?division:null;
+}
+function populateDistrictOptions(select,allDistricts){
+ const unique=[...new Set(allDistricts.map(x=>String(x).trim()))];
+ for(const [division,label] of allowedDistrictDivisions){
+  const codes=unique.filter(code=>districtDivision(code)===division).sort((a,b)=>Number(a)-Number(b));
+  if(!codes.length)continue;
+  const group=document.createElement('optgroup');group.label=label;
+  for(const code of codes){
+   const option=document.createElement('option');
+   option.value=code;option.textContent='District No. '+code;
+   group.append(option);
+  }
+  select.append(group);
+ }
+}
+function preserveExistingDistrict(select,value){
+ const code=String(value??'').trim();
+ if(!code||[...select.options].some(option=>option.value===code))return;
+ const option=document.createElement('option');
+ option.value=code;option.textContent='District No. '+code+' (existing event)';
+ select.append(option);
+}
 async function init(){
  try{
   const conf=await api('config');state.config=conf;
@@ -252,13 +280,10 @@ async function init(){
    const el=$(id);
    for(const type of conf.event_types||[]){const op=document.createElement('option');op.value=type;op.textContent=type;el.append(op)}
   }
+  // Public district selection is manual. Show only Divisions I, II, III, IV and X.
+  // Keep the server's statewide list for validating/retaining historical listings.
   for(const id of ['new-district','edit-district']){
-   const el=$(id);
-   for(const value of conf.districts||[]){
-    const option=document.createElement('option');
-    option.value=String(value);option.textContent='District No. '+value;
-    el.append(option);
-   }
+   populateDistrictOptions($(id),conf.districts||[]);
   }
   $('banner').classList.toggle('hidden',conf.public_submissions_enabled);
   if(conf.turnstile_site_key){
@@ -321,7 +346,10 @@ $('lookup-button').onclick=async e=>{
     state.original[k]=v;
     if(form.elements[k]){
       if(k==='location_tbd')form.elements[k].checked=!!v;
-      else form.elements[k].value=v;
+      else{
+       if(k==='district')preserveExistingDistrict(form.elements[k],v);
+       form.elements[k].value=v;
+      }
     }
    }
    syncEditLocation();
@@ -407,7 +435,10 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
  for(const key of editorFields){
   const field=f.elements[key];if(!field)continue;
   if(key==='location_tbd')field.checked=initial[key]===true;
-  else field.value=initial[key]??(key==='location_state'?'CA':'');
+  else{
+   if(key==='district')preserveExistingDistrict(field,initial[key]);
+   field.value=initial[key]??(key==='location_state'?'CA':'');
+  }
  }
  // Older published events can have no dedicated POC; allow those to be edited without inventing contact data.
  for(const key of ['poc_name','poc_position','poc_phone','poc_email'])if(!initial[key]&&f.elements[key])f.elements[key].required=false;

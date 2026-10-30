@@ -88,6 +88,21 @@ try{
  assert.match(await desktop.locator('.hero h1').textContent(),/Calendar submissions/);
  assert.match(await desktop.locator('.hero p').first().textContent(),/Each lodge retains full authority over its own activities and scheduling/);
  pass.push('Public submission language preserves lodge scheduling authority');
+ const publicDistricts=await desktop.locator('#new-district optgroup').evaluateAll(groups=>
+  groups.map(group=>({division:group.label,codes:[...group.querySelectorAll('option')].map(x=>x.value)})));
+ assert.deepEqual(publicDistricts.map(group=>group.division),
+   ['Division I','Division II','Division III','Division IV','Division X'],
+   'District dropdown should show only Divisions I, II, III, IV and X');
+ assert.ok(publicDistricts.every(group=>group.codes.length>0),'Each permitted division must have district choices');
+ assert.equal(publicDistricts.flatMap(group=>group.codes).length,49,
+   'Unexpected district count; check live approved district configuration');
+ assert.ok(!publicDistricts.flatMap(group=>group.codes).includes('502'),
+   'Division V districts should not appear on the public submission form');
+ const changeDistricts=await desktop.locator('#edit-district optgroup').evaluateAll(groups=>groups.map(group=>group.label));
+ assert.deepEqual(changeDistricts,publicDistricts.map(group=>group.division),
+   'Change-event district dropdown should use the same five divisions');
+ pass.push('Public and change-event district choices limited to Divisions I, II, III, IV and X');
+
  await desktop.locator('.choice[data-mode="new"]').click();
  const newTbd=desktop.locator('#new-location-tbd');
  await desktop.locator('#new-form .location-tbd-control').click();

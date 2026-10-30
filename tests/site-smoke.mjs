@@ -70,8 +70,8 @@ const required={
  'index.html':['href="/events/"','href="/calendar/"','href="/inspectors/"'],
  'calendar/index.html':['href="/events/"'],
  'lodges/index.html':['href="/events/"'],
- 'events/index.html':['/app/app.js?v=51','/app/mfa.js?v=9'],
- 'inspectors/index.html':['/app/app.js?v=51','/app/mfa.js?v=9']
+ 'events/index.html':['/app/app.js?v=52','/app/mfa.js?v=9'],
+ 'inspectors/index.html':['/app/app.js?v=52','/app/mfa.js?v=9']
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
@@ -168,7 +168,7 @@ for(const file of ['month-calendar.js','public-events.js','lodge-correction.js',
 // Correction queue must remain a private, administrator-only inspector function.
 for(const page of ['events/index.html','inspectors/index.html']){
  const html=read(page);
- for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=1"','src="/app/app.js?v=51"']){
+ for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=1"','src="/app/app.js?v=52"']){
   if(!html.includes(marker))errors.push(page+': missing private correction queue '+marker);
  }
 }
@@ -232,8 +232,15 @@ for(const path of ['events/index.html','inspectors/index.html']){
  }
  if(/Calendar requests, made simple|Approve & Publish|Pending Approval|<option value="approved">Approved<\/option>/.test(html))
    errors.push(path+': old permission-oriented terminology remains');
- if(!html.includes('/app/app.js?v=51')||!html.includes('/app/styles.css?v=24'))
+ if(!html.includes('/app/app.js?v=52')||!html.includes('/app/styles.css?v=24'))
    errors.push(path+': current publication UI cache version missing');
+}
+const districtClient=read('app/app.js');
+if(!districtClient.includes("allowedDistrictDivisions=new Map([[1,'Division I'],[2,'Division II'],[3,'Division III'],[4,'Division IV'],[10,'Division X']])")||
+   !districtClient.includes('populateDistrictOptions($(id),conf.districts||[])')||
+   !districtClient.includes('preserveExistingDistrict(form.elements[k],v)')||
+   !districtClient.includes('preserveExistingDistrict(field,initial[key])')){
+ errors.push('District selection must be limited to five divisions and preserve existing outside-district edits');
 }
 const publicationUI=read('app/app.js');
 for(const phrase of ["'Verify & Publish'","'Return for Correction'","'Do Not Publish'",
