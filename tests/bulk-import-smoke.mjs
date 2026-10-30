@@ -21,9 +21,9 @@ assert.match(app,/\['dashboard','import','lodges'/);
 assert.match(client,/read-excel-file@9\.3\.13/);
 assert.match(client,/'Attendees','POC Name'/);
 assert.match(client,/sheet:'New Events'/);
-assert.match(client,/row_number:heading\\+index\\+2/);
+assert.ok(client.includes('row_number:heading+index+2'));
 assert.match(client,/indexByKey=new Map/);
-assert.match(client,/indexByKey\\.get\\(key\\)/);
+assert.ok(client.includes('indexByKey.get(key)'));
 assert.match(client,/heading==='district override'/);
 assert.match(client,/const mandatory=/);
 // A reordered sheet must work without altering the backend field names.
@@ -45,7 +45,7 @@ assert.equal(mapper.columnKey('Audience'),'invited_audience');
 assert.throws(()=>mapper.mapColumns(['Event Title','Event Title']),/Repeated spreadsheet heading/);
 
 assert.match(client,/'District','Event Title'/);
-assert.match(client,/'Mode','Location TBD\\?','Venue Name'/);
+assert.ok(client.includes("'Mode','Location TBD?','Venue Name'"));
 assert.match(client,/entries\.length>25/);
 assert.match(client,/confirmed_rows/);
 assert.match(client,/status==='invalid'/);
