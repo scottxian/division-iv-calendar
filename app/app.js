@@ -86,6 +86,23 @@ const state={view:'public',mode:null,staff:null,user:null,config:null,event:null
 let toastTimer,turnstileToken='';
 function toast(t,error=false){const x=$('toast');x.textContent=t;x.className='toast'+(error?' error':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.add('hidden'),6500)}
 function notify(t,error=false){const x=$('notice');x.textContent=t;x.className='notice'+(error?' error':'');}
+/** Persistent edit feedback appears immediately below its action controls. */
+function actionFeedback(anchor,text='',kind='success'){
+ if(!anchor)return;
+ let node=anchor.nextElementSibling;
+ if(!node?.classList.contains('edit-action-feedback')){
+  node=document.createElement('p');node.setAttribute('role','status');node.setAttribute('aria-live','polite');
+  anchor.insertAdjacentElement('afterend',node);
+ }
+ node.textContent=text;
+ node.className='edit-action-feedback'+(kind==='error'?' error':kind==='pending'?' pending':'')+(!text?' hidden':'');
+ if(text)node.scrollIntoView({behavior:'smooth',block:'nearest'});
+ return node;
+}
+function formFeedback(form,text='',kind='success'){
+ const actions=[...(form?.querySelectorAll('.form-actions')||[])].at(-1);
+ return actionFeedback(actions||form?.lastElementChild,text,kind);
+}
 function busy(b,v){b.disabled=v;if(!b.dataset.label)b.dataset.label=b.textContent;b.textContent=v?'Working…':b.dataset.label}
 async function api(action,payload=null,filters={}){
  const url=new URL(ROOT+'/functions/v1/division-calendar');
@@ -422,7 +439,11 @@ function eventFormValues(e={}){
 function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revision'){
  const f=document.createElement('form');
  f.id='inspector-form';f.className='inspector-edit-form';
- f.addEventListener('invalid',e=>{const d=e.target.closest('details');if(d)d.open=true;},true);
+ f.addEventListener('invalid',e=>{
+  const d=e.target.closest('details');if(d)d.open=true;
+  if(f.querySelector(':invalid')===e.target)
+   formFeedback(f,'Not saved: '+(e.target.closest('label')?.textContent.trim()||e.target.name)+': '+e.target.validationMessage,'error');
+ },true);
  const source=$('new-form');
  for(const child of [...source.children]){
   if(child.classList.contains('form-title')&&child.textContent.includes('Your contact'))break;
@@ -447,6 +468,8 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
  if(details)details.open=false;
  locationControls(f);
  const controls=document.createElement('div');controls.className='form-actions';
+ f.addEventListener('input',()=>formFeedback(f));
+ f.addEventListener('change',()=>formFeedback(f));
  const caption=document.createElement('span');caption.textContent=buttonLabel==='Save & Update Calendar'?'Saving updates the published event and queues Google Calendar synchronization.':'Changes await inspector verification before calendar publication.';
  const submit=document.createElement('button');submit.type='submit';submit.className='primary';submit.textContent=buttonLabel;
  const discard=document.createElement('button');discard.type='button';discard.className='secondary';discard.textContent='Discard';
@@ -454,11 +477,13 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
  controls.append(caption,discard,submit);f.append(controls);
  f.onsubmit=async e=>{
   e.preventDefault();busy(submit,true);
+  formFeedback(f,'Saving changes…','pending');
   try{
    const data=values(f);
    const obj={};for(const key of editorFields)obj[key]=data[key]??(key==='location_tbd'?false:'');
-   await save(obj);
-  }catch(error){toast(error.message,true)}finally{busy(submit,false)}
+   const result=await save(obj);
+   if(f.isConnected)formFeedback(f,result===false?'No changes saved.':'Changes saved.',result===false?'pending':'success');
+  }catch(error){formFeedback(f,'Not saved: '+error.message,'error')}finally{busy(submit,false)}
  };
  host.replaceChildren(f);
  host.scrollIntoView({block:'nearest',behavior:'smooth'});
@@ -470,7 +495,6 @@ async function savePublishedInspectorEdit(ev,fields){
  if(!changes.length)throw Error('Change at least one field before saving.');
  if(!await divisionQuestion('Save these changes to the published event?\n\n'+changes.join(', ')+'\n\nThe existing Google Calendar event will be updated. Your edit is recorded.',{title:'Update published event',confirmLabel:'Save changes'}))return false;
  const response=await api('inspector-publish-edit',{id:ev.id,expected_version:ev.version,fields});
- toast('Saved. Google Calendar update queued.');
  return response;
 }
 function calendarState(ev,job){
@@ -577,7 +601,7 @@ async function detail(id){
     const edit=document.createElement('button');edit.className='secondary';edit.textContent=r.inspector_edits?'Edit Saved Revision':'Edit Submission';
     edit.onclick=()=>inspectorEditor($('inspector-editor-host'),effective,async fields=>{
       const result=await api('inspector-edit',{id,expected_version:r.edit_version,fields});
-      toast(result.notice||'Revision saved');await detail(id);
+      await detail(id);actionFeedback($('review-actions'),result.notice||'Inspector revision saved.');
     });
     actions.append(edit);
    }
@@ -741,7 +765,14 @@ async function eventDetail(id){
   if(ev.status==='active'){
    const edit=document.createElement('button');edit.className='secondary';edit.textContent='Edit Published Event';
    edit.onclick=()=>inspectorEditor($('event-editor-host'),initial,
-     async fields=>{if(await savePublishedInspectorEdit(ev,fields)){await loadEvents(eventPage);await eventDetail(ev.id);}},
+     async fields=>{
+       const result=await savePublishedInspectorEdit(ev,fields);
+       if(result){
+        await loadEvents(eventPage);await eventDetail(ev.id);
+        actionFeedback($('event-actions'),result.notice||'Saved. Google Calendar update queued.');
+       }
+       return !!result;
+      },
      'Save & Update Calendar');
    const cancel=document.createElement('button');cancel.className='danger';cancel.textContent='Cancel Event';
    cancel.onclick=async()=>{
@@ -884,7 +915,7 @@ function staffFormRequirements(){
  }
 }
 function clearStaffForm(){
- const form=$('staff-form');form.reset();
+ const form=$('staff-form');form.reset();formFeedback(form);
  form.dataset.editing='0';form.elements.email.readOnly=false;
  form.elements.state.value='CA';form.elements.office_title.value='Inspector';
  $('staff-form-mode').textContent='Add Inspector';
@@ -990,24 +1021,38 @@ async function loadStaff(){
  }catch(e){root.textContent=e.message;toast(e.message,true)}
 }
 $('toggle-removed').onclick=()=>{showRemovedInspectors=!showRemovedInspectors;loadStaff();};
+$('staff-form').addEventListener('invalid',e=>{
+ if(e.currentTarget.querySelector(':invalid')!==e.target)return;
+ formFeedback(e.currentTarget,'Not saved: '+(e.target.closest('label')?.textContent.trim()||e.target.name)+': '+e.target.validationMessage,'error');
+},true);
+$('staff-form').addEventListener('input',()=>formFeedback($('staff-form')));
+$('staff-form').addEventListener('change',()=>formFeedback($('staff-form')));
 $('staff-form').onsubmit=async e=>{
  e.preventDefault();const b=e.submitter;busy(b,true);
+ formFeedback(e.target,'Saving inspector record…','pending');
  try{
   const payload=values(e.target);
   if(e.target.dataset.editing!=='1'&&payload.role==='inspector'&& !e.target.reportValidity())return;
-  await api('staff-save',payload);
-  toast('Inspector information saved');
+  const result=await api('staff-save',payload);
   clearStaffForm();
   await loadStaff();
- }catch(ex){toast(ex.message,true)}
+  formFeedback($('staff-form'),result.message||'Inspector information saved.');
+ }catch(ex){formFeedback(e.target,'Inspector record not saved: '+ex.message,'error')}
  finally{busy(b,false)}
 };
 async function loadSettings(){
  try{const s=await api('settings');$('email-links').value=s.settings.public_email_links||''}catch(e){toast(e.message,true)}
 }
 $('save-links').onclick=async()=>{
- try{await api('settings-save',{key:'public_email_links',value:$('email-links').value});toast('Email links saved')}catch(e){toast(e.message,true)}
+ const btn=$('save-links');btn.disabled=true;
+ actionFeedback(btn,'Saving email subscription links…','pending');
+ try{
+  await api('settings-save',{key:'public_email_links',value:$('email-links').value});
+  actionFeedback(btn,'Email subscription links saved.');
+ }catch(e){actionFeedback(btn,'Email links not saved: '+e.message,'error')}
+ finally{btn.disabled=false}
 };
+$('email-links').addEventListener('input',()=>actionFeedback($('save-links')));
 window.openBulkSubmission=async id=>{await activateInspectorTab('requests');await detail(id)};
 window.divisionAppReady = true;
 acceptRedirect().finally(init);
