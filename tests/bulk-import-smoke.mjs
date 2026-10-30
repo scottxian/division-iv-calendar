@@ -14,11 +14,15 @@ assert.match(html,/data-tab="import"/);
 assert.match(html,/id="tab-import"/);
 for(const id of ['bulk-file','bulk-status','bulk-summary','bulk-preview','bulk-submit','bulk-results'])
  assert.ok(html.includes('id="'+id+'"'),id);
-assert.match(html,/app\/bulk-import\.js\?v=5/);
+assert.match(html,/app\/bulk-import\.js\?v=6/);
 assert.match(app,/window\.loadBulkImport/);
 assert.match(app,/window\.openBulkSubmission/);
 assert.match(app,/\['dashboard','import','lodges'/);
 assert.match(client,/read-excel-file@9\.3\.13/);
+assert.match(client,/out\.event_mode=normalizeEventMode\(row\.event_mode\)/);
+const converter=vm.runInNewContext(client.slice(client.indexOf('function normalizeEventMode'),client.indexOf('function excelDate'))+'\nnormalizeEventMode');
+for(const [shown,expected] of [['In Person','in_person'],['Online','online'],['Hybrid','hybrid'],['in_person','in_person'],['In-Person','in_person']])
+ assert.equal(converter(shown),expected,'Import mode conversion: '+shown);
 assert.match(client,/'Attendees','POC Name'/);
 assert.match(client,/sheet:'New Events'/);
 assert.ok(client.includes('row_number:heading+index+2'));

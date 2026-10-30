@@ -30,6 +30,7 @@ function mapColumns(headingRow){
 }
 function msg(text,error=false){status.textContent=text;status.classList.toggle('error',error)}
 function cell(v){if(v===null||v===undefined)return '';if(v instanceof Date)return v.toISOString();return String(v).trim()}
+function normalizeEventMode(v){const value=cell(v);const normalized=value.toLowerCase().replace(/[\\s-]+/g,'_');return normalized==='in_person'||normalized==='inperson'?'in_person':normalized==='online'?'online':normalized==='hybrid'?'hybrid':value;}
 function excelDate(v){
  if(v instanceof Date&&!Number.isNaN(v.getTime()))return v.toISOString().slice(0,10);
  if(typeof v==='number'&&v>30000&&v<100000)return new Date(Date.UTC(1899,11,30)+Math.floor(v)*86400000).toISOString().slice(0,10);
@@ -137,6 +138,7 @@ fileInput.addEventListener('change',async()=>{
     end_local:endDate&&endTime?endDate+'T'+endTime:'',
     location_tbd:['YES','TRUE','1'].includes(cell(row.location_tbd).toUpperCase())||row.location_tbd===true};
    for(const k of keys)if(k!=='location_tbd')out[k]=cell(row[k]);
+   out.event_mode=normalizeEventMode(row.event_mode);
    return out;
   });
   const response=await api('preview',{rows:parsed});
