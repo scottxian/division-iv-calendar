@@ -102,8 +102,8 @@ const required={
  'index.html':['href="/events/"','href="/calendar/"','href="/inspectors/"'],
  'calendar/index.html':['href="/events/"'],
  'lodges/index.html':['href="/events/"'],
- 'events/index.html':['/app/app.js?v=56','/app/mfa.js?v=9'],
- 'inspectors/index.html':['/app/app.js?v=56','/app/mfa.js?v=9']
+ 'events/index.html':['/app/app.js?v=57','/app/mfa.js?v=9'],
+ 'inspectors/index.html':['/app/app.js?v=57','/app/mfa.js?v=9']
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
@@ -200,7 +200,7 @@ for(const file of ['month-calendar.js','public-events.js','lodge-correction.js',
 // Correction queue must remain a private, administrator-only inspector function.
 for(const page of ['events/index.html','inspectors/index.html']){
  const html=read(page);
- for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=2"','src="/app/app.js?v=56"']){
+ for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=2"','src="/app/app.js?v=57"']){
   if(!html.includes(marker))errors.push(page+': missing private correction queue '+marker);
  }
 }
@@ -264,7 +264,7 @@ for(const path of ['events/index.html','inspectors/index.html']){
  }
  if(/Calendar requests, made simple|Approve & Publish|Pending Approval|<option value="approved">Approved<\/option>/.test(html))
    errors.push(path+': old permission-oriented terminology remains');
- if(!html.includes('/app/app.js?v=56')||!html.includes('/app/styles.css?v=27'))
+ if(!html.includes('/app/app.js?v=57')||!html.includes('/app/styles.css?v=27'))
    errors.push(path+': current publication UI cache version missing');
 }
 const districtClient=read('app/app.js');
@@ -278,7 +278,7 @@ if(!districtClient.includes("allowedDistrictDivisions=new Map([[1,'Division I'],
 for(const page of ['events/index.html','inspectors/index.html']){
  const html=read(page);
  const form=(html.split('<form id="new-form">')[1]||'').split('</form>')[0];
- for(const field of ['title','event_type','hosted_by','start_local','end_local','contact_name','contact_email']){
+ for(const field of ['event_name','event_type','hosted_by','start_local','end_local','contact_name','contact_email']){
   const tag=form.match(new RegExp('<(?:input|select|textarea)[^>]*name="'+field+'"[^>]*>'))?.[0]||'';
   if(!tag.includes(' required'))errors.push(page+': required field '+field+' is not required');
  }

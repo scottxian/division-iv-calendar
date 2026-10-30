@@ -186,7 +186,7 @@ function composedCalendarTitle(form){
  const override=String(form.elements.calendar_title_override?.value||'').trim();
  if(form.querySelector('.calendar-title-override-toggle')?.checked&&override)return override;
  if(!name)return form.elements.title?.dataset.originalTitle||'';
- if(eventType==='District School of Instruction'&&/^\\d{3,4}$/.test(district))
+ if(eventType==='District School of Instruction'&&/^\d{3,4}$/.test(district))
   return 'District '+district+' School of Instruction';
  if(eventType==='Division School of Instruction')
   return name.toLowerCase().startsWith('division school of instruction')?name:'Division School of Instruction: '+name;

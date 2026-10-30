@@ -261,7 +261,7 @@ try{
  assert.equal(await editor.locator('textarea[name=public_description]').inputValue(),'TEST EDIT VERIFIED');
  pass.push('Published event edit button opens functional editor without saving');
  // Read-only validation checks: the browser refuses invalid edits before a save request.
- await editor.locator('[name="title"]').fill('');
+ await editor.locator('[name="event_name"]').fill('');
  await editor.locator('button[type="submit"]').click();
  await editor.locator('.edit-action-feedback.error').waitFor({state:'visible'});
  assert.match(await editor.locator('.edit-action-feedback.error').textContent(),/Not saved:/);
