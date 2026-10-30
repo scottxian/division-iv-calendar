@@ -145,6 +145,42 @@ try{
  assert.equal(await desktop.locator('#nav-signin').count(),1,
    'Inspector auth controls must survive shared header include');
  pass.push('Shared public/inspector header identity and functional inspector navigation');
+ // Menu regression: test admin layout at desktop and phone sizes without signing in.
+ await desktop.evaluate(()=>{
+  const admin=document.getElementById('admin-view');
+  admin.classList.remove('hidden','mfa-locked');
+  document.body.classList.add('inspector-desk-mode');
+  admin.querySelector('.desk-nav-menu.admin-only').classList.remove('hidden');
+ });
+ const deskNav=desktop.locator('.desk-tabs');
+ for(const width of [1440,900,390]){
+  await desktop.setViewportSize({width,height:900});
+  const measured=await deskNav.evaluate(el=>({
+   scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,overflow:getComputedStyle(el).overflowX
+  }));
+  assert.ok(measured.scrollWidth<=measured.clientWidth+1,
+   'Inspector navigation overflowed horizontally at '+width+'px: '+JSON.stringify(measured));
+  assert.notEqual(measured.overflow,'auto','Inspector menu should not need a scrollbar');
+ }
+ await desktop.setViewportSize({width:1440,height:900});
+ const eventGroup=deskNav.locator('.desk-nav-menu').first();
+ await eventGroup.locator('summary').click();
+ assert.equal(await eventGroup.getAttribute('open'),'','Events dropdown did not open');
+ assert.equal(await eventGroup.locator('[data-tab="import"]').isVisible(),true);
+ assert.equal(await eventGroup.locator('[data-tab="events"]').isVisible(),true);
+ const administration=deskNav.locator('.desk-nav-menu.admin-only');
+ await administration.locator('summary').click();
+ assert.equal(await administration.getAttribute('open'),'','Administration dropdown did not open');
+ assert.equal(await eventGroup.getAttribute('open'),null,'Opening Administration should close Events dropdown');
+ assert.equal(await administration.locator('.tab').count(),4,'All four admin screens must remain available');
+ await desktop.keyboard.press('Escape');
+ assert.equal(await administration.getAttribute('open'),null,'Escape should close admin menu');
+ pass.push('Inspector Desk groups menus, avoids horizontal scrolling, and supports keyboard close');
+ await desktop.evaluate(()=>{
+  document.getElementById('admin-view').classList.add('hidden');
+  document.body.classList.remove('inspector-desk-mode');
+ });
+
  const brandLogo=desktop.locator('header img.brand-emblem');
  const brandStyle=await brandLogo.evaluate(el=>{
    const css=getComputedStyle(el);
