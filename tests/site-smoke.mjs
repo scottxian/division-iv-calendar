@@ -37,7 +37,7 @@ if(!inspectorHtml.includes('id="resources-editor-message"')||
  !messageClient.includes("actionFeedback($('event-actions')")||
  !messageClient.includes("actionFeedback($('review-actions')")||
  !messageClient.includes("actionFeedback($('staff-list')")||
- !messageClient.includes("actionFeedback(btn,'Email links saved.')")||
+ !messageClient.includes("actionFeedback(btn,'Email subscription links saved.')")||
  !resourceClient.includes("editorNotice('Document details not saved: ")||
  !resourceClient.includes("editorNotice('Document not saved: ")||
  !correctionClient.includes("const detailNotice=(msg,bad=false)")||
