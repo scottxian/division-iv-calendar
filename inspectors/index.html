@@ -2,9 +2,9 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Inspector Desk | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=24"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=52"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=24"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=53"></script>
 <script defer src="/app/lodges-admin.js?v=4"></script><script defer src="/app/corrections-admin.js?v=1"></script><script defer src="/app/site-settings-admin.js?v=4"></script><script defer src="/app/resources.js?v=2"></script>
-<script defer src="/app/mfa.js?v=9"></script><script defer src="/app/bulk-import.js?v=6"></script>
+<script defer src="/app/mfa.js?v=9"></script><script defer src="/app/bulk-import.js?v=7"></script>
 <meta name="robots" content="noindex, nofollow, noarchive">
 </head><body>
 <a href="#content" class="skip">Skip to content</a>
@@ -39,11 +39,11 @@
 <label><span class="field-caption">Event format <span class="req" aria-label="required">*</span></span><select name="event_mode" required><option value="in_person">In person</option><option value="hybrid">Hybrid (in person and online)</option><option value="online">Online only</option></select></label>
 <label><span class="field-caption">Start date and time <span class="req" aria-label="required">*</span></span><input name="start_local" type="datetime-local" required></label>
 <label><span class="field-caption">End date and time <span class="req" aria-label="required">*</span></span><input name="end_local" type="datetime-local" required></label>
-<label class="wide"><span class="field-caption">Public event description <span class="req" aria-label="required">*</span></span><textarea name="public_description" rows="4" maxlength="4000" required placeholder="What is happening? Who is invited? Add helpful details for attendees."></textarea></label>
+<label class="wide"><span class="field-caption">Public event description (optional)</span><textarea name="public_description" rows="4" maxlength="4000" placeholder="Add details, agenda, or special instructions for attendees."></textarea></label>
 </div>
 <label class="checkline location-tbd-toggle location-tbd-control"><input id="new-location-tbd" type="checkbox" name="location_tbd"> <strong>Location TBD</strong></label>
 <details id="new-location-details" class="location-details form-section"><summary><span class="location-summary-title">Location details</span></summary>
-<p class="help">For online events, supply a meeting link instead of an address. For in-person events, complete the venue and address or select Location TBD.</p>
+<p class="help">In-person and hybrid events need a venue, street address, city, state and ZIP unless Location TBD is selected. Online-only events need a meeting link instead.</p>
 <div class="form-grid"><label class="wide virtual-link-field hidden"><span class="field-caption">Online meeting link <span class="req" aria-label="required">*</span></span><input name="virtual_meeting_url" type="url" placeholder="https://example.org/meeting"></label></div>
 <div class="form-grid location-inputs">
 <label class="wide"><span class="field-caption">Location / Venue Name <span class="req" aria-label="required">*</span></span><input name="location_name" list="venue-choices" required placeholder="Choose or enter: Lodge Hall, Masonic Temple..."></label>
@@ -62,13 +62,13 @@
 <label class="wide">Payment link <input name="payment_url" type="url" placeholder="https://example.org/pay"></label>
 <label class="wide">Flyer or invitation link <input name="flyer_url" type="url" placeholder="https://example.org/event-flyer"></label>
 </div></details>
-<div class="form-title">Event point of contact (published on calendar)</div>
-<p class="help">Enter the person members should call with questions about the event. This may be different from the person submitting the event. The POC name, position, phone number and email will be visible on the public Google Calendar.</p>
+<div class="form-title">Event point of contact (optional; published on calendar)</div>
+<p class="help">Provide a public event contact only if you want one listed. Any POC details you enter will appear on Google Calendar. Your private submitter information below is not published.</p>
 <div class="form-grid">
-<label><span class="field-caption">POC name <span class="req" aria-label="required">*</span></span><input name="poc_name" maxlength="150" autocomplete="off" required placeholder="Contact person's full name"></label>
+<label><span class="field-caption">POC name (optional)</span><input name="poc_name" maxlength="150" autocomplete="off" placeholder="Contact person's full name"></label>
 <label>POC position / office <input name="poc_position" list="poc-position-choices" maxlength="120" autocomplete="off" placeholder="Choose or type a title"></label>
-<label><span class="field-caption">POC phone <span class="req" aria-label="required">*</span></span><input name="poc_phone" type="tel" maxlength="50" autocomplete="off" required placeholder="Phone number to publish"></label>
-<label><span class="field-caption">POC email <span class="req" aria-label="required">*</span></span><input name="poc_email" type="email" maxlength="250" autocomplete="off" required placeholder="Email address to publish"></label>
+<label><span class="field-caption">POC phone (optional)</span><input name="poc_phone" type="tel" maxlength="50" autocomplete="off" placeholder="Phone number to publish"></label>
+<label><span class="field-caption">POC email (optional)</span><input name="poc_email" type="email" maxlength="250" autocomplete="off" placeholder="Email address to publish"></label>
 </div>
 <div class="form-title">Your contact information (not published)</div>
 <div class="form-grid">

@@ -22,7 +22,7 @@ function mapColumns(headingRow){
   if(indexByKey.has(key))throw Error('Repeated spreadsheet heading: '+String(value));
   indexByKey.set(key,column);
  });
- const mandatory=['title','event_type','start_date','start_time','end_date','end_time','public_description','poc_name','poc_phone','poc_email','location_tbd'];
+ const mandatory=['title','event_type','start_date','start_time','end_date','end_time'];
  const missing=mandatory.filter(key=>!indexByKey.has(key));
  if(!indexByKey.has('lodge_no')&&!indexByKey.has('other_host'))missing.push('lodge_no/other_host');
  if(missing.length)throw Error('Missing required spreadsheet columns: '+missing.join(', ')+'.');

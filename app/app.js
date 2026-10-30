@@ -183,10 +183,11 @@ function locationControls(form){
   }
   if(virtualField){
    const label=virtualField.closest('label');
-   label?.classList.toggle('hidden',!online);
-   virtualField.disabled=!online;
+   const offersOnline=online||eventMode?.value==='hybrid';
+   label?.classList.toggle('hidden',!offersOnline);
+   virtualField.disabled=!offersOnline;
    virtualField.required=online&&form.id!=='modify-form';
-   if(!online)virtualField.value='';
+   if(!offersOnline)virtualField.value='';
   }
   toggle.disabled=!!online;
   if(online)toggle.checked=false;

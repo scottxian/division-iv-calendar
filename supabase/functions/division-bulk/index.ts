@@ -91,7 +91,7 @@ function validated(row:any,ctx:any,staff:any){
   if(str.length>limit)issues.push(f.replaceAll('_',' ')+' exceeds '+limit+' characters.');
   p[f]=str.slice(0,limit);
  }
- for(const f of ['title','event_type','start_local','end_local','public_description','poc_name','poc_phone','poc_email'])if(!p[f])issues.push('Missing '+f.replaceAll('_',' ')+'.');
+ for(const f of ['title','event_type','start_local','end_local'])if(!p[f])issues.push('Missing '+f.replaceAll('_',' ')+'.');
  if(!ctx.types.has(p.event_type))issues.push('Event type is not enabled.');
  if(!allowedModes.has(p.event_mode))issues.push('Event format must be in_person, online or hybrid.');
  if(p.start_local&&!localOk(p.start_local))issues.push('Invalid start date/time (Pacific).');

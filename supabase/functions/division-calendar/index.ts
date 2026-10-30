@@ -46,7 +46,7 @@ function sanitize(p:any,patch=false){
   if(['registration_url','payment_url','flyer_url','virtual_meeting_url'].includes(f)&&obj[f]&&!parseUrl(obj[f]))throw Error('Enter a valid http(s) URL for '+f.replaceAll('_',' '));
  }
  if(!patch){
-  for(const f of ['title','event_type','hosted_by','start_local','end_local','public_description']){
+  for(const f of ['title','event_type','hosted_by','start_local','end_local']){
    if(!obj[f])throw Error('Please complete '+f.replaceAll('_',' '));
   }
  }
@@ -153,7 +153,6 @@ Deno.serve(async req=>{
    let event_id=null, base_event_version=null, proposed_fields:any={};
    if(kind==='new'){
      proposed_fields=sanitize(body.event||{});
-     if(!String(proposed_fields.poc_name||'').trim()||!String(proposed_fields.poc_phone||'').trim()||!String(proposed_fields.poc_email||'').trim())throw Error('Enter the event point-of-contact name, phone and email');
      const districts=await setting('district_numbers',[]);
      if(kind==='new' && proposed_fields.event_type!=='Division School of Instruction'&&!districts.includes(String(proposed_fields.district)))throw Error('Choose a valid district number');
      const types=await db.from('event_types').select('label').eq('label',proposed_fields.event_type).maybeSingle();
@@ -169,7 +168,6 @@ Deno.serve(async req=>{
      event_id=e.id;base_event_version=e.version;
      if(kind==='change'){
        proposed_fields=sanitize(body.changes||{},true);
-       if(Object.hasOwn(proposed_fields,'public_description')&&!clean(proposed_fields.public_description))throw Error('Public event description cannot be blank');
        if(!Object.keys(proposed_fields).length)throw Error('There are no changes to submit');
        if(Object.hasOwn(proposed_fields,'district')){
          const districts=await setting('district_numbers',[]);

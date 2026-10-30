@@ -43,16 +43,11 @@ async function syncCalendar(job:any,token:string){
   const response=await calendar('DELETE','/'+googleId,token);
   if(!response.ok&&response.status!==404)throw Error('Calendar delete failed: '+JSON.stringify(response.data).slice(0,350));
  }else{
-  // Use the event's original new-event submission for the public point of contact.
-  // A change request can be submitted by a different person; it should not silently replace the POC.
-  const {data:contactRequest,error:contactError}=await db.from('event_requests')
-    .select('requester_name,requester_phone')
-    .eq('approved_event_id',e.id).eq('request_type','new').eq('status','approved')
-    .order('submitted_at',{ascending:true}).limit(1).maybeSingle();
-  if(contactError)throw Error('Unable to load event point of contact: '+contactError.message);
-  const pocName=String(e.poc_name||contactRequest?.requester_name||'').trim();
-   const pocPosition=String(e.poc_position||'').trim();
-  const pocPhone=String(e.poc_phone||contactRequest?.requester_phone||'').trim();
+  // Only explicitly supplied public POC information may appear on Google Calendar.
+  // Never publish the private submitter's name or telephone as a fallback.
+  const pocName=String(e.poc_name||'').trim();
+  const pocPosition=String(e.poc_position||'').trim();
+  const pocPhone=String(e.poc_phone||'').trim();
   const pocEmail=String(e.poc_email||'').trim();
   // Read the short name from the live lodge database. Older events usually have no lodge_id.
   let lodge:any=null;

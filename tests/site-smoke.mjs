@@ -70,8 +70,8 @@ const required={
  'index.html':['href="/events/"','href="/calendar/"','href="/inspectors/"'],
  'calendar/index.html':['href="/events/"'],
  'lodges/index.html':['href="/events/"'],
- 'events/index.html':['/app/app.js?v=52','/app/mfa.js?v=9'],
- 'inspectors/index.html':['/app/app.js?v=52','/app/mfa.js?v=9']
+ 'events/index.html':['/app/app.js?v=53','/app/mfa.js?v=9'],
+ 'inspectors/index.html':['/app/app.js?v=53','/app/mfa.js?v=9']
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
@@ -168,7 +168,7 @@ for(const file of ['month-calendar.js','public-events.js','lodge-correction.js',
 // Correction queue must remain a private, administrator-only inspector function.
 for(const page of ['events/index.html','inspectors/index.html']){
  const html=read(page);
- for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=1"','src="/app/app.js?v=52"']){
+ for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=1"','src="/app/app.js?v=53"']){
   if(!html.includes(marker))errors.push(page+': missing private correction queue '+marker);
  }
 }
@@ -232,7 +232,7 @@ for(const path of ['events/index.html','inspectors/index.html']){
  }
  if(/Calendar requests, made simple|Approve & Publish|Pending Approval|<option value="approved">Approved<\/option>/.test(html))
    errors.push(path+': old permission-oriented terminology remains');
- if(!html.includes('/app/app.js?v=52')||!html.includes('/app/styles.css?v=24'))
+ if(!html.includes('/app/app.js?v=53')||!html.includes('/app/styles.css?v=24'))
    errors.push(path+': current publication UI cache version missing');
 }
 const districtClient=read('app/app.js');
@@ -242,6 +242,29 @@ if(!districtClient.includes("allowedDistrictDivisions=new Map([[1,'Division I'],
    !districtClient.includes('preserveExistingDistrict(field,initial[key])')){
  errors.push('District selection must be limited to five divisions and preserve existing outside-district edits');
 }
+// Keep public and Inspector Desk form requirements synchronized with server validation.
+for(const page of ['events/index.html','inspectors/index.html']){
+ const html=read(page), form=html.match(/<form id="new-form">[\\s\\S]*?<\\/form>/)?.[0]||'';
+ for(const field of ['title','event_type','hosted_by','start_local','end_local','contact_name','contact_email']){
+  const tag=form.match(new RegExp('<(?:input|select|textarea)\\\\b(?=[^>]*name="'+field+'")[^>]*>'))?.[0]||'';
+  if(!/\\brequired\\b/.test(tag))errors.push(page+': required field '+field+' is not required');
+ }
+ for(const field of ['public_description','poc_name','poc_phone','poc_email']){
+  const tag=form.match(new RegExp('<(?:input|select|textarea)\\\\b(?=[^>]*name="'+field+'")[^>]*>'))?.[0]||'';
+  if(/\\brequired\\b/.test(tag)||!tag)errors.push(page+': '+field+' should be optional');
+ }
+}
+const calendarSubmission=read('supabase/functions/division-calendar/index.ts');
+const bulkSubmission=read('supabase/functions/division-bulk/index.ts');
+const calendarWorker=read('supabase/functions/division-jobs/index.ts');
+if(calendarSubmission.includes("'end_local','public_description'")||
+   calendarSubmission.includes("Enter the event point-of-contact name, phone and email")||
+   calendarSubmission.includes("Public event description cannot be blank"))
+ errors.push('Server still requires optional description or public POC details');
+if(bulkSubmission.includes("'end_local','public_description','poc_name'"))
+ errors.push('Bulk backend still requires optional public details');
+if(calendarWorker.includes("contactRequest?.requester_"))
+ errors.push('Google Calendar notes must not expose private submitter info as public POC');
 const publicationUI=read('app/app.js');
 for(const phrase of ["'Verify & Publish'","'Return for Correction'","'Do Not Publish'",
  'Calendar coordination (advisory only)',"pending:'Awaiting Publication'",

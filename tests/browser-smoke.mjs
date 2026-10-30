@@ -83,6 +83,17 @@ try{
  assert.ok(await desktop.locator('iframe[src*="calendar.google.com"]').count(),'Classic Google Calendar embed must remain');
  pass.push('Month navigation, event-day markers, event modal, and filtered timeline');
  await check(desktop,'Lodge directory','/lodges/','#lodge-search','lodges-desktop.png');
+ await desktop.route('**/functions/v1/division-calendar?action=config',async route=>{
+  const allDistricts=[
+   '113','119','121','129','131','141','143','145','149','151','153',
+   '201','203','205','207','212','214','216','218','222','224','226','228',
+   '300','301','305','317','319','337','341','345','349',
+   '402','404','410','414','418','422','428','438',
+   '502','534','542','546','548','553','557',
+   '1000','1002','1006','1012','1022','1026','1038','1042','1046'];
+  await route.fulfill({status:200,contentType:'application/json',
+   body:JSON.stringify({hosts:[],suggestions:{},event_types:[],districts:allDistricts,public_submissions_enabled:true,turnstile_site_key:null})});
+ });
  await check(desktop,'Public event requests','/events/','#public-view','events-desktop.png');
  assert.match(await desktop.locator('#nav-public').textContent(),/Calendar Submissions/);
  assert.match(await desktop.locator('.hero h1').textContent(),/Calendar submissions/);

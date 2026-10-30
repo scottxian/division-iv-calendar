@@ -14,7 +14,7 @@ assert.match(html,/data-tab="import"/);
 assert.match(html,/id="tab-import"/);
 for(const id of ['bulk-file','bulk-status','bulk-summary','bulk-preview','bulk-submit','bulk-results'])
  assert.ok(html.includes('id="'+id+'"'),id);
-assert.match(html,/app\/bulk-import\.js\?v=6/);
+assert.match(html,/app\/bulk-import\.js\?v=7/);
 assert.match(app,/window\.loadBulkImport/);
 assert.match(app,/window\.openBulkSubmission/);
 assert.match(app,/\['dashboard','import','lodges'/);
@@ -60,7 +60,7 @@ assert.match(api,/bulk_import_new_request/);
 assert.match(api,/n<3\|\|n>500/,'Importer must accept rows 3–27 in simplified Excel template');
 assert.match(api,/bulk_event_imports/);
 assert.match(api,/confirmed_rows:/);
-assert.match(html,/app\/app\.js\?v=52/);
+assert.match(html,/app\/app\.js\?v=53/);
 assert.match(api,/event_requests/);
 assert.match(api,/status:'completed'/);
 assert.match(api,/message_type:'bulk_import_summary'/);
