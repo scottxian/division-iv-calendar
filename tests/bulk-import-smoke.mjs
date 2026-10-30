@@ -20,7 +20,7 @@ assert.match(app,/window\.openBulkSubmission/);
 assert.match(app,/\['dashboard','import','lodges'/);
 assert.match(client,/read-excel-file@9\.3\.13/);
 assert.match(client,/out\.event_mode=normalizeEventMode\(row\.event_mode\)/);
-const converter=vm.runInNewContext(client.slice(client.indexOf('function normalizeEventMode'),client.indexOf('function excelDate'))+'\nnormalizeEventMode');
+const converter=vm.runInNewContext(client.slice(client.indexOf('function cell'),client.indexOf('function excelDate'))+'\nnormalizeEventMode');
 for(const [shown,expected] of [['In Person','in_person'],['Online','online'],['Hybrid','hybrid'],['in_person','in_person'],['In-Person','in_person']])
  assert.equal(converter(shown),expected,'Import mode conversion: '+shown);
 assert.match(client,/'Attendees','POC Name'/);
