@@ -211,6 +211,10 @@ header .nav-btn:focus-visible{outline:2px solid #f1cc74;outline-offset:2px}
 .lodge-edit-action{color:var(--navy);font-size:13px;font-weight:750;white-space:nowrap}
 .lodge-edit-panel{margin-top:23px;border:1px solid #bed0df;border-radius:11px;padding:22px;background:#f8fafc}
 #lodge-edit-history{margin-top:12px}
+.lodge-save-feedback{margin-top:4px;padding:11px 13px;border:1px solid #b0c3d1;border-radius:8px;background:#f4f7fa;color:#263e50;font-size:14px;line-height:1.5}
+.lodge-save-feedback.error{border-color:#d7a0a8;color:#8d303d;background:#fff5f6}
+.lodge-save-feedback.pending{color:#51637a;background:#f5f7fa}
+
 @media(max-width:710px){
  .lodge-admin-table-head{display:none}
  .lodge-admin-row{grid-template-columns:minmax(0,1fr) auto;gap:5px 14px}

@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Inspector Desk | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=24"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=53"></script>
-<script defer src="/app/lodges-admin.js?v=4"></script><script defer src="/app/corrections-admin.js?v=1"></script><script defer src="/app/site-settings-admin.js?v=4"></script><script defer src="/app/resources.js?v=2"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=25"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=53"></script>
+<script defer src="/app/lodges-admin.js?v=5"></script><script defer src="/app/corrections-admin.js?v=1"></script><script defer src="/app/site-settings-admin.js?v=4"></script><script defer src="/app/resources.js?v=2"></script>
 <script defer src="/app/mfa.js?v=9"></script><script defer src="/app/bulk-import.js?v=7"></script>
 <meta name="robots" content="noindex, nofollow, noarchive">
 </head><body>
@@ -209,6 +209,7 @@
 <label class="wide">Schedule notes <input name="meeting_notes" maxlength="300" placeholder="Every month; or list exceptions"></label>
 <label class="wide">Official lodge listing URL <input name="official_url" type="url" maxlength="1000" placeholder="https://member.freemason.org/..."></label>
 <div class="wide form-actions"><span id="lodge-record-version" class="muted"></span><button type="submit" class="primary">Save Lodge Changes</button><button type="button" id="lodge-reload" class="secondary">Discard Changes</button></div>
+<div id="lodge-save-message" class="wide lodge-save-feedback hidden" role="status" aria-live="polite" aria-atomic="true"></div>
 </form>
 <div class="form-actions"><button type="button" id="lodge-history-toggle" class="secondary">View Change History</button></div>
 <div id="lodge-edit-history" class="timeline hidden"></div>

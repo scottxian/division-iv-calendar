@@ -8,8 +8,17 @@
  if(!container||!form||!panel)return;
  function message(text,isError=false){
   const node=el('lodge-admin-message');
+  if(!node)return;
   node.textContent=text;
   node.style.color=isError?'#9c3343':'';
+ }
+ // Save feedback belongs beside the form action, not above the entire lodge list.
+ function saveFeedback(text='',kind='success'){
+  const node=el('lodge-save-message');
+  if(!node)return;
+  node.textContent=text;
+  node.className='wide lodge-save-feedback'+(kind==='error'?' error':kind==='pending'?' pending':'')+(!text?' hidden':'');
+  if(text)node.scrollIntoView({behavior:'smooth',block:'nearest'});
  }
  async function call(action,body=null,id=''){
   const {data:{session}}=await db.auth.getSession();
@@ -55,6 +64,7 @@
   if(!list.length)container.textContent=rows.length?'No lodges match your search or district filter.':'No lodges found.';
  }
  function choose(id,scroll=true){
+  saveFeedback();
   selected=rows.find(x=>x.id===id)||null;
   if(!selected){panel.classList.add('hidden');form.classList.add('hidden');return;}
   el('lodge-edit-heading').textContent=(canEdit?'Edit ':'View ')+selected.lodge_name+' Lodge No. '+selected.lodge_number;
@@ -106,6 +116,7 @@
   select.value=current||'';
  }
  function close(){
+  saveFeedback();
   selected=null;panel.classList.add('hidden');form.classList.add('hidden');render();
  }
  async function showHistory(){
@@ -167,10 +178,19 @@
  el('lodge-close').onclick=close;
  el('lodge-reload').onclick=()=>{if(selected)choose(selected.id);};
  el('lodge-history-toggle').onclick=showHistory;
+ // HTML validation can block the submit event before the API is called.
+ // Explain the failure in the same place as API success and error messages.
+ form.addEventListener('invalid',event=>{
+  if(form.querySelector(':invalid')!==event.target)return;
+  const label=event.target.closest('label')?.textContent.trim()||'a lodge field';
+  saveFeedback('Not saved. Please correct '+label+': '+event.target.validationMessage,'error');
+ },true);
+ form.addEventListener('input',()=>saveFeedback());
+ form.addEventListener('change',()=>saveFeedback());
  form.addEventListener('submit',async event=>{
   event.preventDefault();
   if(!selected||!canEdit||state.staff?.role!=='admin'){
-   message('Administrator access is required to edit lodges or assign districts.',true);
+   saveFeedback('Administrator access is required to edit lodges or assign districts.','error');
    return;
   }
   const updates={};
@@ -179,17 +199,25 @@
    const next=String(input?.value??'').trim();
    if(next!==String(selected[key]??''))updates[key]=next;
   }
-  if(!Object.keys(updates).length){message('There are no changes to save.');return;}
+  if(!Object.keys(updates).length){saveFeedback('No changes to save. The lodge record is already up to date.');return;}
   const submit=form.querySelector('[type="submit"]');
   submit.disabled=true;
+  const originalLabel=submit.textContent;
+  submit.textContent='Saving…';
+  saveFeedback('Saving lodge changes…','pending');
   try{
-   const data=await call('save',{id:selected.id,expected_version:selected.record_version,fields:updates});
-   rows=rows.map(x=>x.id===selected.id?data.lodge:x);
+   const lodgeId=selected.id;
+   const data=await call('save',{id:lodgeId,expected_version:selected.record_version,fields:updates});
+   if(!data.lodge||data.lodge.id!==lodgeId)throw Error('The server did not confirm the saved lodge. Refresh before trying again.');
+   rows=rows.map(x=>x.id===lodgeId?data.lodge:x);
    selected=data.lodge;
-   choose(selected.id);
-   message('Lodge information saved. The Wix public directory will show the latest data when refreshed.');
-   if(typeof toast==='function')toast('Lodge changes saved');
-  }catch(e){message(e.message,true);if(typeof toast==='function')toast(e.message,true);}
-  finally{submit.disabled=false;}
+   choose(lodgeId,false);
+   saveFeedback(data.notice||'Lodge changes saved and recorded in the change history.');
+  }catch(e){
+   saveFeedback('Lodge changes were not saved: '+(e.message||'Unexpected error. Please try again.'),'error');
+  }finally{
+   submit.disabled=false;
+   submit.textContent=originalLabel;
+  }
  });
 })();

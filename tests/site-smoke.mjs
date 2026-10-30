@@ -18,10 +18,19 @@ const fileExists=name=>fs.existsSync(path.join(root,name))&&fs.statSync(path.joi
 for(const filename of ['events/index.html','inspectors/index.html']){
  const html=read(filename);
  const form=html.match(/<form id="lodge-edit-form"[\s\S]*?<\/form>/)?.[0]||'';
- if(!form.includes('name="abbreviation" maxlength="20"')||!html.includes('/app/lodges-admin.js?v=4'))
+ if(!form.includes('name="abbreviation" maxlength="20"')||!html.includes('/app/lodges-admin.js?v=5'))
   errors.push(filename+': administrator-only, 20-character lodge abbreviation form field missing');
 }
 const lodgeAdminClient=read('app/lodges-admin.js');
+if(!read('inspectors/index.html').includes('id="lodge-save-message"')||
+ !read('inspectors/index.html').includes('app/lodges-admin.js?v=5')||
+ !read('inspectors/index.html').includes('app/styles.css?v=25')||
+ !lodgeAdminClient.includes("form.addEventListener('invalid'")||
+ !lodgeAdminClient.includes("saveFeedback(data.notice")||
+ !lodgeAdminClient.includes("saveFeedback('Lodge changes were not saved:")||
+ !lodgeAdminClient.includes("choose(lodgeId,false)"))
+ errors.push('Lodge edits need visible in-form success, error, and validation feedback.');
+
 if(!lodgeAdminClient.includes("'lodge_name','lodge_number','abbreviation','district'"))
  errors.push('Lodge editor does not save the abbreviation');
 const lodgeApi=read('supabase/functions/division-lodges/index.ts');
