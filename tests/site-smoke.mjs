@@ -244,14 +244,15 @@ if(!districtClient.includes("allowedDistrictDivisions=new Map([[1,'Division I'],
 }
 // Keep public and Inspector Desk form requirements synchronized with server validation.
 for(const page of ['events/index.html','inspectors/index.html']){
- const html=read(page), form=html.match(/<form id="new-form">[\\s\\S]*?<\\/form>/)?.[0]||'';
+ const html=read(page);
+ const form=(html.split('<form id="new-form">')[1]||'').split('</form>')[0];
  for(const field of ['title','event_type','hosted_by','start_local','end_local','contact_name','contact_email']){
-  const tag=form.match(new RegExp('<(?:input|select|textarea)\\\\b(?=[^>]*name="'+field+'")[^>]*>'))?.[0]||'';
-  if(!/\\brequired\\b/.test(tag))errors.push(page+': required field '+field+' is not required');
+  const tag=form.match(new RegExp('<(?:input|select|textarea)[^>]*name="'+field+'"[^>]*>'))?.[0]||'';
+  if(!tag.includes(' required'))errors.push(page+': required field '+field+' is not required');
  }
  for(const field of ['public_description','poc_name','poc_phone','poc_email']){
-  const tag=form.match(new RegExp('<(?:input|select|textarea)\\\\b(?=[^>]*name="'+field+'")[^>]*>'))?.[0]||'';
-  if(/\\brequired\\b/.test(tag)||!tag)errors.push(page+': '+field+' should be optional');
+  const tag=form.match(new RegExp('<(?:input|select|textarea)[^>]*name="'+field+'"[^>]*>'))?.[0]||'';
+  if(tag.includes(' required')||!tag)errors.push(page+': '+field+' should be optional');
  }
 }
 const calendarSubmission=read('supabase/functions/division-calendar/index.ts');
