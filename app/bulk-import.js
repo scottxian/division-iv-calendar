@@ -30,7 +30,7 @@ function mapColumns(headingRow){
 }
 function msg(text,error=false){status.textContent=text;status.classList.toggle('error',error)}
 function cell(v){if(v===null||v===undefined)return '';if(v instanceof Date)return v.toISOString();return String(v).trim()}
-function normalizeEventMode(v){const value=cell(v);const normalized=value.toLowerCase().replace(/[\\s-]+/g,'_');return normalized==='in_person'||normalized==='inperson'?'in_person':normalized==='online'?'online':normalized==='hybrid'?'hybrid':value;}
+function normalizeEventMode(v){const value=cell(v);const normalized=value.toLowerCase().replaceAll(' ','_').replaceAll('-','_');return normalized==='in_person'||normalized==='inperson'?'in_person':normalized==='online'?'online':normalized==='hybrid'?'hybrid':value;}
 function excelDate(v){
  if(v instanceof Date&&!Number.isNaN(v.getTime()))return v.toISOString().slice(0,10);
  if(typeof v==='number'&&v>30000&&v<100000)return new Date(Date.UTC(1899,11,30)+Math.floor(v)*86400000).toISOString().slice(0,10);
