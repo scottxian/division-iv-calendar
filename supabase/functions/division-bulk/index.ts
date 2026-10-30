@@ -4,8 +4,8 @@ const key=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const db=createClient(url,key,{auth:{persistSession:false}});
 const origins=new Set(['https://divisionivmasons.org','https://www.divisionivmasons.org','https://scottxian.github.io','https://calendar.divisionivmasons.org','http://localhost:5173','http://127.0.0.1:5173']);
 const allowedModes=new Set(['in_person','hybrid','online']);
-const fields=['title','event_type','hosted_by','district','start_local','end_local','event_mode','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','virtual_meeting_url','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_position','poc_phone','poc_email','cost_details'];
-const fieldLimits={title:180,public_description:4000,poc_name:150,poc_position:120,poc_phone:50,poc_email:250,cost_details:180};
+const fields=['event_name','event_type','hosted_by','district','start_local','end_local','event_mode','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','virtual_meeting_url','public_description','attire','invited_audience','registration_url','payment_url','flyer_url','poc_name','poc_position','poc_phone','poc_email','cost_details'];
+const fieldLimits={event_name:180,public_description:4000,poc_name:150,poc_position:120,poc_phone:50,poc_email:250,cost_details:180};
 const t=(v:any)=>String(v??'').trim();
 const emailOk=(v:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)&&v.length<=250;
 const localOk=(v:string)=>/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(v)&&!Number.isNaN(Date.parse(v));
@@ -92,8 +92,15 @@ function validated(row:any,ctx:any,staff:any){
   if(str.length>limit)issues.push(f.replaceAll('_',' ')+' exceeds '+limit+' characters.');
   p[f]=str.slice(0,limit);
  }
- if(districtSoi&&/^\d{3,4}$/.test(district))p.title='District '+district+' School of Instruction';
- for(const f of ['title','event_type','start_local','end_local'])if(!p[f])issues.push('Missing '+f.replaceAll('_',' ')+'.');
+ for(const f of ['event_name','event_type','start_local','end_local'])if(!p[f])issues.push('Missing '+f.replaceAll('_',' ')+'.');
+ const preferred=lodge?t(lodge.abbreviation)||host:host;
+ const name=t(p.event_name);
+ const stripPrefix=(value:string,prefix:string)=>value.toLowerCase().startsWith((prefix+': ').toLowerCase())?value.slice(prefix.length+2).trim():value;
+ const cleanName=stripPrefix(stripPrefix(name,preferred),host);
+ p.title=districtSoi&&/^\d{3,4}$/.test(district)?'District '+district+' School of Instruction'
+  :soi?(name.toLowerCase().startsWith('division school of instruction')?name:'Division School of Instruction: '+name)
+  :preferred+': '+cleanName;
+ if(p.title.length>180)issues.push('Final calendar title exceeds 180 characters.');
  if(!ctx.types.has(p.event_type))issues.push('Event type is not enabled.');
  if(!allowedModes.has(p.event_mode))issues.push('Event format must be in_person, online or hybrid.');
  if(p.start_local&&!localOk(p.start_local))issues.push('Invalid start date/time (Pacific).');
@@ -121,7 +128,7 @@ function validated(row:any,ctx:any,staff:any){
  const requesterPhone=get('requester_phone');
  if(!emailOk(requesterEmail)||requesterName.length<2)issues.push('Invalid submitter name or email.');
  if(requesterName.length>150||requesterPhone.length>50||get('requester_message').length>2000)issues.push('Submitter information exceeds length limits.');
- const calendarTitle=(soi||districtSoi)?p.title:(lodge?t(lodge.abbreviation)||host:host)+': '+p.title.replace(new RegExp('^'+host.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+':\\s*','i'),'');
+ const calendarTitle=p.title;
  return {row_number:Number(row.row_number),p,requester_name:requesterName,requester_email:requesterEmail,requester_phone:requesterPhone,requester_message:get('requester_message'),
   host,calendar_title:calendarTitle,issues};
 }
