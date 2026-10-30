@@ -241,7 +241,7 @@ for(const path of ['events/index.html','inspectors/index.html']){
  }
  if(/Calendar requests, made simple|Approve & Publish|Pending Approval|<option value="approved">Approved<\/option>/.test(html))
    errors.push(path+': old permission-oriented terminology remains');
- if(!html.includes('/app/app.js?v=53')||!html.includes('/app/styles.css?v=24'))
+ if(!html.includes('/app/app.js?v=53')||!html.includes('/app/styles.css?v=25'))
    errors.push(path+': current publication UI cache version missing');
 }
 const districtClient=read('app/app.js');
