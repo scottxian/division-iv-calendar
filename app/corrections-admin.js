@@ -75,15 +75,20 @@
    button.onclick=async()=>{
     const note=notes.value.trim();
     if(['completed','rejected'].includes(option.value)&&note.length<8){
-     showMessage('Please explain the verified directory update or why the request was rejected.',true);notes.focus();return;
+     detailNotice('Please explain the verified directory update or why the request was rejected.',true);notes.focus();return;
     }
     if(option.value==='completed'&&!window.confirm('Only mark Completed after you have verified and updated the lodge record in the Lodges tab. Continue?'))return;
     button.disabled=true;
     try{
      const result=await request('update',{id:item.id,status:option.value,expected_status:item.status,note});
-     showMessage(result.warning||result.notice||'Correction status updated.',!!result.warning);
      await load(id);
-    }catch(err){showMessage(err.message||'Unable to update correction',true);}
+     const refreshed=byId('corrections-detail').querySelector('.edit-action-feedback');
+     if(refreshed){
+      refreshed.textContent=result.warning||result.notice||'Correction status updated.';
+      refreshed.className='edit-action-feedback'+(result.warning?' error':'');
+      refreshed.scrollIntoView({behavior:'smooth',block:'nearest'});
+     }
+    }catch(err){detailNotice(err.message||'Unable to update correction',true);}
     finally{button.disabled=false;}
    };
    controls.append(button);
@@ -98,6 +103,13 @@
   };
   controls.prepend(lodgeButton);
   detail.append(controls);
+  const localStatus=text('p','','edit-action-feedback hidden');
+  localStatus.setAttribute('role','status');localStatus.setAttribute('aria-live','polite');
+  detail.append(localStatus);
+  const detailNotice=(msg,bad=false)=>{
+   localStatus.textContent=msg;
+   localStatus.className='edit-action-feedback'+(bad?' error':'')+(!msg?' hidden':'');
+  };
   const historyTitle=text('h4','Status history');historyTitle.style.marginTop='25px';
   const historyHost=text('div','Loading history…','correction-history');
   detail.append(historyTitle,historyHost);

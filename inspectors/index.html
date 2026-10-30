@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Inspector Desk | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=25"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=53"></script>
-<script defer src="/app/lodges-admin.js?v=5"></script><script defer src="/app/corrections-admin.js?v=1"></script><script defer src="/app/site-settings-admin.js?v=4"></script><script defer src="/app/resources.js?v=2"></script>
+<meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=26"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=54"></script>
+<script defer src="/app/lodges-admin.js?v=5"></script><script defer src="/app/corrections-admin.js?v=2"></script><script defer src="/app/site-settings-admin.js?v=5"></script><script defer src="/app/resources.js?v=3"></script>
 <script defer src="/app/mfa.js?v=9"></script><script defer src="/app/bulk-import.js?v=7"></script>
 <meta name="robots" content="noindex, nofollow, noarchive">
 </head><body>
@@ -290,8 +290,8 @@
 <input id="resources-category-new-name" name="category_name" type="text" minlength="2" maxlength="50" placeholder="Example: Training Materials" required></label>
 <button id="resources-category-add" class="primary" type="submit">Add Category</button>
 </form>
+<p id="resources-category-message" class="edit-action-feedback" role="status" aria-live="polite"></p>
 <p class="help">Use short, descriptive names. Renaming updates existing files. To retire a category, move its files to another category first; you can restore a retired category later. <strong>General</strong> stays available as the default.</p>
-<p id="resources-category-message" class="help" role="status" aria-live="polite"></p>
 <div id="resources-category-list" class="resources-category-list" aria-label="Managed document categories"></div>
 </section>
 
@@ -310,6 +310,7 @@
 <div class="resources-editor-actions"><button id="resources-cancel-meta" type="button" class="secondary">Cancel</button>
 <button id="resources-save-meta" type="button" class="primary hidden">Save Details</button>
 <button id="resources-upload" type="button" class="primary">Upload Document</button></div>
+<p id="resources-editor-message" class="edit-action-feedback hidden" role="status" aria-live="polite"></p>
 </section>
 <input id="resources-replace-file" type="file" class="hidden" tabindex="-1" aria-hidden="true" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png">
 </section>

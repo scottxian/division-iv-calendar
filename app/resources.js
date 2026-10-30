@@ -7,6 +7,11 @@ const make=(tag,cls,label)=>{const el=document.createElement(tag);if(cls)el.clas
 const fmtDate=v=>v?new Date(v).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}):'—';
 const size=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(1)+' MB';
 const alertText=(msg,bad=false)=>{const box=byId('resources-message');if(box){box.textContent=msg;box.classList.toggle('resources-error',bad)}};
+const editorNotice=(msg,bad=false)=>{
+ const box=byId('resources-editor-message');if(!box)return;
+ box.textContent=msg;box.className='edit-action-feedback'+(bad?' error':'')+(!msg?' hidden':'');
+ if(msg)box.scrollIntoView({behavior:'smooth',block:'nearest'});
+};
 async function request(action,payload,params={}){
  const url=new URL(endpoint);url.searchParams.set('action',action);
  for(const [k,v] of Object.entries(params))url.searchParams.set(k,v);
@@ -117,6 +122,7 @@ function editor(doc){
  if(!manage)return;
  selected=doc||null;
  byId('resources-editor').classList.remove('hidden');
+ editorNotice();
  byId('resources-editor-title').textContent=doc?'Edit document details':'Upload a document';
  byId('resources-document-title').value=doc?.title||'';
  byId('resources-document-category').value=doc?.category||'General';
@@ -233,6 +239,7 @@ function validFile(file){
 async function upload(file,old){
  if(busyNow||!manage)return;
  try{
+  editorNotice('Checking document…');
   validFile(file);
   const payload={name:file.name,size:file.size};
   if(old){
@@ -264,8 +271,8 @@ async function upload(file,old){
   const done=await request('upload-complete',{id:ticket.id,path:ticket.path});
   closeEditor();await load();
   alertText('Document saved successfully, version '+done.item.version+'.');
-  toast('Resource '+(old?'replaced':'uploaded')+' successfully');
- }catch(e){alertText(e.message,true);toast(e.message,true)}
+  byId('resources-message').scrollIntoView({behavior:'smooth',block:'nearest'});
+ }catch(e){editorNotice('Document not saved: '+e.message,true);alertText(e.message,true)}
  finally{locked(false)}
 }
 async function removeDocument(doc){
@@ -283,6 +290,8 @@ if(!byId('resources-list'))return;
 byId('resources-search').addEventListener('input',render);
 byId('resources-category-filter').addEventListener('change',render);
 byId('resources-refresh').onclick=load;
+for(const id of ['resources-document-title','resources-document-category','resources-document-description','resources-file'])
+ byId(id).addEventListener('input',()=>editorNotice());
 byId('resources-new').onclick=()=>editor(null);
 byId('resources-cancel-meta').onclick=closeEditor;
 byId('resources-upload').onclick=()=>upload(byId('resources-file').files?.[0],null);
@@ -291,10 +300,13 @@ byId('resources-save-meta').onclick=async()=>{
  const payload={id:selected.id,title:byId('resources-document-title').value.trim(),
   category:byId('resources-document-category').value,
   description:byId('resources-document-description').value.trim()};
- if(!payload.title){alertText('Enter a document title.',true);return}
+ if(!payload.title){editorNotice('Enter a document title.',true);return}
  try{
-  locked(true);await request('edit',payload);closeEditor();await load();toast('Document details saved');
- }catch(e){alertText(e.message,true);toast(e.message,true)}
+  editorNotice('Saving document details…');
+  locked(true);await request('edit',payload);closeEditor();await load();
+  alertText('Document details saved.');
+  byId('resources-message').scrollIntoView({behavior:'smooth',block:'nearest'});
+ }catch(e){editorNotice('Document details not saved: '+e.message,true);alertText(e.message,true)}
  finally{locked(false)}
 };
 byId('resources-manage-categories').onclick=()=>{

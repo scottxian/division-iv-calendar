@@ -165,6 +165,12 @@
     row.dispatchEvent(new Event('website-preview-refresh')));
   });
   e('website-menu-reset').onclick=()=>{if(saved)showNavigation(saved.website_navigation);};
+  form.addEventListener('invalid',ev=>{
+   if(form.querySelector(':invalid')!==ev.target)return;
+   const label=ev.target.closest('label')?.textContent.trim()||ev.target.name;
+   message('Not saved. Check '+label+': '+ev.target.validationMessage,true);
+  },true);
+  form.addEventListener('input',()=>message('Unsaved changes.'));
   form.addEventListener('submit',async ev=>{
    ev.preventDefault();
    if(state.staff?.role!=='admin'){message('Only administrators can save website settings.',true);return;}
