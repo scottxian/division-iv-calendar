@@ -67,7 +67,8 @@
   if(!nav||!menu)return;
   const onLodges=location.pathname.startsWith('/lodges/');
   const onCalendar=location.pathname.startsWith('/calendar/');
-  const onHome=!onCalendar&&!onLodges;
+  const onHome=location.pathname==='/'||location.pathname==='/index.html';
+  const appMode=!!document.querySelector('header[data-division-header="app"]');
   const items=Array.isArray(s.website_navigation)&&s.website_navigation.length?s.website_navigation:base.website_navigation;
   nav.replaceChildren();
   const home=link('Home','/#home',false);
@@ -98,7 +99,8 @@
     if(!dest||typeof item.label!=='string'||!item.label.trim())continue;
     const a=link(item.label,dest,dest.startsWith('https://'));
     if((id==='lodges'&&dest==='/lodges/'&&onLodges)||
-       (id==='calendar'&&dest==='/calendar/'&&onCalendar))a.setAttribute('aria-current','page');
+       (id==='calendar'&&dest==='/calendar/'&&onCalendar)||
+       (id==='calendar'&&dest==='/events/'&&location.pathname.startsWith('/events/')))a.setAttribute('aria-current','page');
     a.addEventListener('click',closeMenu);
     submenu.append(a);
    }
@@ -125,9 +127,12 @@
     if(!wrapper.contains(ev.relatedTarget))setExpanded(wrapper,false);
    });
   }
-  const desk=link('Inspector Login ↗','/inspectors/',false);
-  desk.className='nav-inspector-login';desk.addEventListener('click',closeMenu);
-  nav.append(desk);
+  if(!appMode){
+   const desk=link('Inspector Login ↗','/inspectors/',false);
+   desk.className='nav-inspector-login';desk.addEventListener('click',closeMenu);
+   if(location.pathname.startsWith('/inspectors/'))desk.setAttribute('aria-current','page');
+   nav.append(desk);
+  }
   activeGroups=[...nav.querySelectorAll('.nav-group')];
  }
  function applyLinkSettings(s){

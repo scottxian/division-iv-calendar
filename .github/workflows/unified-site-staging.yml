@@ -30,6 +30,8 @@ jobs:
         run: node tests/bulk-import-smoke.mjs
       - name: Check simplified Inspector Desk layout
         run: node tests/inspector-layout-smoke.mjs
+      - name: Check consistent public and private navigation
+        run: node tests/shared-navigation-smoke.mjs
 
   browser-smoke:
     runs-on: ubuntu-latest

@@ -330,10 +330,10 @@ for(const page of ['index.html','calendar/index.html','lodges/index.html','event
   errors.push(page+': shared header placeholder missing');
  if(markup.includes('class="division-brand"'))
   errors.push(page+': duplicate hard-coded branding remains');
- if(!markup.includes('/shared/header.css?v=1')||!markup.includes('/shared/header.js?v=1'))
+ if(!markup.includes('/shared/header.css?v=2')||!markup.includes('/shared/header.js?v=2'))
   errors.push(page+': shared header assets missing');
- const includeIndex=markup.indexOf('/shared/header.js?v=1');
- const initIndex=markup.indexOf(mode==='app'?'/app/bootstrap.js':'/script.js?v=2');
+ const includeIndex=markup.indexOf('/shared/header.js?v=2');
+ const initIndex=markup.indexOf(mode==='app'?'/app/bootstrap.js':'/script.js?v=3');
  if(includeIndex<0||initIndex<0||includeIndex>initIndex)
   errors.push(page+': header must load ahead of navigation/auth scripts');
 }

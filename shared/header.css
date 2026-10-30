@@ -116,3 +116,63 @@ header.division-site-header .division-app-nav{
  header.division-site-header .brand-name{font-size:13px}
  header.division-site-header .brand-affiliation{font-size:10px}
 }
+/* Shared public and inspector navigation.  Both use the SAME menu markup and controller. */
+header.division-site-header .division-header-inner{gap:clamp(12px,1.6vw,24px)}
+header.division-site-header #main-nav{display:flex;align-items:center;gap:clamp(6px,1.1vw,17px);margin-left:auto}
+header.division-site-header #main-nav a,
+header.division-site-header #main-nav button{font:600 12px/1.5 'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+header.division-site-header #main-nav .nav-home,
+header.division-site-header #main-nav .nav-division-direct,
+header.division-site-header #main-nav .nav-trigger{display:inline-flex;align-items:center;gap:6px;padding:11px 7px;border:0;border-radius:5px;background:transparent;color:#f2f2ef;white-space:nowrap;text-decoration:none;cursor:pointer}
+header.division-site-header #main-nav .nav-chevron{color:#d7b56e;font-size:16px;line-height:.7;transition:transform .18s}
+header.division-site-header #main-nav .nav-group.expanded .nav-chevron{transform:rotate(180deg)}
+header.division-site-header #main-nav .nav-group{display:flex;align-items:center;position:relative}
+header.division-site-header #main-nav .nav-submenu{display:none;position:absolute;top:100%;left:0;min-width:235px;padding:8px;background:#102c49;border:1px solid #ffffff26;border-top:2px solid #d7b56e;border-radius:0 0 9px 9px;box-shadow:0 20px 32px #0005;z-index:30}
+header.division-site-header #main-nav .nav-group.expanded>.nav-submenu{display:block}
+header.division-site-header #main-nav .nav-submenu a{display:block;padding:11px 13px;border:0;border-radius:5px;color:#f3f3f0;font-weight:500;font-size:12px;white-space:nowrap;text-decoration:none}
+header.division-site-header #main-nav a:hover,
+header.division-site-header #main-nav a:focus-visible,
+header.division-site-header #main-nav .nav-trigger:hover,
+header.division-site-header #main-nav .nav-group.expanded>.nav-trigger{color:#f0d99d}
+header.division-site-header #main-nav a[aria-current="page"],
+header.division-site-header #main-nav .nav-submenu a[aria-current="page"]{color:#f0d99d;font-weight:750}
+header.division-site-header #main-nav .nav-submenu a:hover{background:#ffffff12}
+header.division-site-header #main-nav .nav-inspector-login{display:inline-flex;align-items:center;border:1px solid #d7b56e88;border-radius:5px;color:#f0d99d;padding:10px 12px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap}
+header.division-site-header #main-nav .nav-inspector-login:hover{background:#ffffff12;color:#fff}
+header.division-site-header .division-header-tools{display:flex;align-items:center;gap:8px;flex-shrink:0}
+header.division-site-header .division-app-actions{display:flex;align-items:center;gap:7px}
+header.division-site-header .division-app-actions .nav-btn{font-size:12px;border:0;border-radius:6px;padding:10px 9px;background:transparent;color:#f1f4f7;white-space:nowrap;font-weight:700;cursor:pointer}
+header.division-site-header .division-app-actions .nav-btn:hover,
+header.division-site-header .division-app-actions .nav-btn.active{background:#ffffff17;color:#f0d99d}
+header.division-site-header #menu-toggle{display:none;border:1px solid #ffffff45;background:transparent;color:#fff;padding:7px 12px;border-radius:5px;font-size:19px;line-height:1.2;cursor:pointer}
+header.division-site-header #menu-toggle:focus-visible,
+header.division-site-header #main-nav a:focus-visible,
+header.division-site-header #main-nav button:focus-visible{outline:2px solid #f0d99d;outline-offset:2px}
+@media (hover:hover) and (min-width:1051px){
+ header.division-site-header #main-nav .nav-group:hover>.nav-submenu{display:block}
+}
+@media(max-width:1050px){
+ header.division-site-header .division-header-inner{position:relative;flex-wrap:wrap;min-height:86px}
+ header.division-site-header .division-header-tools{margin-left:auto}
+ header.division-site-header #menu-toggle{display:block}
+ header.division-site-header #main-nav{display:none;position:absolute;top:100%;left:0;right:0;margin:0;padding:12px clamp(16px,4vw,38px) 18px;background:#0b2138;border-top:1px solid #ffffff22;flex-direction:column;align-items:stretch;gap:0;z-index:30;box-shadow:0 18px 32px #0005}
+ header.division-site-header #main-nav.open{display:flex}
+ header.division-site-header #main-nav .nav-home,
+ header.division-site-header #main-nav .nav-division-direct,
+ header.division-site-header #main-nav .nav-trigger,
+ header.division-site-header #main-nav .nav-inspector-login{width:100%;display:flex;justify-content:space-between;padding:14px 10px;border:0;border-bottom:1px solid #ffffff22;border-radius:0;background:transparent;text-align:left}
+ header.division-site-header #main-nav .nav-group{display:block}
+ header.division-site-header #main-nav .nav-submenu{position:static;box-shadow:none;border:0;border-radius:0;border-left:2px solid #d7b56e;padding:3px 0 3px 11px;margin:0 0 5px 10px;background:#102c49;min-width:0}
+ header.division-site-header #main-nav .nav-group.expanded>.nav-submenu{display:block}
+ header.division-site-header #main-nav .nav-submenu a{white-space:normal;padding:11px;font-size:13px}
+}
+@media(max-width:670px){
+ header.division-site-header .division-header-inner{padding:10px 15px;gap:7px}
+ header.division-site-header .division-header-tools{flex-wrap:wrap;justify-content:flex-end}
+ header.division-site-header .division-app-actions .nav-btn{font-size:11px;padding:8px 7px}
+}
+@media(max-width:435px){
+ header.division-site-header .division-brand{flex:0 0 100%;justify-content:center}
+ header.division-site-header .division-header-tools{margin-left:auto;width:100%;justify-content:space-between;flex-direction:row-reverse}
+ header.division-site-header .division-app-actions{flex:1;justify-content:flex-start}
+}
