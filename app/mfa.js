@@ -48,7 +48,7 @@ function securePanel(){
   panel=make('section','panel');
   panel.id='admin-mfa-security';
   panel.setAttribute('aria-label','Account security');
-  panel.style.margin='16px 0';
+  // Keep the full panel only while MFA setup or verification is needed.
   const heading=make('h3','', 'Account security');
   panel.append(heading);
   const header=host.querySelector('.admin-head');
@@ -97,6 +97,9 @@ async function showMfa(staff,serverStatus){
  window.divisionCurrentStaff=staff||null;
  if(!staff||!['admin','inspector'].includes(staff.role)){if(panel)panel.remove();panel=null;pending=null;return}
  const host=securePanel();if(!host)return;
+ const header=document.querySelector('#admin-view .admin-head');
+ host.className='panel account-security-prompt';
+ if(header)header.insertAdjacentElement('afterend',host);
  host.replaceChildren(make('h3','', 'Account security'),make('p','help','Checking your authenticator settings…'));
  try{
   const response=await authRequest('user');
@@ -111,7 +114,10 @@ async function showMfa(staff,serverStatus){
   host.replaceChildren(make('h3','', 'Account security'));
   if(verified.length){
    if(status==='aal2'){
-    host.append(make('p','help','Two-step verification is active for this sign-in.'));
+    host.className='verified-mfa';
+    host.replaceChildren(make('span','', '✓ MFA verified'));
+    const right=header?.querySelector('.admin-status');
+    if(right)right.append(host);
    }else{
     host.append(make('p','help','Your authenticator is enrolled. Verify the current sign-in with your six-digit authenticator code.'));
     promptCode(host,'Authenticator code',async code=>completeChallenge(verified[0].id,code));

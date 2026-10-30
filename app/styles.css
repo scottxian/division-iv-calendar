@@ -430,3 +430,31 @@ header nav .nav-btn:hover,header nav .nav-btn.active{color:#f0d99d;background:#f
 .bulk-result-row button{margin-left:auto}
 #bulk-status.error{color:#a02626;font-weight:600}
 @media(max-width:650px){.bulk-result-row{align-items:start}.bulk-result-row button{margin-left:0}}
+
+/* Authenticated Inspector Desk: concise working surface, without the public hero. */
+body.inspector-desk-mode .hero{display:none}
+body.inspector-desk-mode #content{padding-top:18px}
+body.inspector-desk-mode #admin-view>.admin-head{margin:8px 0 16px;gap:12px}
+body.inspector-desk-mode #admin-view>.admin-head h2{margin:3px 0 0;font-size:clamp(23px,2.8vw,29px)}
+.admin-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+body.inspector-desk-mode #admin-view .tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;gap:4px;scrollbar-width:thin;scrollbar-color:#b8c7d8 transparent}
+body.inspector-desk-mode #admin-view .tabs .tab{flex:0 0 auto;white-space:nowrap;padding:10px 11px;font-size:13px}
+body.inspector-desk-mode #admin-view>.panel,
+body.inspector-desk-mode #admin-view>section>.panel{margin-top:15px}
+#admin-mfa-security.verified-mfa{display:inline-flex;align-items:center;margin:0;padding:5px 9px;border-radius:20px;background:#e9f3ed;color:#24613e;font-size:12px;font-weight:700;white-space:nowrap}
+#admin-mfa-security.account-security-prompt{margin:14px 0}
+#tab-import h3{margin:0 0 7px}
+#tab-import .bulk-intro{margin:0 0 18px;max-width:740px;line-height:1.6}
+#tab-import .bulk-upload-area{border-top:1px solid var(--border);padding-top:18px}
+#tab-import .bulk-file-label{max-width:560px}
+#tab-import .bulk-file-label input{padding:9px;background:#fbfcfe}
+#tab-import .bulk-upload-area .help{margin:8px 0 0;font-size:12px}
+#tab-import>.form-actions{justify-content:flex-start;margin-top:17px}
+#tab-import>.form-actions:has(>.hidden){display:none}
+#tab-import .bulk-summary:empty,#tab-import .bulk-preview:empty,#tab-import .bulk-results:empty{display:none}
+@media(max-width:720px){
+ body.inspector-desk-mode #content{padding-top:10px}
+ body.inspector-desk-mode #admin-view>.admin-head{margin:6px 0 12px}
+ body.inspector-desk-mode #admin-view .tabs .tab{font-size:13px;padding:10px 9px}
+ #tab-import .bulk-upload-area{padding-top:12px}
+}

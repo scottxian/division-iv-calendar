@@ -101,6 +101,7 @@ async function api(action,payload=null,filters={}){
 }
 function show(view){
  state.view=view;
+ document.body.classList.toggle('inspector-desk-mode',view==='admin');
  for(const k of ['public','signin','admin'])$(k+'-view').classList.toggle('hidden',k!==view);
  for(const k of ['public','signin','admin'])$('nav-'+k).classList.toggle('active',k===view);
  $('notice').classList.add('hidden');window.scrollTo({top:0});

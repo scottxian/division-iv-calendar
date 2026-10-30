@@ -58,7 +58,7 @@ function make(tag,cls,text){
  if(text!==undefined)node.textContent=String(text);
  return node;
 }
-function clear(){preview.replaceChildren();results.replaceChildren();summary.textContent='';submit.disabled=true;items=[];parsed=[]}
+function clear(){preview.replaceChildren();results.replaceChildren();summary.textContent='';submit.disabled=true;submit.classList.add('hidden');items=[];parsed=[]}
 function displayPreview(response){
  const stats=response.summary;summary.textContent=parsed.length+' rows found · '+stats.ready+' ready · '+stats.warnings+' possible duplicates · '+stats.invalid+' need correction';
  const table=make('table','bulk-table');const head=make('thead');const tr=make('tr');
@@ -83,6 +83,8 @@ function displayPreview(response){
 }
 function updateButton(){
  const approvals=new Set([...document.querySelectorAll('#bulk-preview .bulk-confirm-check:checked')].map(e=>Number(e.value)));
+ const eligible=items.some(i=>i.status==='ready'||i.status==='warning');
+ submit.classList.toggle('hidden',!eligible);
  submit.disabled=working||!items.some(i=>i.status==='ready'||i.status==='warning'&&approvals.has(i.row_number));
 }
 fileInput.addEventListener('change',async()=>{
@@ -139,9 +141,9 @@ submit.addEventListener('click',async()=>{
   }
   results.append(list);results.scrollIntoView({behavior:'smooth',block:'nearest'});
   msg(outcome.notice||'Import recorded. Submitted events are awaiting individual verification and publication.');
-  submit.disabled=true;fileInput.value='';parsed=[];items=[];
+  submit.disabled=true;submit.classList.add('hidden');fileInput.value='';parsed=[];items=[];
  }catch(e){msg(e.message||'Import could not be completed.',true)}
  finally{working=false;updateButton()}
 });
-window.loadBulkImport=()=>{if(!fileInput.files?.length&&!results.children.length)msg('Choose the Division IV New Event .xlsx template, filled with up to 25 events.');};
+window.loadBulkImport=()=>{if(!fileInput.files?.length&&!results.children.length)msg('Use the New Events sheet. Times are Pacific.');};
 })();
