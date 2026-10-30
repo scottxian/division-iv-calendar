@@ -5,8 +5,29 @@ const el=id=>document.getElementById(id);
 const fileInput=el('bulk-file'),preview=el('bulk-preview'),summary=el('bulk-summary'),results=el('bulk-results'),submit=el('bulk-submit'),status=el('bulk-status');
 if(!fileInput||!preview||!submit)return;
 let parsed=[],items=[],filename='',readerPromise=null,working=false;
-const headers=['Lodge No.','Other Host','District Override','Event Title','Event Type','Start Date','Start Time','End Date','End Time','Mode','Venue Name','Address Line 1','Address Line 2','City','State','ZIP','Location TBD?','Online URL','Description','Cost','Attire','Attendees','POC Name','POC Position','POC Phone','POC Email','Registration URL','Payment URL','Flyer URL','Submitter Name','Submitter Email','Submitter Phone','Submitter Message'];
-const keys=['lodge_no','other_host','district_override','title','event_type','start_date','start_time','end_date','end_time','event_mode','location_name','location_address1','location_address2','location_city','location_state','location_zip','location_tbd','virtual_meeting_url','public_description','cost_details','attire','invited_audience','poc_name','poc_position','poc_phone','poc_email','registration_url','payment_url','flyer_url','requester_name','requester_email','requester_phone','requester_message'];
+const headers=['Lodge No.','Other Host','District','Event Title','Event Type','Start Date','Start Time','End Date','End Time','Mode','Location TBD?','Venue Name','Address Line 1','Address Line 2','City','State','ZIP','Online URL','Description','Cost','Attire','Attendees','POC Name','POC Position','POC Phone','POC Email','Registration URL','Payment URL','Flyer URL','Submitter Name','Submitter Email','Submitter Phone','Submitter Message'];
+const keys=['lodge_no','other_host','district_override','title','event_type','start_date','start_time','end_date','end_time','event_mode','location_tbd','location_name','location_address1','location_address2','location_city','location_state','location_zip','virtual_meeting_url','public_description','cost_details','attire','invited_audience','poc_name','poc_position','poc_phone','poc_email','registration_url','payment_url','flyer_url','requester_name','requester_email','requester_phone','requester_message'];
+/* Import by named column, not position. Optional columns may be hidden, removed or rearranged. */
+function columnKey(label){
+ const heading=String(label??'').split(/\r?\n/)[0].replace(/\s*\([^)]*\)\s*$/,'').trim().toLowerCase();
+ if(heading==='district override')return 'district_override'; // older workbooks
+ if(heading==='intended audience'||heading==='audience')return 'invited_audience';
+ const i=headers.findIndex(h=>h.toLowerCase()===heading);
+ return i<0?null:keys[i];
+}
+function mapColumns(headingRow){
+ const indexByKey=new Map();
+ headingRow.forEach((value,column)=>{
+  const key=columnKey(value);if(!key)return;
+  if(indexByKey.has(key))throw Error('Repeated spreadsheet heading: '+String(value));
+  indexByKey.set(key,column);
+ });
+ const mandatory=['title','event_type','start_date','start_time','end_date','end_time','public_description','poc_name','poc_phone','poc_email','location_tbd'];
+ const missing=mandatory.filter(key=>!indexByKey.has(key));
+ if(!indexByKey.has('lodge_no')&&!indexByKey.has('other_host'))missing.push('lodge_no/other_host');
+ if(missing.length)throw Error('Missing required spreadsheet columns: '+missing.join(', ')+'.');
+ return indexByKey;
+}
 function msg(text,error=false){status.textContent=text;status.classList.toggle('error',error)}
 function cell(v){if(v===null||v===undefined)return '';if(v instanceof Date)return v.toISOString();return String(v).trim()}
 function excelDate(v){
@@ -95,11 +116,16 @@ fileInput.addEventListener('change',async()=>{
  try{
   const reader=await loadReader();
   const workbook=await reader(file,{sheet:'New Events'});
-  const heading=workbook.findIndex(row=>row&&row[0]==='Lodge No.'&&row[3]==='Event Title');
-  if(heading<0)throw Error('This is not the Division IV New Events template. The New Events sheet and column headings are required.');
-  for(let col=0;col<keys.length;col++)if(cell(workbook[heading][col])!==headers[col])throw Error('Unexpected column '+(col+1)+'. Use the latest Division IV template.');
+  const heading=workbook.findIndex(row=>{
+   if(!Array.isArray(row))return false;
+   const found=new Set(row.map(columnKey).filter(Boolean));
+   return found.has('title')&&found.has('event_type')&&found.has('start_date')&&found.has('end_date');
+  });
+  if(heading<0)throw Error('The New Events sheet needs a header row with Event Title, Event Type, Start Date and End Date.');
+  const indexByKey=mapColumns(workbook[heading]);
   const entries=workbook.slice(heading+1).map((raw,index)=>{
-   const row={row_number:heading+index+2};keys.forEach((key,col)=>row[key]=raw?.[col]??'');
+   const row={row_number:heading+index+2};
+   for(const key of keys)row[key]=indexByKey.has(key)?raw?.[indexByKey.get(key)]??'':'';
    return row;
   }).filter(row=>keys.some(k=>cell(row[k])!==''));
   if(!entries.length)throw Error('No new events found. Fill in at least one row.');

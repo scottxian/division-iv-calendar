@@ -14,14 +14,38 @@ assert.match(html,/data-tab="import"/);
 assert.match(html,/id="tab-import"/);
 for(const id of ['bulk-file','bulk-status','bulk-summary','bulk-preview','bulk-submit','bulk-results'])
  assert.ok(html.includes('id="'+id+'"'),id);
-assert.match(html,/app\/bulk-import\.js\?v=4/);
+assert.match(html,/app\/bulk-import\.js\?v=5/);
 assert.match(app,/window\.loadBulkImport/);
 assert.match(app,/window\.openBulkSubmission/);
 assert.match(app,/\['dashboard','import','lodges'/);
 assert.match(client,/read-excel-file@9\.3\.13/);
 assert.match(client,/'Attendees','POC Name'/);
 assert.match(client,/sheet:'New Events'/);
-assert.match(client,/row_number:heading\+index\+2/);
+assert.match(client,/row_number:heading\\+index\\+2/);
+assert.match(client,/indexByKey=new Map/);
+assert.match(client,/indexByKey\\.get\\(key\\)/);
+assert.match(client,/heading==='district override'/);
+assert.match(client,/const mandatory=/);
+// A reordered sheet must work without altering the backend field names.
+const mapper=vm.runInNewContext(client.slice(client.indexOf('const headers='),client.indexOf('function msg('))+
+  '\n({columnKey,mapColumns})');
+const reordered=[
+ 'Start Time\nh:mm AM/PM','District','Event Title','Location TBD?\nYES / NO',
+ 'Other Host','Venue Name','Start Date\nMM/DD/YYYY','End Date\nMM/DD/YYYY',
+ 'Event Type','End Time\nh:mm AM/PM','Description','POC Name','POC Phone','POC Email'
+];
+const mapping=mapper.mapColumns(reordered);
+assert.equal(mapping.get('start_time'),0);
+assert.equal(mapping.get('district_override'),1);
+assert.equal(mapping.get('title'),2);
+assert.equal(mapping.get('location_tbd'),3);
+assert.equal(mapping.get('location_name'),5);
+assert.equal(mapper.columnKey('District Override'),'district_override');
+assert.equal(mapper.columnKey('Audience'),'invited_audience');
+assert.throws(()=>mapper.mapColumns(['Event Title','Event Title']),/Repeated spreadsheet heading/);
+
+assert.match(client,/'District','Event Title'/);
+assert.match(client,/'Mode','Location TBD\\?','Venue Name'/);
 assert.match(client,/entries\.length>25/);
 assert.match(client,/confirmed_rows/);
 assert.match(client,/status==='invalid'/);
