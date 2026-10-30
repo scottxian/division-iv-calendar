@@ -198,6 +198,15 @@ function locationControls(form){
    const mark=label?.querySelector('.req');
    if(mark)mark.classList.toggle('hidden',divisionWide);
   }
+  // Pre-fill fixed District School of Instruction titles on new event submissions.
+  if(form.id==='new-form'){
+   const titleField=form.elements.title;
+   const districtSchool=eventType?.value==='District School of Instruction';
+   const generated=(districtSchool&&districtField?.value)
+    ? 'District '+districtField.value+' School of Instruction':'';
+   if(generated){titleField.value=generated;titleField.readOnly=true;}
+   else if(titleField.readOnly){titleField.readOnly=false;titleField.value='';}
+  }
   if(virtualField){
    const label=virtualField.closest('label');
    const offersOnline=online||eventMode?.value==='hybrid';
@@ -225,6 +234,7 @@ function locationControls(form){
  });
  eventMode?.addEventListener('change',update);
  eventType?.addEventListener('change',update);
+ districtField?.addEventListener('change',update);
  form.addEventListener('invalid',e=>{if(details.contains(e.target))details.open=true;},true);
  update();
  return update;

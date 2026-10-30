@@ -45,6 +45,9 @@ function sanitize(p:any,patch=false){
   if(f==='poc_email'&&obj[f]&&!goodEmail(String(obj[f])))throw Error('Enter a valid event point-of-contact email');
   if(['registration_url','payment_url','flyer_url','virtual_meeting_url'].includes(f)&&obj[f]&&!parseUrl(obj[f]))throw Error('Enter a valid http(s) URL for '+f.replaceAll('_',' '));
  }
+ // District SOI titles derive from the district, not the host lodge.
+ if(obj.event_type==='District School of Instruction'&&/^\d{3,4}$/.test(String(obj.district||'')))
+  obj.title='District '+obj.district+' School of Instruction';
  if(!patch){
   for(const f of ['title','event_type','hosted_by','start_local','end_local']){
    if(!obj[f])throw Error('Please complete '+f.replaceAll('_',' '));

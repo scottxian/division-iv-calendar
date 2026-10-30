@@ -60,7 +60,7 @@ assert.match(api,/bulk_import_new_request/);
 assert.match(api,/n<3\|\|n>500/,'Importer must accept rows 3–27 in simplified Excel template');
 assert.match(api,/bulk_event_imports/);
 assert.match(api,/confirmed_rows:/);
-assert.match(html,/app\/app\.js\?v=55/);
+assert.match(html,/app\/app\.js\?v=56/);
 assert.match(api,/event_requests/);
 assert.match(api,/status:'completed'/);
 assert.match(api,/message_type:'bulk_import_summary'/);

@@ -11,8 +11,12 @@ export function lodgeNumberFromHost(hostedBy) {
 export function calendarTitle(event, lodge = null) {
  const title = display(event?.title);
  if (!title) return '';
- // Division School of Instruction has its own established title convention.
+ // Both School of Instruction types have their own naming conventions.
  if (event?.event_type === 'Division School of Instruction') return title.slice(0, 1024);
+ if (event?.event_type === 'District School of Instruction') {
+  const district = display(event?.district);
+  return /^\d{3,4}$/.test(district) ? 'District '+district+' School of Instruction' : title.slice(0,1024);
+ }
  const host = display(event?.hosted_by);
  const abbreviated = display(lodge?.abbreviation);
  const prefix = abbreviated || host;

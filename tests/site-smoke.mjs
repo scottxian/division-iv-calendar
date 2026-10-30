@@ -102,8 +102,8 @@ const required={
  'index.html':['href="/events/"','href="/calendar/"','href="/inspectors/"'],
  'calendar/index.html':['href="/events/"'],
  'lodges/index.html':['href="/events/"'],
- 'events/index.html':['/app/app.js?v=55','/app/mfa.js?v=9'],
- 'inspectors/index.html':['/app/app.js?v=55','/app/mfa.js?v=9']
+ 'events/index.html':['/app/app.js?v=56','/app/mfa.js?v=9'],
+ 'inspectors/index.html':['/app/app.js?v=56','/app/mfa.js?v=9']
 };
 for(const [file,needles] of Object.entries(required)){
  const html=read(file);
@@ -200,7 +200,7 @@ for(const file of ['month-calendar.js','public-events.js','lodge-correction.js',
 // Correction queue must remain a private, administrator-only inspector function.
 for(const page of ['events/index.html','inspectors/index.html']){
  const html=read(page);
- for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=2"','src="/app/app.js?v=55"']){
+ for(const marker of ['data-tab="corrections"','id="tab-corrections"','id="corrections-list"','src="/app/corrections-admin.js?v=2"','src="/app/app.js?v=56"']){
   if(!html.includes(marker))errors.push(page+': missing private correction queue '+marker);
  }
 }
@@ -264,7 +264,7 @@ for(const path of ['events/index.html','inspectors/index.html']){
  }
  if(/Calendar requests, made simple|Approve & Publish|Pending Approval|<option value="approved">Approved<\/option>/.test(html))
    errors.push(path+': old permission-oriented terminology remains');
- if(!html.includes('/app/app.js?v=55')||!html.includes('/app/styles.css?v=27'))
+ if(!html.includes('/app/app.js?v=56')||!html.includes('/app/styles.css?v=27'))
    errors.push(path+': current publication UI cache version missing');
 }
 const districtClient=read('app/app.js');

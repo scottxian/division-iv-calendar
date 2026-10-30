@@ -72,6 +72,7 @@ function validated(row:any,ctx:any,staff:any){
  const get=(key:string)=>t(row[key]);
  const number=get('lodge_no').replace(/\.0$/,'');
  const other=get('other_host'),soi=get('event_type')==='Division School of Instruction';
+ const districtSoi=get('event_type')==='District School of Instruction';
  if(number&&other)issues.push('Choose either a lodge number or Other Host, not both.');
  if(soi&&number)issues.push('Division School of Instruction must use Other Host: Division IV.');
  const lodge=number?ctx.lodges.get(number):null;
@@ -91,6 +92,7 @@ function validated(row:any,ctx:any,staff:any){
   if(str.length>limit)issues.push(f.replaceAll('_',' ')+' exceeds '+limit+' characters.');
   p[f]=str.slice(0,limit);
  }
+ if(districtSoi&&/^\d{3,4}$/.test(district))p.title='District '+district+' School of Instruction';
  for(const f of ['title','event_type','start_local','end_local'])if(!p[f])issues.push('Missing '+f.replaceAll('_',' ')+'.');
  if(!ctx.types.has(p.event_type))issues.push('Event type is not enabled.');
  if(!allowedModes.has(p.event_mode))issues.push('Event format must be in_person, online or hybrid.');
@@ -119,7 +121,7 @@ function validated(row:any,ctx:any,staff:any){
  const requesterPhone=get('requester_phone');
  if(!emailOk(requesterEmail)||requesterName.length<2)issues.push('Invalid submitter name or email.');
  if(requesterName.length>150||requesterPhone.length>50||get('requester_message').length>2000)issues.push('Submitter information exceeds length limits.');
- const calendarTitle=soi?p.title:(lodge?t(lodge.abbreviation)||host:host)+': '+p.title.replace(new RegExp('^'+host.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+':\\s*','i'),'');
+ const calendarTitle=(soi||districtSoi)?p.title:(lodge?t(lodge.abbreviation)||host:host)+': '+p.title.replace(new RegExp('^'+host.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+':\\s*','i'),'');
  return {row_number:Number(row.row_number),p,requester_name:requesterName,requester_email:requesterEmail,requester_phone:requesterPhone,requester_message:get('requester_message'),
   host,calendar_title:calendarTitle,issues};
 }

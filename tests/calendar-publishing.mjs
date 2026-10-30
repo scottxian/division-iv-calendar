@@ -11,6 +11,9 @@ assert.equal(calendarTitle({title:'Master Mason Degree',hosted_by:'Woodland Lodg
 assert.equal(calendarTitle({title:'Woodland No. 81: Master Mason Degree',hosted_by:'Woodland Lodge No. 81'},woodland),'Woodland No. 81: Master Mason Degree');
 assert.equal(calendarTitle({title:'Double 1st Degree',hosted_by:'Harding San Juan Lodge No. 579'},harding),'Harding SJ No. 579: Double 1st Degree');
 assert.equal(calendarTitle({title:'Division School of Instruction: Mount Oso Lodge No. 460',hosted_by:'Division IV',event_type:'Division School of Instruction'}),'Division School of Instruction: Mount Oso Lodge No. 460');
+assert.equal(calendarTitle({title:'District 428 School of Instruction',hosted_by:'Lodi Lodge No. 256',event_type:'District School of Instruction',district:'428'}),'District 428 School of Instruction');
+assert.equal(calendarTitle({title:'School of Instruction',hosted_by:'Woodbridge Lodge No. 131',event_type:'District School of Instruction',district:'428'}),'District 428 School of Instruction');
+assert.equal(calendarTitle({title:'District 410 School of Instruction',hosted_by:'Some Lodge No. 22',event_type:'District School of Instruction',district:'410'}),'District 410 School of Instruction');
 assert.equal(calendarTitle({title:'Division Leadership Meeting',hosted_by:'Division IV'}),'Division IV: Division Leadership Meeting');
 const description='Candidate: Bro. Eric Carlson\nAttire: Dark Suit (no tuxedo required)\nRefreshments served after the degree.';
 const notes=calendarNotes({public_description:description,district:'418',hosted_by:'Woodland Lodge No. 81',cost_details:'No charge',poc_name:'David Goold'},{contactDetails:'Point of contact: David Goold'});
