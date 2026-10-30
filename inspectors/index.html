@@ -95,7 +95,9 @@
 <form id="modify-form">
 <div id="edit-fields">
 <div class="form-grid">
-<label class="wide">Event title <input name="title"></label>
+<label class="wide">Event Name <input name="event_name" maxlength="180" placeholder="Event activity, without the lodge name"></label>
+<input type="hidden" name="title">
+<div class="wide calendar-title-preview" role="status" aria-live="polite"><strong>Final Google Calendar title:</strong> <span>Enter an event name and hosting lodge.</span></div>
 <label>Event type <select name="event_type" id="edit-event-type"><option value="">Choose event type</option></select></label>
 <label>Hosting lodge or organization <input name="hosted_by" list="host-choices" maxlength="180" autocomplete="off"></label>
 <label>District <select name="district" id="edit-district"><option value="">Choose district</option></select></label>

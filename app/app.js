@@ -278,6 +278,7 @@ function locationControls(form){
 const syncNewLocation=locationControls($('new-form'));
 const syncNewTitle=titleControls($('new-form'));
 const syncEditLocation=locationControls($('modify-form'));
+const syncEditTitle=titleControls($('modify-form'));
 async function identity(){
  const m=await api('me');state.user=m.email;state.staff=m.staff;
  $('nav-admin').classList.toggle('hidden',!m.staff);
@@ -406,7 +407,7 @@ $('lookup-button').onclick=async e=>{
   const result=await api('locate',null,{code});
   state.event=result.event;state.original={};
   const form=$('modify-form');
-  for(const k of ['title','event_type','hosted_by','district','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','public_description','location_tbd','poc_name','poc_position','poc_phone','poc_email','cost_details']){
+  for(const k of ['title','event_name','event_type','hosted_by','district','event_mode','virtual_meeting_url','location_name','location_address1','location_address2','location_city','location_state','location_zip','public_description','location_tbd','poc_name','poc_position','poc_phone','poc_email','cost_details']){
     const v=k==='location_address1'?(result.event.location_address1||result.event.location_address||''):(result.event[k]??'');
     state.original[k]=v;
     if(form.elements[k]){
@@ -418,6 +419,8 @@ $('lookup-button').onclick=async e=>{
     }
    }
    syncEditLocation();
+   form.elements.title.dataset.originalTitle=result.event.title||'';
+   syncEditTitle();
    $('edit-location-details').open=false;
    for(const k of ['start_local','end_local']){
    const v=local(result.event[k==='start_local'?'starts_at':'ends_at']);state.original[k]=v;form.elements[k].value=v;
