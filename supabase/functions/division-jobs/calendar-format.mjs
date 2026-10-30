@@ -9,33 +9,7 @@ export function lodgeNumberFromHost(hostedBy) {
 
 /** Keep event titles distinct from their host, even when submitters prefix the title. */
 export function calendarTitle(event, lodge = null) {
- const title = display(event?.title);
- if (!title) return '';
- // Both School of Instruction types have their own naming conventions.
- if (event?.event_type === 'Division School of Instruction') return title.slice(0, 1024);
- if (event?.event_type === 'District School of Instruction') {
-  const district = display(event?.district);
-  return /^\d{3,4}$/.test(district) ? 'District '+district+' School of Instruction' : title.slice(0,1024);
- }
- const host = display(event?.hosted_by);
- const abbreviated = display(lodge?.abbreviation);
- const prefix = abbreviated || host;
- if (!prefix) return title.slice(0, 1024);
- const variants = [
-   host, abbreviated,
-   lodge?.lodge_name && lodge?.lodge_number ? lodge.lodge_name + ' Lodge No. ' + lodge.lodge_number : '',
-   lodge?.lodge_name && lodge?.lodge_number ? lodge.lodge_name + ' No. ' + lodge.lodge_number : '',
-   lodge?.lodge_name && lodge?.lodge_number ? lodge.lodge_name + ' Lodge #' + lodge.lodge_number : '',
-   lodge?.lodge_name && lodge?.lodge_number ? lodge.lodge_name + ' #' + lodge.lodge_number : ''
- ].map(display).filter(Boolean).sort((a, b) => b.length - a.length);
- let eventTitle = title;
- for (const candidate of variants) {
-   if (title.toLowerCase().startsWith((candidate + ':').toLowerCase())) {
-     eventTitle = title.slice(candidate.length + 1).trim();
-     break;
-   }
- }
- return (prefix + ': ' + (eventTitle || title)).slice(0, 1024);
+ return display(event?.title).slice(0,1024);
 }
 
 /** The district line belongs directly after the description, before other details. */
