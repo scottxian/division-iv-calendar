@@ -643,17 +643,19 @@ async function review(id,decision,version){
  try{
   const note=$('review-note')?.value||'';
   if(decision==='needs_correction'&&!note.trim())throw Error('Explain what needs correction in the message to the submitter');
+  actionFeedback($('review-actions'),'Saving publication decision…','pending');
   const result=await api('review',{id,decision,note,expected_version:version});
-  toast(result.notice||'Decision saved');await loadRequests(page);await detail(id);
- }catch(e){toast(e.message,true)}
+  await loadRequests(page);await detail(id);
+  actionFeedback($('review-actions'),result.notice||'Publication decision saved.');
+ }catch(e){actionFeedback($('review-actions'),'Not saved: '+e.message,'error')}
 }
 
 async function retryEventSync(event,after){
  try{
   const result=await api('calendar-retry',{id:event.id,expected_version:event.version});
-  toast(result.notice||'Calendar retry queued.');
   if(after)await after();
- }catch(ex){toast(ex.message,true);}
+  actionFeedback($('event-actions'),result.notice||'Calendar retry queued.');
+ }catch(ex){actionFeedback($('event-actions'),'Calendar retry not queued: '+ex.message,'error');}
 }
 function dashboardElement(tag,className,textValue){
  const n=document.createElement(tag);
@@ -781,9 +783,9 @@ async function eventDetail(id){
     cancel.disabled=true;
     try{
      const result=await api('inspector-cancel-event',{event_id:ev.id,reason});
-     toast(result.notice||'Cancellation approved. Calendar update queued.');
      await loadEvents(eventPage);await eventDetail(ev.id);
-    }catch(ex){toast(ex.message,true);cancel.disabled=false;}
+     actionFeedback($('event-actions'),result.notice||'Cancellation confirmed. Calendar update queued.');
+    }catch(ex){actionFeedback($('event-actions'),'Cancellation not saved: '+ex.message,'error');cancel.disabled=false;}
    };
    actions.append(edit,cancel);
   }
@@ -813,9 +815,9 @@ async function eventDetail(id){
     undo.disabled=true;
     try{
      const result=await api('event-undo',{id:ev.id,history_id:lastEditor.id,expected_version:ev.version});
-     toast(result.notice||'Previous version restored.');
      await loadEvents(eventPage);await eventDetail(ev.id);
-    }catch(ex){toast(ex.message,true);undo.disabled=false;}
+     actionFeedback($('event-actions'),result.notice||'Previous version restored.');
+    }catch(ex){actionFeedback($('event-actions'),'Undo failed: '+ex.message,'error');undo.disabled=false;}
    };
    actions.append(undo);
   }
@@ -945,8 +947,10 @@ async function loadStaff(){
     restore.textContent='Restore access';
     restore.onclick=async()=>{
      if(!await divisionQuestion('Restore inspector access for '+(s.display_name||s.email)+'?',{title:'Restore inspector',confirmLabel:'Restore access'}))return;
-     try{const result=await api('staff-restore',{id:s.id});toast(result.message);await loadStaff();}
-     catch(ex){toast(ex.message,true);}
+     try{
+      const result=await api('staff-restore',{id:s.id});await loadStaff();
+      actionFeedback($('staff-list'),result.message||'Inspector access restored.');
+     }catch(ex){actionFeedback(buttons,'Restore failed: '+ex.message,'error')}
     };
     buttons.append(restore);
    }else{
@@ -994,9 +998,9 @@ async function loadStaff(){
        toggle.className=s.enabled?'secondary':'primary';
        toggle.setAttribute('aria-label',(s.enabled?'Deactivate ':'Activate ')+(s.display_name||s.email));
        toggle.title=s.enabled?'Temporarily disable sign-in and inspector access':'Restore sign-in and inspector access';
-       toast(result.message||'Inspector access updated');
+       actionFeedback(buttons,result.message||'Inspector access updated.');
       }catch(ex){
-       toast(ex.message,true);
+       actionFeedback(buttons,'Access not updated: '+ex.message,'error');
       }finally{
        toggle.disabled=false;
        delete toggle.dataset.pending;
@@ -1007,8 +1011,10 @@ async function loadStaff(){
      remove.textContent='Remove inspector';
      remove.onclick=async()=>{
       if(!await divisionQuestion('Remove access for '+(s.display_name||s.email)+'?\n\nTheir previous publication decisions and history will be preserved. Access can be restored later.',{title:'Remove inspector',confirmLabel:'Remove access',danger:true}))return;
-      try{const result=await api('staff-remove',{id:s.id});toast(result.message);await loadStaff();}
-      catch(ex){toast(ex.message,true);}
+      try{
+       const result=await api('staff-remove',{id:s.id});await loadStaff();
+       actionFeedback($('staff-list'),result.message||'Inspector access removed.');
+      }catch(ex){actionFeedback(buttons,'Remove failed: '+ex.message,'error')}
      };
      buttons.append(remove);
     }
