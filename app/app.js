@@ -95,7 +95,7 @@ function actionFeedback(anchor,text='',kind='success'){
   anchor.insertAdjacentElement('afterend',node);
  }
  node.textContent=text;
- node.className='edit-action-feedback'+(kind==='error'?' error':kind==='pending'?' pending':'')+(!text?' hidden':'');
+ node.className='edit-action-feedback'+(kind==='error'?' error':kind==='pending'?' pending':'')+(!text?' hidden':'')+(anchor.parentElement?.classList.contains('form-grid')?' wide':'');
  if(text)node.scrollIntoView({behavior:'smooth',block:'nearest'});
  return node;
 }
@@ -601,7 +601,7 @@ async function detail(id){
     const edit=document.createElement('button');edit.className='secondary';edit.textContent=r.inspector_edits?'Edit Saved Revision':'Edit Submission';
     edit.onclick=()=>inspectorEditor($('inspector-editor-host'),effective,async fields=>{
       const result=await api('inspector-edit',{id,expected_version:r.edit_version,fields});
-      await detail(id);actionFeedback($('review-actions'),result.notice||'Inspector revision saved.');
+      await detail(id);actionFeedback($('inspector-editor-host'),result.notice||'Inspector revision saved.');
     });
     actions.append(edit);
    }
