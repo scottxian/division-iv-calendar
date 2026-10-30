@@ -41,6 +41,9 @@ export function calendarNotes(event, { onlineLink = '', contactDetails = '' } = 
  return [
    description,
    district ? 'District: ' + district : '',
+   event?.attire ? 'Attire: ' + display(event.attire) : '',
+   event?.invited_audience ? 'Attendees: ' + display(event.invited_audience) : '',
+   event?.flyer_url ? 'Flyer: ' + display(event.flyer_url) : '',
    event?.event_mode === 'online' && onlineLink ? 'Online meeting: ' + onlineLink : '',
    event?.hosted_by ? 'Hosted by ' + display(event.hosted_by) : '',
    event?.cost_details ? 'Cost: ' + display(event.cost_details) : '',

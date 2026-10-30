@@ -17,6 +17,15 @@ const notes=calendarNotes({public_description:description,district:'418',hosted_
 assert.ok(notes.startsWith(description+'\n\nDistrict: 418\n\nHosted by Woodland Lodge No. 81'));
 assert.ok(notes.endsWith('Point of contact: David Goold'));
 assert.ok(!notes.includes('District: District'));
+const fullDetails=calendarNotes({
+ public_description:'Fellowship evening',district:'428',attire:'Coat and tie',
+ invited_audience:'All Masons, spouses and guests',flyer_url:'https://example.org/flyer.pdf',
+ hosted_by:'Elk Grove Lodge No. 173',registration_url:'https://example.org/register'
+});
+assert.ok(fullDetails.startsWith('Fellowship evening\n\nDistrict: 428\n\nAttire: Coat and tie\n\nAttendees: All Masons, spouses and guests\n\nFlyer: https://example.org/flyer.pdf'));
+assert.ok(fullDetails.includes('Registration: https://example.org/register'));
+const omitted=calendarNotes({public_description:'One event',district:'428',attire:'',invited_audience:null,flyer_url:''});
+assert.ok(!omitted.includes('Attendees:')&&!omitted.includes('Flyer:')&&!omitted.includes('Attire:'));
 const noDistrict=calendarNotes({public_description:'Topics: lodge instruction',district:null,hosted_by:'Division IV'});
 assert.ok(!noDistrict.includes('District:'));
-console.log('PASS: 11 calendar publishing format assertions');
+console.log('PASS: calendar publishing title, district, attire, attendees and flyer assertions');
