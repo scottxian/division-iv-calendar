@@ -369,6 +369,7 @@ async function init(){
   }
   await identity();
   if(location.pathname.startsWith('/inspectors/')) show(state.staff?'admin':'signin');
+  if(!state.staff)restoreOtp();
   const qs=new URLSearchParams(location.search);
   const action=qs.get('action');
   if(action==='change'||action==='cancel'){mode(action);$('lookup-code').value=qs.get('id')||qs.get('code')||''}
@@ -473,8 +474,9 @@ $('lookup-button').onclick=async e=>{
   const {data:{session}}=await db.auth.getSession();
   if(!session||session.user.email?.toLowerCase()!==email){
     state.loginPurpose='event-contact';
+    clearOtp();
     $('signin-email').value=email;show('signin');
-    notify('Verify the original contact email first. Follow the emailed sign-in link, then return to Update or Cancel.');
+    notify('Verify the original contact email first. Enter the emailed six-digit code to continue.');
     return;
   }
   const result=await api('locate',null,{code});
