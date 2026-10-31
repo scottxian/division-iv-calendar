@@ -524,7 +524,12 @@ Deno.serve(async req=>{
    if(req.method!=='POST')return err('POST required',405,origin);
    const role=b.role==='admin'?'admin':'inspector';
    const first_name=clean(b.first_name,80),middle_name=clean(b.middle_name,80),last_name=clean(b.last_name,80);
-   const district=clean(b.district,12),member_number=clean(b.member_number,30);
+   // A display-only admin form option; no fake district is saved to the database.
+   const districtSelection=clean(b.district,12);
+   if(districtSelection==='at_large'&&role!=='inspector')
+    throw Error('Inspector at Large is only valid for inspector accounts');
+   const district=districtSelection==='at_large'?'':districtSelection;
+   const member_number=clean(b.member_number,30);
    const home_phone=clean(b.home_phone,50),mobile_phone=clean(b.mobile_phone,50);
    const home_address=clean(b.home_address,220),home_address2=clean(b.home_address2,220);
    const city=clean(b.city,120),stateValue=clean(b.state,2).toUpperCase(),zip=clean(b.zip,12);
@@ -536,7 +541,7 @@ Deno.serve(async req=>{
    if(existing?.removed_at)throw Error('This inspector was removed. Use Restore Access instead.');
    if(existing?.role==='admin' && role!=='admin')throw Error('Existing administrators cannot be demoted here');
    if(role==='inspector'&&!existing){
-     for(const [label,value] of [['first name',first_name],['last name',last_name],['district',district],['member ID',member_number],['mobile phone',mobile_phone],['street address',home_address],['city',city],['state',stateValue],['ZIP',zip]]){
+     for(const [label,value] of [['first name',first_name],['last name',last_name],['district',districtSelection],['member ID',member_number],['mobile phone',mobile_phone],['street address',home_address],['city',city],['state',stateValue],['ZIP',zip]]){
        if(!value)throw Error('Please provide inspector '+label);
      }
    }
