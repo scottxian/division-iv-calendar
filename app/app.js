@@ -1077,6 +1077,10 @@ $('history-prev').onclick=()=>loadHistory(historyPage-1);
 $('history-next').onclick=()=>loadHistory(historyPage+1);
 let showRemovedInspectors=false;
 const staffProfileFields=['email','display_name','phone','role','first_name','middle_name','last_name','office_title','district','member_number','home_phone','mobile_phone','home_address','home_address2','city','state','zip'];
+function inspectorDistrictLabel(s){
+ if(s.role==='inspector')return s.district?'District '+s.district:'Inspector at Large';
+ return s.district?'District '+s.district:null;
+}
 function staffFormRequirements(){
  const form=$('staff-form');
  const required=form.dataset.editing!=='1'&&form.elements.role.value==='inspector';
@@ -1107,7 +1111,7 @@ async function loadStaff(){
    const name=document.createElement('strong');name.textContent=s.display_name||s.email;
    const meta=document.createElement('small');
    const access=s.removed_at?'Removed on '+new Date(s.removed_at).toLocaleDateString():s.enabled?'Active':'Disabled';
-   meta.textContent=[s.email,nice(s.role),s.district?'District '+s.district:null,s.member_number?'Member '+s.member_number:null,access].filter(Boolean).join(' · ');
+   meta.textContent=[s.email,nice(s.role),inspectorDistrictLabel(s),s.member_number?'Member '+s.member_number:null,access].filter(Boolean).join(' · ');
    info.append(name,document.createElement('br'),meta);
    const buttons=document.createElement('div');buttons.className='staff-actions';
    if(s.removed_at){
@@ -1126,6 +1130,7 @@ async function loadStaff(){
     edit.onclick=()=>{
      const form=$('staff-form');
      for(const key of staffProfileFields)form.elements[key].value=s[key]??'';
+      if(s.role==='inspector'&&!s.district)form.elements.district.value='at_large';
      form.elements.enabled.checked=s.enabled;
      form.dataset.editing='1';
      form.elements.email.readOnly=true;
