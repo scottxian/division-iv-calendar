@@ -105,17 +105,6 @@ function validated(row:any,ctx:any,staff:any){
   p[f]=str.slice(0,limit);
  }
  for(const f of ['event_type','start_local','end_local'])if(!p[f])issues.push('Missing '+f.replaceAll('_',' ')+'.');
- if(districtSoi)p.event_name='School of Instruction';
- else if(soi)p.event_name=p.event_name||p.location_name||'TBD';
- else if(!p.event_name)issues.push('Event Name is required for ordinary events. Enter only the activity, not the lodge.');
- const preferred=lodge?t(lodge.abbreviation)||host:host;
- const name=t(p.event_name);
- const stripPrefix=(value:string,prefix:string)=>value.toLowerCase().startsWith((prefix+': ').toLowerCase())?value.slice(prefix.length+2).trim():value;
- const cleanName=stripPrefix(stripPrefix(name,preferred),host);
- p.title=districtSoi&&/^\d{3,4}$/.test(district)?'District '+district+' School of Instruction'
-  :soi?(name.toLowerCase().startsWith('division school of instruction')?name:'Division School of Instruction: '+name)
-  :preferred+': '+cleanName;
- if(p.title.length>180)issues.push('Final calendar title exceeds 180 characters.');
  if(!ctx.types.has(p.event_type))issues.push('Event type is not enabled.');
  if(!allowedModes.has(p.event_mode))issues.push('Event format must be in_person, online or hybrid.');
  if(p.start_local&&!localOk(p.start_local))issues.push('Invalid start date/time (Pacific).');
@@ -138,6 +127,17 @@ function validated(row:any,ctx:any,staff:any){
  }else{
   for(const f of ['location_name','location_address1','location_address2','location_city','location_state','location_zip'])p[f]='';
  }
+ if(districtSoi)p.event_name='School of Instruction';
+ else if(soi)p.event_name=p.event_name||p.location_name||'TBD';
+ else if(!p.event_name)issues.push('Event Name is required for ordinary events. Enter only the activity, not the lodge.');
+ const preferred=lodge?t(lodge.abbreviation)||host:host;
+ const name=t(p.event_name);
+ const stripPrefix=(value:string,prefix:string)=>value.toLowerCase().startsWith((prefix+': ').toLowerCase())?value.slice(prefix.length+2).trim():value;
+ const cleanName=stripPrefix(stripPrefix(name,preferred),host);
+ p.title=districtSoi&&/^\d{3,4}$/.test(district)?'District '+district+' School of Instruction'
+  :soi?(name.toLowerCase().startsWith('division school of instruction')?name:'Division School of Instruction: '+name)
+  :preferred+': '+cleanName;
+ if(p.title.length>180)issues.push('Final calendar title exceeds 180 characters.');
  const requesterName=get('requester_name')||staff.display_name||staff.email;
  const requesterEmail=(get('requester_email')||staff.email).toLowerCase();
  const requesterPhone=get('requester_phone');
