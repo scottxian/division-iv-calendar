@@ -23,7 +23,7 @@ assert.match(client,/out\.event_mode=normalizeEventMode\(row\.event_mode\)/);
 const converter=vm.runInNewContext(client.slice(client.indexOf('function cell'),client.indexOf('function excelDate'))+'\nnormalizeEventMode');
 for(const [shown,expected] of [['In Person','in_person'],['Online','online'],['Hybrid','hybrid'],['in_person','in_person'],['In-Person','in_person']])
  assert.equal(converter(shown),expected,'Import mode conversion: '+shown);
-assert.match(client,/'Attendees','POC Name'/);
+assert.match(client,/'Attendees','Attire','Cost','POC Name'/);
 assert.match(client,/sheet:'New Events'/);
 assert.ok(client.includes('row_number:heading+index+2'));
 assert.match(client,/indexByKey=new Map/);
