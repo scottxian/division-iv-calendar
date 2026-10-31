@@ -190,17 +190,28 @@ try{
  assert.equal(brandStyle.objectFit,'contain','Inspector Desk header logo must preserve its circular shape');
  assert.ok(brandStyle.displayWidth>=70,'Inspector Desk emblem should not appear unnecessarily small');
  pass.push('Circular Inspector Desk logo without legacy rounded-square outline');
- // Intercept the OTP endpoint so this checks the destination without emailing anyone.
- let capturedRedirect=null;
+ // Intercept OTP endpoints, so no real inspector receives a test email.
+ let capturedRedirect=null,capturedVerification=null;
  await desktop.route('**/auth/v1/otp?*',async route=>{
   capturedRedirect=new URL(route.request().url()).searchParams.get('redirect_to');
   await route.fulfill({status:200,contentType:'application/json',body:'{}'});
  });
+ await desktop.route('**/auth/v1/verify',async route=>{
+  capturedVerification=route.request().postDataJSON();
+  await route.fulfill({status:400,contentType:'application/json',body:JSON.stringify({message:'Invalid OTP for browser test'})});
+ });
  await desktop.locator('#signin-email').fill('inspector-smoke@example.invalid');
  await desktop.locator('#signin-form button[type=submit]').click();
- await desktop.locator('#notice').getByText('Check your email',{exact:false}).waitFor({timeout:10000});
- assert.equal(capturedRedirect,base+'/inspectors/','Inspector OTP sign-in must explicitly request the Inspector Desk redirect');
- pass.push('Inspector magic-link destination');
+ await desktop.locator('#notice').getByText('Verification email requested',{exact:false}).waitFor({timeout:10000});
+ assert.equal(capturedRedirect,base+'/inspectors/','Email OTP must keep Inspector Desk route');
+ await desktop.locator('#signin-code-form:not(.hidden)').waitFor();
+ await desktop.locator('#signin-code').fill('123456');
+ await desktop.locator('#signin-code-form button[type=submit]').click();
+ await desktop.locator('#notice').getByText('Invalid OTP for browser test').waitFor();
+ assert.equal(capturedVerification.type,'email','Verification must use Supabase email OTP');
+ assert.equal(capturedVerification.email,'inspector-smoke@example.invalid');
+ assert.equal(capturedVerification.token,'123456');
+ pass.push('Inspector email-code flow and invalid OTP handling');
 
  // Inspector review is verified using mocked read-only details; no event is published.
  await desktop.route('**/functions/v1/division-calendar?action=detail*',async route=>{
