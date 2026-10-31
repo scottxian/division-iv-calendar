@@ -5,12 +5,11 @@ const el=id=>document.getElementById(id);
 const fileInput=el('bulk-file'),preview=el('bulk-preview'),summary=el('bulk-summary'),results=el('bulk-results'),submit=el('bulk-submit'),status=el('bulk-status');
 if(!fileInput||!preview||!submit)return;
 let parsed=[],items=[],filename='',readerPromise=null,working=false;
-const headers=['Lodge No.','Other Host','District','Event Name','Event Type','Start Date','Start Time','End Date','End Time','Mode','Location TBD?','Venue Name','Address Line 1','Address Line 2','City','State','ZIP','Online URL','Description','Cost','Attire','Attendees','POC Name','POC Position','POC Phone','POC Email','Registration URL','Payment URL','Flyer URL','Submitter Name','Submitter Email','Submitter Phone','Submitter Message'];
-const keys=['lodge_no','other_host','district_override','event_name','event_type','start_date','start_time','end_date','end_time','event_mode','location_tbd','location_name','location_address1','location_address2','location_city','location_state','location_zip','virtual_meeting_url','public_description','cost_details','attire','invited_audience','poc_name','poc_position','poc_phone','poc_email','registration_url','payment_url','flyer_url','requester_name','requester_email','requester_phone','requester_message'];
+const headers=['Event Type','Host (Lodge No. or Org.)','District (if no lodge)','Event Name','Start Date','Start Time','End Date','End Time','Venue Name','Street Address','City','State','ZIP','Mode','Location TBD?','Online URL','Description','Attendees','Attire','Cost','POC Name','POC Position','POC Email','POC Phone','Registration URL','Payment URL','Flyer URL','Submitter Name','Submitter Email','Submitter Phone','Submitter Message'];
+const keys=['event_type','host_input','district_override','event_name','start_date','start_time','end_date','end_time','location_name','location_address1','location_city','location_state','location_zip','event_mode','location_tbd','virtual_meeting_url','public_description','invited_audience','attire','cost_details','poc_name','poc_position','poc_email','poc_phone','registration_url','payment_url','flyer_url','requester_name','requester_email','requester_phone','requester_message'];
 /* Import by named column, not position. Optional columns may be hidden, removed or rearranged. */
 function columnKey(label){
  const heading=String(label??'').split(/\r?\n/)[0].replace(/\s*\([^)]*\)\s*$/,'').trim().toLowerCase();
- if(heading==='district override')return 'district_override'; // older workbooks
  if(heading==='intended audience'||heading==='audience')return 'invited_audience';
  const i=headers.findIndex(h=>h.toLowerCase()===heading);
  return i<0?null:keys[i];
@@ -22,9 +21,8 @@ function mapColumns(headingRow){
   if(indexByKey.has(key))throw Error('Repeated spreadsheet heading: '+String(value));
   indexByKey.set(key,column);
  });
- const mandatory=['event_name','event_type','start_date','start_time','end_date','end_time'];
+ const mandatory=['event_type','host_input','event_name','start_date','start_time','end_date','end_time'];
  const missing=mandatory.filter(key=>!indexByKey.has(key));
- if(!indexByKey.has('lodge_no')&&!indexByKey.has('other_host'))missing.push('lodge_no/other_host');
  if(missing.length)throw Error('Missing required spreadsheet columns: '+missing.join(', ')+'.');
  return indexByKey;
 }
@@ -120,9 +118,9 @@ fileInput.addEventListener('change',async()=>{
   const heading=workbook.findIndex(row=>{
    if(!Array.isArray(row))return false;
    const found=new Set(row.map(columnKey).filter(Boolean));
-   return found.has('title')&&found.has('event_type')&&found.has('start_date')&&found.has('end_date');
+   return found.has('event_name')&&found.has('host_input')&&found.has('event_type')&&found.has('start_date')&&found.has('end_date');
   });
-  if(heading<0)throw Error('The New Events sheet needs a header row with Event Title, Event Type, Start Date and End Date.');
+  if(heading<0)throw Error('Use the new Easy Event Import Template. The New Events tab must include Event Type, Host, Event Name and start/end dates.');
   const indexByKey=mapColumns(workbook[heading]);
   const entries=workbook.slice(heading+1).map((raw,index)=>{
    const row={row_number:heading+index+2};

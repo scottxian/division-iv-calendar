@@ -70,19 +70,31 @@ async function context(){
 function validated(row:any,ctx:any,staff:any){
  const issues:string[]=[];
  const get=(key:string)=>t(row[key]);
- const number=get('lodge_no').replace(/\.0$/,'');
- const other=get('other_host'),soi=get('event_type')==='Division School of Instruction';
+ const soi=get('event_type')==='Division School of Instruction';
  const districtSoi=get('event_type')==='District School of Instruction';
- if(number&&other)issues.push('Choose either a lodge number or Other Host, not both.');
- if(soi&&number)issues.push('Division School of Instruction must use Other Host: Division IV.');
- const lodge=number?ctx.lodges.get(number):null;
- if(number&&!lodge)issues.push('Lodge number not found in the active lodge directory.');
- const host=lodge?lodge.lodge_name+' Lodge No. '+lodge.lodge_number:other;
- if(!host)issues.push('Choose a lodge number or enter Other Host.');
- if(soi&&host.toLowerCase()!=='division iv')issues.push('Division Schools must be hosted by Division IV.');
- const override=get('district_override'),district=soi?'':(lodge?t(lodge.district):override);
- if(lodge&&override&&override!==district)issues.push('District override conflicts with the saved lodge district.');
- if(!soi&&!ctx.districts.has(district))issues.push('A valid district is required.');
+ const rawHost=get('host_input');
+ const normalize=(v:string)=>v.toLowerCase().replace(/\s+/g,' ').trim();
+ const key=normalize(rawHost);
+ const lodges=[...ctx.lodges.values()];
+ const looksNumeric=/^(?:#|no\.?\s*)?\d{1,4}$/i.test(rawHost);
+ const number=looksNumeric?rawHost.replace(/^(?:#|no\.?\s*)/i,''):null;
+ const matched=lodges.filter((l:any)=>number?String(l.lodge_number)===number:[
+  l.lodge_name,l.lodge_name+' Lodge No. '+l.lodge_number,
+  l.lodge_name+' No. '+l.lodge_number,l.abbreviation
+ ].some(v=>v&&normalize(v)===key));
+ if(matched.length>1)issues.push('More than one lodge matches Host. Enter its lodge number instead.');
+ const lodge=matched.length===1?matched[0]:null;
+ if(!soi&&rawHost&&!lodge&&(looksNumeric||/\bno\.?(?:\s|$)|\blodge\b/i.test(rawHost)))
+  issues.push('Host lodge was not found. Use its number from the Lodge Lookup tab.');
+ if(soi&&rawHost&&normalize(rawHost)!=='division iv')
+  issues.push('Division Schools: leave Host blank. The system uses Division IV automatically.');
+ const host=soi?'Division IV':lodge?lodge.lodge_name+' Lodge No. '+lodge.lodge_number:rawHost;
+ if(!host)issues.push('Enter a host (lodge number or organization), except for Division Schools.');
+ const chosenDistrict=get('district_override');
+ const district=soi?'':lodge?t(lodge.district):chosenDistrict;
+ if(lodge&&chosenDistrict&&chosenDistrict!==district)
+  issues.push('The district does not match that lodge. Leave District blank to use its saved district.');
+ if(!soi&&!ctx.districts.has(district))issues.push('Select a valid District when Host is not a lodge.');
  const p:any={hosted_by:host,district,event_mode:get('event_mode')||'in_person'};
  for(const f of fields){
   if(f==='hosted_by'||f==='district'||f==='event_mode')continue;
@@ -92,7 +104,10 @@ function validated(row:any,ctx:any,staff:any){
   if(str.length>limit)issues.push(f.replaceAll('_',' ')+' exceeds '+limit+' characters.');
   p[f]=str.slice(0,limit);
  }
- for(const f of ['event_name','event_type','start_local','end_local'])if(!p[f])issues.push('Missing '+f.replaceAll('_',' ')+'.');
+ for(const f of ['event_type','start_local','end_local'])if(!p[f])issues.push('Missing '+f.replaceAll('_',' ')+'.');
+ if(districtSoi)p.event_name='School of Instruction';
+ else if(soi)p.event_name=p.event_name||p.location_name||'TBD';
+ else if(!p.event_name)issues.push('Event Name is required for ordinary events. Enter only the activity, not the lodge.');
  const preferred=lodge?t(lodge.abbreviation)||host:host;
  const name=t(p.event_name);
  const stripPrefix=(value:string,prefix:string)=>value.toLowerCase().startsWith((prefix+': ').toLowerCase())?value.slice(prefix.length+2).trim():value;
@@ -194,7 +209,7 @@ Deno.serve(async req=>{
   const ctx=await context(),results:any[]=[];
   for(const row of rows){
    const inspected=items.find((v:any)=>v.row_number===Number(row.row_number));
-   const base={row_number:row.row_number,title:t(row.title),host:inspected?.host||''};
+   const base={row_number:row.row_number,title:inspected?.calendar_title||t(row.event_name),host:inspected?.host||''};
    if(inspected?.status==='invalid'){results.push({...base,status:'error',message:inspected.issues.join(' ')});continue}
    if(inspected?.status==='warning'&&!confirmations.has(Number(row.row_number))){
     results.push({...base,status:'skipped',message:'Possible duplicate — not confirmed. Review and resubmit this row if intentional.'});continue
