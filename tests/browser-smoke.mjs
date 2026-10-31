@@ -205,12 +205,13 @@ try{
  await desktop.locator('#notice').getByText('Verification email requested',{exact:false}).waitFor({timeout:10000});
  assert.equal(capturedRedirect,base+'/inspectors/','Email OTP must keep Inspector Desk route');
  await desktop.locator('#signin-code-form:not(.hidden)').waitFor();
- await desktop.locator('#signin-code').fill('123456');
+ assert.equal(await desktop.locator('#signin-code').getAttribute('maxlength'),'8','Email code entry must allow eight characters');
+ await desktop.locator('#signin-code').fill('12345678');
  await desktop.locator('#signin-code-form button[type=submit]').click();
  await desktop.locator('#notice').getByText('Invalid OTP for browser test').waitFor();
  assert.equal(capturedVerification.type,'email','Verification must use Supabase email OTP');
  assert.equal(capturedVerification.email,'inspector-smoke@example.invalid');
- assert.equal(capturedVerification.token,'123456');
+ assert.equal(capturedVerification.token,'12345678');
  pass.push('Inspector email-code flow and invalid OTP handling');
 
  // Inspector review is verified using mocked read-only details; no event is published.
