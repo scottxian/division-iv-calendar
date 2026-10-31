@@ -483,3 +483,27 @@ body.inspector-desk-mode #admin-view>section>.panel{margin-top:15px}
  body.inspector-desk-mode #admin-view .tabs .tab{font-size:13px;padding:10px 9px}
  #tab-import .bulk-upload-area{padding-top:12px}
 }
+
+/* Inspector Desk: compact Home Screen guide using the existing panel palette. */
+.desk-install-guide{background:#fff;border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:13px;padding:19px 23px 16px;margin:28px 0 8px;scroll-margin-top:100px;box-shadow:0 4px 18px #142d4609}
+.desk-install-heading{display:flex;gap:16px;align-items:center}
+.desk-install-heading img{width:54px;height:54px;flex:0 0 54px;object-fit:contain;border-radius:11px;background:#142d46;border:1px solid var(--gold);padding:4px}
+.desk-install-kicker{font-size:10px;letter-spacing:.12em;font-weight:800;color:#8a642b;margin:0 0 3px}
+.desk-install-guide h2{font:600 23px/1.2 Georgia,serif;color:var(--navy);margin:0 0 4px}
+.desk-install-heading p:not(.desk-install-kicker){font-size:13px;line-height:1.55;color:var(--muted);margin:0}
+.desk-install-steps{border:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:17px 0 11px}
+.desk-install-steps>summary{font-size:13px;font-weight:750;color:#174465;padding:12px 0;list-style:disclosure-closed}
+.desk-install-steps[open]>summary{list-style:disclosure-open}
+.desk-install-steps>summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px}
+.desk-install-platforms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:2px 0 16px}
+.desk-install-platforms>div{background:#f8fafc;border:1px solid #e2e8ee;border-radius:9px;padding:13px 15px}
+.desk-install-platforms h3{font-size:14px;color:var(--navy);margin:0 0 7px}
+.desk-install-platforms p{font-size:12px;line-height:1.7;color:#465d71;margin:0;overflow-wrap:anywhere}
+.desk-install-security{color:var(--muted);font-size:12px;line-height:1.6;margin:0}
+@media(max-width:650px){
+ .desk-install-guide{padding:16px;margin-top:19px}
+ .desk-install-heading{align-items:flex-start;gap:12px}
+ .desk-install-heading img{width:44px;height:44px;flex-basis:44px;border-radius:9px}
+ .desk-install-guide h2{font-size:19px}
+ .desk-install-platforms{grid-template-columns:1fr;gap:9px}
+}
