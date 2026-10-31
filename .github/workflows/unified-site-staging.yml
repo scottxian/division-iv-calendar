@@ -34,6 +34,8 @@ jobs:
         run: node tests/inspector-at-large-smoke.mjs
       - name: Test fixed Division and District School of Instruction title rules
         run: node tests/soi-title-smoke.mjs
+      - name: Test gated newsletter and subscriber lifecycle
+        run: node tests/newsletter-smoke.mjs
       - name: Test individual Google, Apple, and Outlook event export
         run: node tests/individual-event-calendar-smoke.mjs
       - name: Test Google Calendar publishing title and notes

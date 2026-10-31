@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Inspector Desk | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="apple-mobile-web-app-title" content="Division IV"><link rel="manifest" href="/inspectors/manifest.webmanifest"><meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=29"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=62"></script>
-<script defer src="/app/lodges-admin.js?v=5"></script><script defer src="/app/corrections-admin.js?v=2"></script><script defer src="/app/site-settings-admin.js?v=5"></script><script defer src="/app/resources.js?v=3"></script>
+<meta name="apple-mobile-web-app-title" content="Division IV"><link rel="manifest" href="/inspectors/manifest.webmanifest"><meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=29"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=63"></script>
+<script defer src="/app/lodges-admin.js?v=5"></script><script defer src="/app/corrections-admin.js?v=2"></script><script defer src="/app/site-settings-admin.js?v=5"></script><script defer src="/app/resources.js?v=3"></script><script defer src="/app/newsletter-admin.js?v=1"></script>
 <script defer src="/app/mfa.js?v=9"></script><script defer src="/app/bulk-import.js?v=10"></script>
 <meta name="robots" content="noindex, nofollow, noarchive">
 </head><body>
@@ -158,6 +158,7 @@
 <button class="tab" data-tab="corrections" type="button">Corrections</button>
 <button class="tab" data-tab="lodges" type="button">Lodges</button>
 <button class="tab" data-tab="staff" type="button">Inspectors</button>
+<button class="tab" data-tab="newsletter" type="button">Newsletter</button>
 <button class="tab" data-tab="settings" type="button">Settings</button>
 </div>
 </details>
@@ -382,6 +383,27 @@
 <input type="hidden" name="phone">
 <div class="wide form-actions"><button type="submit" class="primary">Save Inspector</button><button type="button" id="staff-form-clear" class="secondary">Clear Form</button></div>
 </form></section>
+<section id="tab-newsletter" class="panel hidden" aria-labelledby="newsletter-admin-title">
+<h3 id="newsletter-admin-title">Division IV Newsletter</h3>
+<p class="muted">Monthly digest on the 1st at 8 AM Pacific, and Monday changes-only update. Sending and signup are off by default.</p>
+<p id="newsletter-admin-stats" class="help">Load settings to see current status.</p>
+<div class="form-grid">
+<label class="wide">Resend Marketing segment ID<input id="newsletter-segment" maxlength="36" autocomplete="off" placeholder="Resend Segment UUID"></label>
+<label class="wide checkline"><input id="newsletter-cost" type="checkbox"> I verified the $0 Resend Marketing plan, paid overages disabled, and capacity.</label>
+<label class="wide checkline"><input id="newsletter-signup" type="checkbox"> Enable verified public newsletter signup</label>
+<label class="wide checkline"><input id="newsletter-send" type="checkbox"> Enable automatic monthly and weekly newsletters</label>
+<p class="wide help">Hard local cap: 900 contacts. Published edits of any size trigger the weekly flag only after calendar synchronization succeeds. Check existing contacts in Resend before enabling.</p>
+</div><div class="form-actions">
+<button type="button" id="newsletter-save" class="primary">Save Newsletter Settings</button>
+<button type="button" id="newsletter-preview-monthly" class="secondary">Preview Monthly</button>
+<button type="button" id="newsletter-preview-weekly" class="secondary">Preview Weekly</button>
+<button type="button" id="newsletter-send-now" class="secondary" disabled>Send Now</button>
+</div>
+<p id="newsletter-admin-message" class="help" role="status" aria-live="polite">No newsletters sent yet.</p>
+<h4 id="newsletter-preview-title">Newsletter Preview</h4>
+<iframe id="newsletter-preview" title="Newsletter email preview" sandbox="" style="width:100%;height:420px;border:1px solid #d9e4ed;border-radius:8px;background:white"></iframe>
+<h4>Delivery history</h4><div id="newsletter-runs" role="status" aria-live="polite"></div>
+</section>
 <section id="tab-settings" class="panel hidden"><h3>Administration Settings</h3><p class="help">Administrator operations: <a href="https://github.com/scottxian/division-iv-calendar/blob/main/DIVISION_OPERATIONS.md" target="_blank" rel="noopener noreferrer">open the weekly, monthly, and rollout checklist ↗</a>.</p>
 <section id="website-settings-section">
 <h3>Division IV Website Settings</h3>

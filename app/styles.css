@@ -504,3 +504,7 @@ body.inspector-desk-mode #admin-view>section>.panel{margin-top:15px}
  .desk-install-guide h2{font-size:19px}
  .desk-install-platforms{grid-template-columns:1fr;gap:9px}
 }
+
+.newsletter-error{color:#a43d31;font-weight:700}
+.newsletter-runs{border-top:1px solid #d9e4ed;padding-top:12px}
+.newsletter-run{padding:8px 0;border-bottom:1px solid #edf1f4;font-size:13px}

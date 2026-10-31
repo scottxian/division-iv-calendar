@@ -991,8 +991,8 @@ async function activateInspectorTab(key){
  if($('admin-view').classList.contains('mfa-locked')){
   toast('Complete authenticator verification to access the Inspector Desk.',true);return;
  }
- if((key==='staff'||key==='settings'||key==='lodges'||key==='corrections')&&state.staff?.role!=='admin'){
-  toast('Administrator access is required to manage lodges, inspectors or website settings.',true);
+ if((key==='staff'||key==='settings'||key==='lodges'||key==='corrections'||key==='newsletter')&&state.staff?.role!=='admin'){
+  toast('Administrator access is required to manage newsletters, lodges, inspectors, or settings.',true);
   return;
  }
  all('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===key));
@@ -1000,7 +1000,7 @@ async function activateInspectorTab(key){
   menu.classList.toggle('active',!!menu.querySelector('.tab.active'));
   menu.open=false;
  });
- for(const k of ['dashboard','import','lodges','corrections','requests','events','resources','history','staff','settings'])
+ for(const k of ['dashboard','import','lodges','corrections','requests','events','resources','history','staff','newsletter','settings'])
   $('tab-'+k).classList.toggle('hidden',k!==key);
  if(key==='dashboard'){await Promise.allSettled([loadDashboard(),window.loadCalendarSync?.(),window.loadWebsitePreview?.()]);}
  if(key==='lodges')await window.loadLodges?.();
@@ -1011,6 +1011,7 @@ async function activateInspectorTab(key){
  if(key==='resources')await window.loadResources?.();
  if(key==='history')await loadHistory(0);
  if(key==='staff')await loadStaff();
+ if(key==='newsletter')await window.loadNewsletter?.();
  if(key==='settings')await Promise.allSettled([loadSettings(),window.loadWebsiteSettings?.()]);
 }
 all('.tab').forEach(t=>t.onclick=()=>activateInspectorTab(t.dataset.tab));

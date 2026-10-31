@@ -211,7 +211,7 @@ try{
  await administration.locator('summary').click();
  assert.equal(await administration.getAttribute('open'),'','Administration dropdown did not open');
  assert.equal(await eventGroup.getAttribute('open'),null,'Opening Administration should close Events dropdown');
- assert.equal(await administration.locator('.tab').count(),4,'All four admin screens must remain available');
+ assert.equal(await administration.locator('.tab').count(),5,'Newsletter adds a fifth admin tab');
  await desktop.keyboard.press('Escape');
  assert.equal(await administration.getAttribute('open'),null,'Escape should close admin menu');
  pass.push('Inspector Desk groups menus, avoids horizontal scrolling, and supports keyboard close');

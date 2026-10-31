@@ -421,3 +421,16 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
  .home-install-device{padding:18px}
 }
 @media(max-width:400px){.home-install h2{font-size:34px}}
+
+.division-newsletter-box{margin:34px 0 0;padding:26px 30px;border:1px solid #ded1b6;border-radius:12px;background:#faf6ed;color:#142d46}
+.division-newsletter-box h3{font-size:30px;margin:0 0 10px}
+.division-newsletter-box p{font-size:14px;margin:0 0 12px}
+.division-newsletter-box .kicker{margin-bottom:5px}
+.division-newsletter-box form{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:15px 0 0}
+.division-newsletter-box form[hidden]{display:none}
+.division-newsletter-box label{font-size:13px;font-weight:700}
+.division-newsletter-box input[type=email]{min-width:220px;flex:1;border:1px solid #bcb6a6;border-radius:5px;padding:12px;background:#fff;font:inherit}
+.division-newsletter-box button{min-height:44px}
+.division-newsletter-box .division-newsletter-status{margin:12px 0 0;font-weight:600}
+.division-newsletter-box .division-newsletter-privacy{font-size:12px;color:#657485;margin:10px 0 0}
+.division-newsletter-honeypot{position:absolute!important;left:-9999px!important;opacity:0;height:1px;width:1px;pointer-events:none}
