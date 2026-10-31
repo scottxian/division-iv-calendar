@@ -82,8 +82,8 @@ const plain=extracted
  .replace('(l:any)','(l)')
  .replace('const p:any=','const p=')
  .replace('(value:string,prefix:string)','(value,prefix)');
-const preamble=api.slice(api.indexOf('const allowedModes='),api.indexOf('async function staffFor('))
- .replace(/function respond\([\s\S]*?function fail\([\s\S]*?\n(?=async function staffFor)/,'');
+const preamble=api.slice(api.indexOf('const allowedModes='),api.indexOf('function respond('))
+ .replaceAll(':any','').replaceAll(':string','');
 const validate=vm.runInNewContext(preamble+'\n'+plain+'\nvalidated');
 const ctx={
  lodges:new Map([
