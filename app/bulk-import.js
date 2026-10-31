@@ -9,7 +9,7 @@ const headers=['Event Type','Host (Lodge No. or Org.)','District (if no lodge)',
 const keys=['event_type','host_input','district_override','event_name','start_date','start_time','end_date','end_time','location_name','location_address1','location_city','location_state','location_zip','event_mode','location_tbd','virtual_meeting_url','public_description','invited_audience','attire','cost_details','poc_name','poc_position','poc_email','poc_phone','registration_url','payment_url','flyer_url','requester_name','requester_email','requester_phone','requester_message'];
 /* Import by named column, not position. Optional columns may be hidden, removed or rearranged. */
 function columnKey(label){
- const heading=String(label??'').split(/\r?\n/)[0].replace(/\s*\([^)]*\)\s*$/,'').trim().toLowerCase();
+ const heading=String(label??'').split(/\r?\n/)[0].trim().toLowerCase();
  if(heading==='intended audience'||heading==='audience')return 'invited_audience';
  const i=headers.findIndex(h=>h.toLowerCase()===heading);
  return i<0?null:keys[i];
