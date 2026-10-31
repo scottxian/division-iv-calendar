@@ -394,3 +394,30 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
 @media(max-width:1050px){.calendar-browser-layout{gap:26px}.calendar-month-toolbar{grid-template-columns:68px minmax(135px,1fr) 68px}.month-date-number{width:36px;height:36px}.month-event-row{grid-template-columns:65px minmax(0,1fr);gap:13px}.month-event-badge{grid-column:2;justify-self:start;margin:0}.month-event-date{min-height:72px}.month-event-num{font-size:33px}}
 @media(max-width:850px){.calendar-browser-layout{grid-template-columns:1fr;gap:40px}.calendar-month-side{max-width:650px;width:100%;margin:0 auto}.calendar-days-grid>.month-date,.calendar-days-grid>.month-blank{min-height:49px}.calendar-events-side{width:100%}.month-event-row{grid-template-columns:77px minmax(0,1fr) auto}.month-event-badge{grid-column:auto;margin-top:4px}}
 @media(max-width:600px){.calendar-hero{padding:31px 22px}.calendar-main{padding:25px 18px 60px}.calendar-intro{margin-bottom:24px}.calendar-browser-layout{gap:30px}.calendar-month-toolbar{grid-template-columns:45px minmax(0,1fr) 45px;gap:7px}.month-arrow{min-height:38px;font-size:20px;padding:5px 7px}.calendar-month-picker{width:100%}.calendar-month-picker input{font-size:14px;min-width:0;width:100%;max-width:192px;padding:7px 26px 7px 5px}.calendar-weekday-row span{padding:11px 0;font-size:11px}.calendar-days-grid>.month-date,.calendar-days-grid>.month-blank{min-height:43px}.month-date-number{height:32px;width:32px;font-size:13px}.calendar-legend{gap:12px;font-size:11px}.calendar-list-top{gap:13px;flex-wrap:wrap}.calendar-list-top h3{font-size:43px}.month-filter{min-width:150px;flex:1}.month-filter-grid{grid-template-columns:1fr 1fr}.month-filter-grid button{grid-column:1/-1}.month-event-row{grid-template-columns:65px minmax(0,1fr);padding:17px 0;gap:12px}.month-event-badge{grid-column:2;justify-self:start;margin:0}.month-event-name{font-size:15px}.month-event-meta{gap:4px 12px;font-size:11px}.month-event-date{min-height:71px}.month-event-num{font-size:34px}.google-calendar-drawer{padding:0 13px}}
+
+/* Homepage: unobtrusive, on-brand Home Screen setup section above the footer. */
+.home-install{background:#f5f1e7;border-top:1px solid #e4ddcc;padding:54px clamp(24px,6vw,94px) 48px;scroll-margin-top:110px}
+.home-install-inner{max-width:1320px;margin:0 auto}
+.home-install-heading{display:flex;align-items:center;gap:24px;max-width:940px}
+.home-install-icon{width:76px;height:76px;flex:0 0 76px;object-fit:contain;background:#0b2138;border:1px solid #d7b56e;border-radius:16px;padding:5px;box-shadow:0 7px 20px #091b3118}
+.home-install .kicker{color:#8b692f;margin:0 0 9px;font-size:10px}
+.home-install h2{font-size:clamp(34px,3.5vw,50px);color:#0b2138;margin:0 0 10px}
+.home-install-heading p:not(.kicker){font-size:14px;color:#495b6a;line-height:1.7;max-width:720px;margin:0}
+.home-install-devices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:27px 0 17px}
+.home-install-device{border:1px solid #ddd4c5;border-top:3px solid #d7b56e;background:#fff;padding:20px 23px;border-radius:5px}
+.home-install-device h3{font:600 28px/1.18 'Cormorant Garamond',Georgia,serif;color:#0b2138;margin:0 0 8px}
+.home-install-device p{font-size:13px;line-height:1.75;color:#435365;margin:0}
+.home-install-device strong{color:#142b47}
+.home-install-note{color:#5d6a76;font-size:12px;line-height:1.7;margin:0}
+.home-install-note a{color:#735319;text-decoration:underline;text-underline-offset:3px;font-weight:700}
+.home-install-note a:hover{color:#0b2138}
+.home-install-note a:focus-visible{outline:2px solid #9b7939;outline-offset:3px}
+@media(max-width:700px){
+ .home-install{padding:38px 20px 39px}
+ .home-install-heading{align-items:flex-start;gap:15px}
+ .home-install-icon{width:58px;height:58px;flex-basis:58px;border-radius:12px}
+ .home-install h2{font-size:36px}
+ .home-install-devices{grid-template-columns:1fr;gap:12px;margin-top:22px}
+ .home-install-device{padding:18px}
+}
+@media(max-width:400px){.home-install-heading{flex-wrap:wrap}.home-install h2{font-size:34px}}
