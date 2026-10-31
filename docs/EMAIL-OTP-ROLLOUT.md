@@ -16,7 +16,7 @@ Do not paste sample numbers or actual credentials into the template.
 
 ## Testing after enabling the email template
 - Open a private browser session and request a code at https://divisionivmasons.org/inspectors/.
-- Check that the email contains a six-digit code rather than an authentication link; enter the code on the website.
+- Check that the email contains a eight-digit code rather than an authentication link; enter the code on the website.
 - Confirm an existing inspector/admin must still enter the separate authenticator-app code before private functions become available.
 - Repeat from the installed iPhone Home Screen app; it must stay in the app instead of switching to Safari.
 - On https://divisionivmasons.org/events/ choose Update/Cancel, enter an existing submission ID and the *original submitter email*, and verify using the email code (no staff MFA).
