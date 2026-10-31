@@ -65,6 +65,24 @@ for(const piece of [
  "resend_segment_id"
 ])assert.ok(api.includes(piece),'Backend missing: '+piece);
 assert.ok(api.includes('factors?.factors?.some'));
+// Branded HTML must use the same real emblem as the shared site masthead and
+// existing OTP email; keep transactional confirmation and Broadcasts separate.
+const sharedHeader=fs.readFileSync('shared/header.js','utf8');
+const otpTemplate=fs.readFileSync('docs/auth-email-otp-template.html','utf8');
+const logo='https://divisionivmasons.org/app/assets/division-iv-emblem.png?v=20261028b';
+assert.ok(api.includes(logo),'Newsletter logo must use approved Division IV emblem');
+assert.ok(sharedHeader.includes('/app/assets/division-iv-emblem.png?v=20261028b'));
+assert.ok(otpTemplate.includes(logo),'Newsletter and security email should share one emblem');
+for(const item of ['function brandedEmail(', 'function confirmationHtml(', 'html:confirmationHtml(link)',
+ 'const html=brandedEmail({', 'alt="Division IV Masons emblem"', 'GRAND LODGE OF CALIFORNIA',
+ 'Confirm My Subscription', 'View the Division IV Calendar', 'This confirmation link expires in 48 hours',
+ 'word-break:break-all', 'escapeHTML(o.actionUrl)', 'escapeHTML(e.title)', 'escapeHTML(where)',
+ 'unsubscribe:true', '<!doctype html>', 'role="presentation"', 'max-width:600px']){
+ assert.ok(api.includes(item),'Branded email missing: '+item);
+}
+assert.ok(api.includes("},'transactional');"),'Confirmation must remain a transactional send');
+assert.ok(api.includes('text:[label,'),'Broadcasts must retain their plain text fallback');
+assert.ok(api.includes("text:'Confirm your subscription"),'Confirmations must retain a plain text fallback');
 new vm.Script(pub,{filename:'newsletter-public.js'});
 new vm.Script(adm,{filename:'app/newsletter-admin.js'});
 console.log('PASS: monthly/weekly controls, one-time setup location, RLS-gated backend, and version-safe sending.');

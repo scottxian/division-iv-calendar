@@ -12,6 +12,67 @@ const goodEmail=(s:string)=>s.length<=250&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 const hash=async s=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))).map(x=>x.toString(16).padStart(2,'0')).join('');
 const escapeHTML=(v:any)=>message(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c));
 const utcDate=(v:any)=>new Date(v).toISOString();
+
+/**
+ * Transactional and Broadcast email share the approved Division IV masthead.
+ * Reuse the public site's emblem URL and colors; email CSS is inline for clients.
+ * Image blocking degrades gracefully because the brand name is also real text.
+ */
+const DIVISION_EMBLEM='https://divisionivmasons.org/app/assets/division-iv-emblem.png?v=20261028b';
+type MailLayout={
+ preheader:string;eyebrow:string;title:string;intro:string;content:string;
+ actionText?:string;actionUrl?:string;finePrint?:string;unsubscribe?:boolean;
+};
+function brandedEmail(o:MailLayout){
+ const heading=escapeHTML(o.title);
+ const cta=o.actionText&&o.actionUrl
+  ?`<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin:27px auto 23px;border-collapse:separate"><tr><td align="center" bgcolor="#0b2138" style="border-radius:6px;background:#0b2138"><a href="${escapeHTML(o.actionUrl)}" style="display:inline-block;padding:15px 25px;border:1px solid #0b2138;border-radius:6px;color:#ffffff;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.4;font-weight:700">${escapeHTML(o.actionText)}</a></td></tr></table>`
+  :'';
+ const unsubscribe=o.unsubscribe
+  ?`<p style="margin:12px 0 0;color:#b8c5d0;font-size:12px;line-height:1.7"><a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#f0d99d;text-decoration:underline">Unsubscribe from this newsletter</a></p>`
+  :'';
+ return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${heading} | Division IV Masons</title></head>
+<body style="margin:0;padding:0;background:#f5f1e7;color:#172339;font-family:Arial,Helvetica,sans-serif">
+<div style="display:none!important;max-height:0;max-width:0;overflow:hidden;opacity:0;color:transparent">${escapeHTML(o.preheader)}</div>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;border-collapse:collapse;background:#f5f1e7">
+<tr><td align="center" style="padding:28px 12px">
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;max-width:600px;border-collapse:separate;border-spacing:0;background:#ffffff;border:1px solid #d7dfe6;border-radius:10px">
+<tr><td bgcolor="#0b2138" style="background:#0b2138;padding:25px 26px">
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse"><tr>
+<td valign="middle" width="82" style="width:82px;padding:0 13px 0 0"><img src="${DIVISION_EMBLEM}" width="70" height="70" alt="Division IV Masons emblem" style="display:block;width:70px;height:70px;border:0;outline:none"></td>
+<td valign="middle" style="padding:0"><div style="font-family:Arial,Helvetica,sans-serif;font-size:19px;line-height:1.35;font-weight:700;letter-spacing:1px;color:#ffffff">DIVISION IV MASONS</div>
+<div style="padding-top:6px;font-size:11px;line-height:1.5;font-weight:700;letter-spacing:1.2px;color:#f0d99d">GRAND LODGE OF CALIFORNIA</div></td>
+</tr></table></td></tr>
+<tr><td bgcolor="#d7b56e" height="4" style="height:4px;line-height:4px;font-size:1px;background:#d7b56e">&nbsp;</td></tr>
+<tr><td style="padding:31px 30px 29px">
+<p style="margin:0 0 13px;color:#98783f;font-size:11px;line-height:1.5;font-weight:700;letter-spacing:1.5px">${escapeHTML(o.eyebrow)}</p>
+<h1 style="margin:0 0 16px;color:#0b2138;font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1.2;font-weight:normal">${heading}</h1>
+<p style="margin:0 0 20px;color:#33475b;font-size:15px;line-height:1.75">${escapeHTML(o.intro)}</p>
+${o.content}${cta}
+${o.finePrint?`<p style="margin:20px 0 0;padding-top:16px;border-top:1px solid #e5e9ee;color:#667483;font-size:12px;line-height:1.7">${escapeHTML(o.finePrint)}</p>`:''}
+</td></tr>
+<tr><td bgcolor="#102c49" align="center" style="background:#102c49;padding:23px 20px 25px">
+<p style="margin:0 0 6px;color:#f0d99d;font-size:11px;font-weight:700;letter-spacing:1.6px">DIVISION IV MASONS</p>
+<p style="margin:0 0 8px;color:#dce7ed;font-size:12px;line-height:1.6">Fellowship &nbsp;&middot;&nbsp; Leadership &nbsp;&middot;&nbsp; Service</p>
+<p style="margin:0;color:#b8c5d0;font-size:12px;line-height:1.7"><a href="https://divisionivmasons.org/" style="color:#e4edf3;text-decoration:underline">divisionivmasons.org</a></p>
+${unsubscribe}
+</td></tr></table></td></tr></table></body></html>`;
+}
+function confirmationHtml(link:string){
+ const safe=escapeHTML(link);
+ return brandedEmail({
+  preheader:'One last step: confirm your Division IV Events Newsletter subscription.',
+  eyebrow:'DIVISION IV CALENDAR · NEWSLETTER SIGNUP',
+  title:'Confirm your subscription',
+  intro:'Thank you for signing up for the Division IV Events Newsletter.',
+  content:`<p style="margin:0;color:#33475b;font-size:15px;line-height:1.75">Once you confirm, you can receive a monthly digest of upcoming events and weekly updates when published calendar details change.</p>
+  <p style="margin:23px 0 0;color:#5e6c79;font-size:12px;line-height:1.7">If the button does not work, copy and paste this link into your browser:<br><a href="${safe}" style="color:#234e77;word-break:break-all;overflow-wrap:anywhere">${safe}</a></p>`,
+  actionText:'Confirm My Subscription',actionUrl:link,
+  finePrint:'This confirmation link expires in 48 hours. If you did not request this subscription, ignore this email. You will not be subscribed without confirming.'
+ });
+}
+
 const allowedFields=['sending_enabled','signup_enabled','free_plan_confirmed','resend_segment_id','monthly_enabled','weekly_enabled','monthly_day','weekly_day','monthly_send_hour','weekly_send_hour','lookahead_days'];
 async function config(){const {data,error}=await db.from('newsletter_settings').select('*').eq('id',true).single();if(error)throw Error('Newsletter settings unavailable');return data;}
 async function resend(path:string,method='GET',body?:unknown,mode:'marketing'|'transactional'='marketing'){
@@ -67,15 +128,34 @@ async function issue(kind:string,settings:any){
  }
  const label=kind==='monthly'?'Division IV Events Digest':'Division IV Calendar Updates';
  const subject=label+' — '+new Intl.DateTimeFormat('en-US',{timeZone:'America/Los_Angeles',month:'long',year:'numeric'}).format(now);
- const section=(title:string,items:any[])=>items.length?'<h2 style="color:#142d46;font-size:20px;margin-top:26px">'+escapeHTML(title)+'</h2>'+items.map((e:any)=>{
-  const when=friendlyDate(e.starts_at);
-  const where=e.event_mode==='online'?'Online event':e.location_tbd?'Location TBD':[e.location_name,e.location_address].filter(Boolean).join(', ');
-  return '<div style="padding:14px 0;border-bottom:1px solid #e3dfd5"><strong>'+escapeHTML(e.title)+'</strong><div>'+escapeHTML(when)+'</div><div>'+escapeHTML(where)+'</div><div>'+escapeHTML(e.hosted_by||'')+'</div><a href="'+eventLink(e.id)+'">Details / Add to Calendar</a></div>';
- }).join(''):'';
- const html='<div style="font-family:Arial,sans-serif;max-width:670px;margin:auto;line-height:1.6;color:#20364e"><div style="background:#0b2138;color:#fff;padding:24px"><small style="color:#d7b56e">DIVISION IV MASONS</small><h1 style="color:white">'+escapeHTML(label)+'</h1></div><p>Published events and calendar changes for the Division IV Masonic community.</p>'+
-  section('New events',groups.new)+section('Updated events',groups.updated)+section('Cancelled events',groups.cancelled)+section('Upcoming events',groups.upcoming)+
-  (!list.length?'<p>No published events are currently listed for this period.</p>':'')+
-  '<p><a href="https://divisionivmasons.org/calendar/">View the full Division IV calendar</a></p><p style="font-size:12px;color:#5b6875">Saved personal-calendar copies do not automatically update after a change.</p><p style="font-size:12px">Unsubscribe: <a href="{{{RESEND_UNSUBSCRIBE_URL}}}">Stop receiving newsletters</a>.</p></div>';
+
+ const section=(title:string,items:any[])=>items.length?
+  '<h2 style="color:#0b2138;font-family:Georgia,Times New Roman,serif;font-size:21px;font-weight:normal;margin:28px 0 10px">'+escapeHTML(title)+'</h2>'+
+  '<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse">'+
+  items.map((e:any)=>{
+   const when=friendlyDate(e.starts_at)+' (Pacific Time)';
+   const where=e.event_mode==='online'?'Online event':e.location_tbd?'Location TBD':[e.location_name,e.location_address].filter(Boolean).join(', ');
+   const host=message(e.hosted_by);
+   return '<tr><td style="padding:16px 0;border-bottom:1px solid #e3dfd5">'+
+    '<p style="margin:0 0 5px;color:#0b2138;font-size:16px;line-height:1.5;font-weight:700">'+escapeHTML(e.title)+'</p>'+
+    '<p style="margin:0 0 4px;color:#33475b;font-size:14px;line-height:1.65">'+escapeHTML(when)+'</p>'+
+    (where?'<p style="margin:0 0 4px;color:#33475b;font-size:14px;line-height:1.65">'+escapeHTML(where)+'</p>':'')+
+    (host?'<p style="margin:0 0 5px;color:#5e6c79;font-size:13px;line-height:1.6">Host: '+escapeHTML(host)+'</p>':'')+
+    '<a href="'+escapeHTML(eventLink(e.id))+'" style="font-size:13px;line-height:1.6;font-weight:700;color:#234e77;text-decoration:underline">View event details</a>'+
+    '</td></tr>';
+  }).join('')+'</table>':'';
+ const html=brandedEmail({
+  preheader:kind==='monthly'?'Upcoming Division IV events in your monthly calendar digest.':'Published Division IV calendar additions, edits, and cancellations.',
+  eyebrow:kind==='monthly'?'DIVISION IV CALENDAR · MONTHLY DIGEST':'DIVISION IV CALENDAR · WEEKLY UPDATES',
+  title:label,
+  intro:kind==='monthly'?'Upcoming published events and calendar details for the Division IV Masonic community.':'Newly published events and changes to existing Division IV calendar listings.',
+  content:section('New events',groups.new)+section('Updated events',groups.updated)+section('Cancelled events',groups.cancelled)+section('Upcoming events',groups.upcoming)+
+   (!list.length?'<p style="margin:18px 0;color:#33475b;font-size:14px;line-height:1.7">No published events are currently listed for this period.</p>':''),
+  actionText:'View the Division IV Calendar',
+  actionUrl:'https://divisionivmasons.org/calendar/',
+  finePrint:'Saved personal-calendar copies do not automatically update when event details change. Please check the online calendar before attending.',
+  unsubscribe:true
+ });
  const text=[label,'Division IV calendar: https://divisionivmasons.org/calendar/',...Object.entries(groups).flatMap(([name,items])=>items.length?[name.toUpperCase(),...items.map((e:any)=>e.title+' — '+friendlyDate(e.starts_at)+' — '+eventLink(e.id))]:[]),'Unsubscribe: {{{RESEND_UNSUBSCRIBE_URL}}}'].join('\n\n');
  return {kind,subject,html,text,groups,versions,items:list.length};
 }
@@ -99,7 +179,7 @@ async function subscribe(req:Request,settings:any){
  const {error}=await db.from('newsletter_subscribers').upsert({email,status:'pending',token_hash,token_expires_at:new Date(Date.now()+48*3600000).toISOString(),requested_at:new Date().toISOString(),last_confirmation_sent_at:new Date().toISOString()},{onConflict:'email'});
  if(error)throw Error('Unable to create signup request');
  const link='https://divisionivmasons.org/calendar/?newsletter_confirm='+encodeURIComponent(token);
- const reply=await resend('/emails','POST',{from:fromEnv(),to:[email],subject:'Confirm Division IV newsletter subscription',text:'Confirm your subscription to the Division IV Events Newsletter:\n'+link+'\n\nThis link expires in 48 hours. If you did not request this, ignore the message.'},'transactional');
+ const reply=await resend('/emails','POST',{from:fromEnv(),to:[email],subject:'Confirm your Division IV newsletter subscription',html:confirmationHtml(link),text:'Confirm your subscription to the Division IV Events Newsletter:\n'+link+'\n\nThis link expires in 48 hours. If you did not request this, ignore the message.'},'transactional');
  if(!reply?.id)throw Error('Confirmation email could not be sent');
  return {message:'If this address is eligible, please check your inbox for a confirmation link.'};
 }

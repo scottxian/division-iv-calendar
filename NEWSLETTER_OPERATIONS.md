@@ -40,3 +40,11 @@ The newsletter backend now uses a second private environment variable, `RESEND_M
 To connect safely: Resend → API Keys → Create API Key → **Full access**, name `Division IV Marketing`. Save it privately in the Supabase project at **Edge Functions → Secrets** with key `RESEND_MARKETING_API_KEY`. Do not put the secret in the website, GitHub, or chat. The Edge Function reads the secret without a redeploy. The admin Newsletter panel displays whether the Marketing API connection is configured; this is presence-only, not an authenticated provider health test.
 
 Public signup was paused after the failed first confirmation. The original confirmation token remains pending for up to 48 hours and may be retried after installing the secret. **Pending does not equal subscribed.** Keep all automatic sends disabled until successful provider contact creation and unsubscribe tests. 
+
+
+## Branded HTML email templates
+The same **approved Division IV emblem** used in the shared website masthead and security OTP email is used in all newsletter email HTML: `https://divisionivmasons.org/app/assets/division-iv-emblem.png?v=20261028b`. Navy (#0b2138), gold (#d7b56e), cream background, Grand Lodge affiliation and matching footer are centralized in `brandedEmail()` in the newsletter Edge Function. Email markup is inline-styled table HTML suitable for major email clients, with brand text visible when images are blocked.
+- Signup confirmation: branded button with one-time 48-hour link; also includes copyable URL and plain-text fallback; remains a Resend transactional message.
+- Monthly digest / weekly changes: same brand and event-card layout, corresponding heading/eyebrow, main calendar link, Resend unsubscribe merge tag and plain-text fallback; remain Resend Marketing Broadcasts.
+- The approved logo and site host are external HTTPS links; do not attach, inline as Base64, or replace with generic Masonic stock imagery.
+- This is a presentation-only change. Signup, MFA, event publication, schedules and broadcast sending settings are unchanged. To inspect, visit Inspector Desk → Newsletter → Preview Monthly / Preview Weekly. Do not turn on sending solely to test styling.
