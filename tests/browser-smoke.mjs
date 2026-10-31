@@ -45,6 +45,13 @@ try{
  assert.equal(homeIdentity.image,'/app/assets/division-iv-emblem.png');
  assert.equal(homeIdentity.border,'0px','Public header logo should not have a box border');
  assert.ok(await desktop.locator('a[href="/events/"]').count(),'Homepage missing event request route');
+ const homeInstall=desktop.locator('#install-app');
+ assert.equal(await homeInstall.isVisible(),true,'Public Home Screen guide should be visible');
+ assert.equal(await homeInstall.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(245, 241, 231)',
+   'Home Screen guide must match the cream Division IV homepage palette');
+ assert.equal(await homeInstall.locator('.home-install-device').count(),2);
+ assert.equal(await homeInstall.locator('a[href="/inspectors/#install-desk"]').count(),1);
+ pass.push('Homepage Home Screen guide and navy/cream branding');
  // Mock the public read-only month feed for deterministic UI tests.
  await desktop.route('**/functions/v1/division-upcoming-events?month=*',async route=>{
    const month=new URL(route.request().url()).searchParams.get('month');
@@ -145,6 +152,15 @@ try{
  assert.equal(await desktop.locator('#nav-signin').count(),1,
    'Inspector auth controls must survive shared header include');
  pass.push('Shared public/inspector header identity and functional inspector navigation');
+ const deskInstall=desktop.locator('#install-desk');
+ assert.equal(await deskInstall.isVisible(),true,'Inspector installation guide must be available before signing in');
+ assert.equal(await deskInstall.locator('details').getAttribute('open'),null,'Keep Inspector install steps collapsed initially');
+ await deskInstall.locator('summary').click();
+ assert.equal(await deskInstall.locator('details').getAttribute('open'),'');
+ assert.equal(await deskInstall.locator('.desk-install-platforms>div').count(),2);
+ assert.match(await deskInstall.textContent(),/authenticator verification are still required/);
+ await deskInstall.locator('summary').click();
+ pass.push('Inspector Desk direct-install instructions and persistent MFA notice');
  // Menu regression: test admin layout at desktop and phone sizes without signing in.
  await desktop.evaluate(()=>{
   const admin=document.getElementById('admin-view');
@@ -308,6 +324,11 @@ try{
 
  const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
  await check(mobile,'Mobile homepage','/','h1','home-mobile.png');
+ const homeMobileInstall=mobile.locator('#install-app');
+ assert.equal(await homeMobileInstall.isVisible(),true);
+ const mobileHomeWidth=await mobile.evaluate(()=>({scroll:document.documentElement.scrollWidth,view:innerWidth}));
+ assert.ok(mobileHomeWidth.scroll<=mobileHomeWidth.view+1,'Homepage installation guide caused horizontal overflow');
+ pass.push('Home Screen guide remains readable at mobile width');
  const toggle=mobile.locator('#menu-toggle');
  await toggle.click();
  assert.equal(await toggle.getAttribute('aria-expanded'),'true','Mobile menu did not open');
