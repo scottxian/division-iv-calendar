@@ -21,6 +21,25 @@ for(const filename of ['events/index.html','inspectors/index.html']){
  if(!form.includes('name="abbreviation" maxlength="20"')||!html.includes('/app/lodges-admin.js?v=5'))
   errors.push(filename+': administrator-only, 20-character lodge abbreviation form field missing');
 }
+// Installed web app branding must not override the website's page titles.
+const siteManifest=JSON.parse(read('manifest.webmanifest'));
+const inspectorManifest=JSON.parse(read('inspectors/manifest.webmanifest'));
+for(const [name,manifest,startUrl] of [
+ ['public',siteManifest,'/'],
+ ['inspector',inspectorManifest,'/inspectors/']
+]){
+ if(manifest.name!=='Division IV'||manifest.short_name!=='Division IV'||manifest.display!=='standalone'
+    ||manifest.start_url!==startUrl||manifest.scope!=='/'||!manifest.icons?.length)
+  errors.push(name+': PWA app name, launch route, display or icons incorrect');
+}
+for(const file of ['index.html','calendar/index.html','lodges/index.html','events/index.html','inspectors/index.html']){
+ const html=read(file);
+ if(!html.includes('name="apple-mobile-web-app-title" content="Division IV"'))
+  errors.push(file+': iPhone Home Screen name missing');
+ const expected=file==='inspectors/index.html'?'/inspectors/manifest.webmanifest':'/manifest.webmanifest';
+ if(!html.includes('rel="manifest" href="'+expected+'"'))
+  errors.push(file+': expected PWA manifest missing');
+}
 const messageClient=read('app/app.js');
 const resourceClient=read('app/resources.js');
 const correctionClient=read('app/corrections-admin.js');
