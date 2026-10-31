@@ -19,7 +19,7 @@ assert.ok(home.indexOf('id="install-app"')<home.indexOf('</main>'),'Install guid
 assert.ok(homeCss.includes('.home-install')&&homeCss.includes('grid-template-columns:1fr'),'Responsive homepage guide styles missing');
 
 assert.ok(desk.includes('id="install-desk"') && desk.includes('aria-labelledby="desk-install-title"'),'Inspector Desk guide missing');
-assert.ok(desk.includes('href="/app/styles.css?v=29"'),'Inspector Desk installation styles must be cache-busted');
+assert.ok(desk.includes('href="/app/styles.css?v=30"'),'Inspector Desk installation styles must be cache-busted');
 assert.ok(desk.includes('class="desk-install-steps"')&&desk.includes('Show iPhone and Android instructions'),'Inspector instructions should be collapsible');
 assert.ok(desk.includes('href="#install-desk"'),'Desk footer needs a guide link');
 assert.ok(desk.includes('divisionivmasons.org/inspectors/'),'Desk instructions must use the desk launch page');
