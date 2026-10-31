@@ -306,7 +306,7 @@ async function identity(){
  $('nav-signin').classList.toggle('hidden',!!m.email);
  if(m.staff){
   $('welcome').textContent='Welcome, '+(m.staff.display_name||m.staff.email);
-  $('staff-role').textContent=nice(m.staff.role);
+  $('staff-role').textContent=accessLevelLabel(m.staff.role);
   all('.admin-only').forEach(x=>x.classList.toggle('hidden',m.staff.role!=='admin'));
  }
  const blocked=!!(m.staff&&(!m.mfa||m.mfa.required&&!m.mfa.verified));
@@ -1077,6 +1077,8 @@ $('history-prev').onclick=()=>loadHistory(historyPage-1);
 $('history-next').onclick=()=>loadHistory(historyPage+1);
 let showRemovedInspectors=false;
 const staffProfileFields=['email','display_name','phone','role','first_name','middle_name','last_name','office_title','district','member_number','home_phone','mobile_phone','home_address','home_address2','city','state','zip'];
+// Display labels only: role values stay 'inspector'/'admin' for all permission checks.
+function accessLevelLabel(role){return role==='inspector'?'User':role==='admin'?'Admin':nice(role);}
 function inspectorDistrictLabel(s){
  if(s.role==='inspector')return s.district?'District '+s.district:'Inspector at Large';
  return s.district?'District '+s.district:null;
@@ -1111,7 +1113,7 @@ async function loadStaff(){
    const name=document.createElement('strong');name.textContent=s.display_name||s.email;
    const meta=document.createElement('small');
    const access=s.removed_at?'Removed on '+new Date(s.removed_at).toLocaleDateString():s.enabled?'Active':'Disabled';
-   meta.textContent=[s.email,nice(s.role),inspectorDistrictLabel(s),s.member_number?'Member '+s.member_number:null,access].filter(Boolean).join(' · ');
+   meta.textContent=[s.email,accessLevelLabel(s.role),inspectorDistrictLabel(s),s.member_number?'Member '+s.member_number:null,access].filter(Boolean).join(' · ');
    info.append(name,document.createElement('br'),meta);
    const buttons=document.createElement('div');buttons.className='staff-actions';
    if(s.removed_at){
@@ -1163,8 +1165,8 @@ async function loadStaff(){
        // element (including the editing form and scroll position) untouched.
        s.enabled=result.staff.enabled===true;
        const updatedAccess=s.enabled?'Active':'Disabled';
-       meta.textContent=[s.email,nice(s.role),
-        s.district?'District '+s.district:null,
+       meta.textContent=[s.email,accessLevelLabel(s.role),
+        inspectorDistrictLabel(s),
         s.member_number?'Member '+s.member_number:null,
         updatedAccess].filter(Boolean).join(' · ');
        toggle.textContent=s.enabled?'Deactivate':'Activate';

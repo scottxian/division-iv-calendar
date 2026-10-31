@@ -28,6 +28,8 @@ jobs:
         run: node tests/email-otp-smoke.mjs
       - name: Test Home Screen installation guides and route-specific PWA names
         run: node tests/install-guides-smoke.mjs
+      - name: Test User/Admin access-level labels without changing stored roles
+        run: node tests/access-level-label-smoke.mjs
       - name: Test Inspector at Large district assignment and access boundaries
         run: node tests/inspector-at-large-smoke.mjs
       - name: Test fixed Division and District School of Instruction title rules
