@@ -71,4 +71,53 @@ assert.ok(!api.includes(".from('calendar_jobs').insert("),'Bulk importer must no
 assert.match(worker,/job\.message_type==='bulk_import_summary'/);
 assert.match(worker,/Each submission awaits individual verification and approval/);
 assert.match(api,/Possible matching event/);
+
+// Exercise the server's actual host/title validation against read-only sample inputs.
+const extracted=api.slice(api.indexOf('function validated('),api.indexOf('async function inspect('));
+assert.ok(extracted.startsWith('function validated('));
+const plain=extracted
+ .replace('function validated(row:any,ctx:any,staff:any)','function validated(row,ctx,staff)')
+ .replace('const issues:string[]=[]','const issues=[]')
+ .replace('(v:string)','(v)')
+ .replace('(l:any)','(l)')
+ .replace('const p:any=','const p=')
+ .replace('(value:string,prefix:string)','(value,prefix)');
+const preamble=api.slice(api.indexOf('const allowedModes='),api.indexOf('async function staffFor('))
+ .replace(/function respond\([\s\S]*?function fail\([\s\S]*?\n(?=async function staffFor)/,'');
+const validate=vm.runInNewContext(preamble+'\n'+plain+'\nvalidated');
+const ctx={
+ lodges:new Map([
+ ['256',{lodge_name:'Lodi',lodge_number:'256',district:'428',abbreviation:'Lodi No. 256'}],
+ ['131',{lodge_name:'Woodbridge',lodge_number:'131',district:'428',abbreviation:'Woodbridge No. 131'}]
+ ]),
+ types:new Set(['Entered Apprentice Degree','District School of Instruction','Division School of Instruction','Special Event']),
+ districts:new Set(['428'])
+};
+const staff={display_name:'Test Inspector',email:'inspector@example.org'};
+const base={row_number:3,event_type:'Entered Apprentice Degree',host_input:'256',district_override:'',
+ event_name:'Entered Apprentice Degree',start_local:'2027-11-18T19:00',end_local:'2027-11-18T21:00',
+ event_mode:'in_person',location_name:'Woodbridge Lodge No. 131',location_address1:'1040 E Augusta St',
+ location_city:'Woodbridge',location_state:'CA',location_zip:'95258'};
+const lodge=validate(base,ctx,staff);
+assert.deepEqual(Array.from(lodge.issues),[]);
+assert.equal(lodge.p.title,'Lodi No. 256: Entered Apprentice Degree');
+assert.equal(lodge.p.district,'428');
+const districtSchool=validate({...base,event_type:'District School of Instruction',event_name:''},ctx,staff);
+assert.deepEqual(Array.from(districtSchool.issues),[]);
+assert.equal(districtSchool.p.title,'District 428 School of Instruction');
+assert.equal(districtSchool.p.event_name,'School of Instruction');
+const divisionSchool=validate({...base,event_type:'Division School of Instruction',host_input:'',event_name:''},ctx,staff);
+assert.deepEqual(Array.from(divisionSchool.issues),[]);
+assert.equal(divisionSchool.p.hosted_by,'Division IV');
+assert.equal(divisionSchool.p.title,'Division School of Instruction: Woodbridge Lodge No. 131');
+const online=validate({...base,event_type:'Division School of Instruction',host_input:'',event_name:'',
+ event_mode:'online',location_name:'',virtual_meeting_url:'https://example.org/zoom'},ctx,staff);
+assert.deepEqual(Array.from(online.issues),[]);
+assert.equal(online.p.title,'Division School of Instruction: Zoom');
+const other=validate({...base,event_type:'Special Event',host_input:'Community Organization',district_override:'428',event_name:'Dinner'},ctx,staff);
+assert.deepEqual(Array.from(other.issues),[]);
+assert.equal(other.p.title,'Community Organization: Dinner');
+const invalid=validate({...base,host_input:'999'},ctx,staff);
+assert.ok(invalid.issues.some(v=>v.includes('lodge was not found')));
+
 console.log('PASS: Division IV new-event Excel importer UI, authentication, deduplication, review queue and email wiring');
