@@ -18,8 +18,10 @@ for(const path of ['inspectors/index.html','events/index.html']){
   assert.ok(html.includes('id="'+id+'"'),path+' is missing '+id);
  }
  assert.ok(html.includes('data-tab="newsletter"'),path+': newsletter navigation missing');
- assert.ok(html.includes('/app/newsletter-admin.js?v=2'),path+': new newsletter client missing');
- assert.ok(html.includes('/app/styles.css?v='+(path.startsWith('inspectors')?'30':'28')));
+ assert.ok(html.includes('/app/newsletter-admin.js?v=3'),path+': new newsletter client missing');
+ assert.ok(html.includes('id="newsletter-monthly-preview-details" class="newsletter-preview-details" hidden'),'Monthly preview should start collapsed');
+ assert.ok(html.includes('id="newsletter-weekly-preview-details" class="newsletter-preview-details" hidden'),'Weekly preview should start collapsed');
+ assert.ok(html.includes('/app/styles.css?v='+(path.startsWith('inspectors')?'31':'29')));
  assert.ok(!panel.includes('newsletter-cost')&&!panel.includes('newsletter-segment'),'Provider billing should not be on day-to-day newsletter page');
  assert.ok(setup.includes('newsletter-cost')&&setup.includes('newsletter-segment'),'Provider setup belongs under Administration Settings');
 }
@@ -37,6 +39,10 @@ assert.ok(adm.includes('newsletter-save-setup'));
 assert.ok(adm.includes('newsletter-save-signup'));
 assert.ok(adm.includes("sendNow('monthly')")&&adm.includes("sendNow('weekly')"));
 assert.ok(adm.includes('window.loadNewsletter='));
+assert.ok(adm.includes('details.hidden=false')&&adm.includes('details.open=true'),'Previews must open only after requested');
+const style=fs.readFileSync('app/styles.css','utf8');
+assert.ok(style.includes('flex-direction:row!important'),'Checkbox labels must stay horizontal');
+assert.ok(style.includes('.newsletter-preview-details[hidden]{display:none!important}'),'Empty preview must not consume space');
 for(const piece of [
  "if(!settings.sending_enabled",
  "if(!settings.signup_enabled",

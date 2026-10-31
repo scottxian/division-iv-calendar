@@ -107,12 +107,18 @@
  },'newsletter-setup-message');
  async function preview(kind){
   const label='newsletter-'+kind+'-preview-title',frame=$('newsletter-'+kind+'-preview');
+  const details=$('newsletter-'+kind+'-preview-details');
   try{
-   say(label,'Building '+kind+' preview…');
    const data=await request('preview','GET',undefined,'&kind='+encodeURIComponent(kind));
    frame.srcdoc=data.html;
    say(label,data.subject+' · '+data.included_events+' events · preview only; no emails sent');
-  }catch(error){say(label,'Preview error: '+error.message,true);}
+   details.hidden=false;
+   details.open=true;
+  }catch(error){
+   details.hidden=false;
+   details.open=true;
+   say(label,'Preview error: '+error.message,true);
+  }
  }
  async function sendNow(kind){
   if(!current||!isEnabled(current)||!current[kind+'_enabled'])return;

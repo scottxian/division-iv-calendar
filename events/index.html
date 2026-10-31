@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Event Submissions | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel a Division IV Masonic event. An inspector verifies submissions for accurate, coordinated publication on the Division calendar. Lodges independently schedule their activities.">
-<meta name="apple-mobile-web-app-title" content="Division IV"><link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=28"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=64"></script>
-<script defer src="/app/lodges-admin.js?v=5"></script><script defer src="/app/corrections-admin.js?v=2"></script><script defer src="/app/site-settings-admin.js?v=5"></script><script defer src="/app/resources.js?v=3"></script><script defer src="/app/newsletter-admin.js?v=2"></script>
+<meta name="apple-mobile-web-app-title" content="Division IV"><link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=29"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=64"></script>
+<script defer src="/app/lodges-admin.js?v=5"></script><script defer src="/app/corrections-admin.js?v=2"></script><script defer src="/app/site-settings-admin.js?v=5"></script><script defer src="/app/resources.js?v=3"></script><script defer src="/app/newsletter-admin.js?v=3"></script>
 <script defer src="/app/mfa.js?v=9"></script>
 
 <link rel="canonical" href="https://divisionivmasons.org/events/">
@@ -392,8 +392,11 @@
     <button type="button" id="newsletter-preview-monthly" class="secondary">Preview Monthly</button>
     <button type="button" id="newsletter-send-monthly" class="secondary" disabled>Send Monthly Now</button>
   </div>
-  <p id="newsletter-monthly-preview-title" class="help">Preview has not been generated.</p>
-  <iframe id="newsletter-monthly-preview" class="newsletter-preview-frame" title="Monthly newsletter preview" sandbox=""></iframe>
+  <details id="newsletter-monthly-preview-details" class="newsletter-preview-details" hidden>
+    <summary>Monthly email preview</summary>
+    <p id="newsletter-monthly-preview-title" class="help" role="status" aria-live="polite"></p>
+    <iframe id="newsletter-monthly-preview" class="newsletter-preview-frame" title="Monthly newsletter preview" sandbox="" loading="lazy"></iframe>
+  </details>
 </section>
 <section class="newsletter-kind-card" aria-labelledby="newsletter-weekly-title">
   <div class="newsletter-kind-header"><div><p class="newsletter-kind-label">CALENDAR CHANGES</p><h4 id="newsletter-weekly-title">Weekly Updates</h4>
@@ -409,8 +412,11 @@
     <button type="button" id="newsletter-preview-weekly" class="secondary">Preview Weekly</button>
     <button type="button" id="newsletter-send-weekly" class="secondary" disabled>Send Weekly Now</button>
   </div>
-  <p id="newsletter-weekly-preview-title" class="help">Preview has not been generated.</p>
-  <iframe id="newsletter-weekly-preview" class="newsletter-preview-frame" title="Weekly updates preview" sandbox=""></iframe>
+  <details id="newsletter-weekly-preview-details" class="newsletter-preview-details" hidden>
+    <summary>Weekly email preview</summary>
+    <p id="newsletter-weekly-preview-title" class="help" role="status" aria-live="polite"></p>
+    <iframe id="newsletter-weekly-preview" class="newsletter-preview-frame" title="Weekly updates preview" sandbox="" loading="lazy"></iframe>
+  </details>
 </section>
 </div>
 <div class="newsletter-save-row">

@@ -215,6 +215,9 @@ try{
  const newsletterPanel=desktop.locator('#tab-newsletter');
  assert.equal(await newsletterPanel.locator('.newsletter-kind-card').count(),2,'Monthly and weekly newsletters must have separate cards');
  assert.equal(await newsletterPanel.locator('iframe').count(),2,'Newsletter types must have separate previews');
+ assert.equal(await newsletterPanel.locator('.newsletter-preview-details[hidden]').count(),2,'Both empty email previews should start collapsed');
+ const switchStyle=await newsletterPanel.locator('.newsletter-switch').first().evaluate(el=>getComputedStyle(el).flexDirection);
+ assert.equal(switchStyle,'row','Checkbox controls should sit beside their labels, not above them');
  assert.equal(await newsletterPanel.locator('#newsletter-cost').count(),0,'Resend billing verification must not be on newsletter page');
  assert.equal(await desktop.locator('#tab-settings #newsletter-email-setup').count(),1,'One-time delivery setup must be in Administration Settings');
  await desktop.keyboard.press('Escape');
