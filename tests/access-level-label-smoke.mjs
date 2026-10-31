@@ -9,7 +9,7 @@ for(const path of sites){
  const page=fs.readFileSync(path,'utf8');
  assert.ok(page.includes('<label>Access Level <select name="role"><option value="inspector">User</option><option value="admin">Admin</option></select></label>'),path+': expected User/Admin role labels with unchanged stored values');
  assert.ok(page.includes('<span class="chip" id="staff-role">User</span>'),path+': initial badge must say User');
- assert.ok(page.includes('/app/app.js?v=63'),path+': latest client script must be used');
+ assert.ok(page.includes('/app/app.js?v=64'),path+': latest client script must be used');
  assert.ok(!page.includes('<option value="user">'),path+': must not invent new database role');
 }
 const helper=app.match(/function accessLevelLabel\(role\)\{[^\n]+\}/)?.[0];

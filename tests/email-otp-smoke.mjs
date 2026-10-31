@@ -47,7 +47,7 @@ for(const file of ['inspectors/index.html','events/index.html']){
   'signin-code','signin-resend-code','signin-change-email','signin-help']){
   assert.ok(html.includes('id="'+id+'"'),file+': missing '+id);
  }
- assert.ok(html.includes('app.js?v=63'),file+': stale auth app version');
+ assert.ok(html.includes('app.js?v=64'),file+': stale auth app version');
  assert.ok(html.includes('pattern="[0-9]{8}" maxlength="8"'),file+': email code must accept eight digits');
  assert.ok(!html.includes('six-digit code'),file+': stale email code instructions');
  assert.ok(!html.includes('Email Sign-In Link'),file+': legacy email-link button remains');
