@@ -85,7 +85,7 @@ const plain=extracted
  .replaceAll(':string','').replaceAll(':any','').replaceAll(' as any','');
 const preamble=api.slice(api.indexOf('const allowedModes='),api.indexOf('function respond('))
  .replaceAll(':any','').replaceAll(':string','');
-const validate=vm.runInNewContext(preamble+'\n'+plain+'\nvalidated');
+const validate=vm.runInNewContext(preamble+'\n'+plain+'\nvalidated',{URL});
 const ctx={
  lodges:new Map([
  ['256',{lodge_name:'Lodi',lodge_number:'256',district:'428',abbreviation:'Lodi No. 256'}],
