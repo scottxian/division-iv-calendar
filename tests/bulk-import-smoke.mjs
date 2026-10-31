@@ -81,7 +81,8 @@ const plain=extracted
  .replace('(v:string)','(v)')
  .replace('(l:any)','(l)')
  .replace('const p:any=','const p=')
- .replace('(value:string,prefix:string)','(value,prefix)');
+ .replace('(value:string,prefix:string)','(value,prefix)')
+ .replaceAll(':string','').replaceAll(':any','');
 const preamble=api.slice(api.indexOf('const allowedModes='),api.indexOf('function respond('))
  .replaceAll(':any','').replaceAll(':string','');
 const validate=vm.runInNewContext(preamble+'\n'+plain+'\nvalidated');
