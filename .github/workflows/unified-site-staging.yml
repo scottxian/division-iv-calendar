@@ -26,6 +26,8 @@ jobs:
         run: node tests/site-smoke.mjs
       - name: Verify email OTP request, code exchange, and MFA boundaries
         run: node tests/email-otp-smoke.mjs
+      - name: Test fixed Division and District School of Instruction title rules
+        run: node tests/soi-title-smoke.mjs
       - name: Test Google Calendar publishing title and notes
         run: node tests/calendar-publishing.mjs
       - name: Test Inspector Desk Excel import integration
