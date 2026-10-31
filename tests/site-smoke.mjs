@@ -66,7 +66,7 @@ if(!inspectorHtml.includes('id="resources-editor-message"')||
 const lodgeAdminClient=read('app/lodges-admin.js');
 if(!read('inspectors/index.html').includes('id="lodge-save-message"')||
  !read('inspectors/index.html').includes('app/lodges-admin.js?v=5')||
- !read('inspectors/index.html').includes('app/styles.css?v=27')||
+ !read('inspectors/index.html').includes('app/styles.css?v=28')||
  !lodgeAdminClient.includes("form.addEventListener('invalid'")||
  !lodgeAdminClient.includes("saveFeedback(data.notice")||
  !lodgeAdminClient.includes("saveFeedback('Lodge changes were not saved:")||
@@ -283,7 +283,7 @@ for(const path of ['events/index.html','inspectors/index.html']){
  }
  if(/Calendar requests, made simple|Approve & Publish|Pending Approval|<option value="approved">Approved<\/option>/.test(html))
    errors.push(path+': old permission-oriented terminology remains');
- if(!html.includes('/app/app.js?v=61')||!html.includes('/app/styles.css?v=27'))
+ if(!html.includes('/app/app.js?v=61')||!html.includes('/app/styles.css?v='+(path==='inspectors/index.html'?'28':'27')))
    errors.push(path+': current publication UI cache version missing');
 }
 const districtClient=read('app/app.js');
