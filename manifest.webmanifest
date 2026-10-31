@@ -1,0 +1,28 @@
+{
+  "name": "Division IV",
+  "short_name": "Division IV",
+  "description": "Division IV Masons — Calendar and Inspector Desk",
+  "display": "standalone",
+  "background_color": "#0b2138",
+  "theme_color": "#0b2138",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/assets/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/favicon.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/emblem.png",
+      "sizes": "620x620",
+      "type": "image/png"
+    }
+  ],
+  "id": "/",
+  "start_url": "/"
+}
