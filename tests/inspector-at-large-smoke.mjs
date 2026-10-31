@@ -26,7 +26,7 @@ assert.ok(client.includes("if(s.role==='inspector'&&!s.district)form.elements.di
  'Editing an unassigned inspector must choose the at-large option');
 assert.ok(client.includes("form.elements[key].required=required"),
  'Existing required field checks must remain');
-const districtRegion=server.slice(server.indexOf("const districtSelection=clean(b.district,12);"),server.indexOf("const home_phone=clean(b.home_phone,50);"));
+const districtRegion=server.slice(server.indexOf("const districtSelection=clean(b.district,12);"),server.indexOf('const home_phone=',server.indexOf('const districtSelection=')));
 assert.ok(districtRegion.includes("districtSelection==='at_large'?'':districtSelection"),'Backend must normalize At Large to blank');
 assert.ok(districtRegion.includes("role!=='inspector'"),'At Large must be inspector-only');
 assert.ok(server.includes("['district',districtSelection]"),'New inspector validation must check that a designation was selected');
