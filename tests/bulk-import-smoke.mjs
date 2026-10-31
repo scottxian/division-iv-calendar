@@ -108,14 +108,19 @@ const districtSchool=validate({...base,event_type:'District School of Instructio
 assert.deepEqual(Array.from(districtSchool.issues),[]);
 assert.equal(districtSchool.p.title,'District 428 School of Instruction');
 assert.equal(districtSchool.p.event_name,'School of Instruction');
+const districtArbitrary=validate({...base,event_type:'District School of Instruction',event_name:'Lodge School in town'},ctx,staff);
+assert.equal(districtArbitrary.p.title,'District 428 School of Instruction');
 const divisionSchool=validate({...base,event_type:'Division School of Instruction',host_input:'',event_name:''},ctx,staff);
 assert.deepEqual(Array.from(divisionSchool.issues),[]);
 assert.equal(divisionSchool.p.hosted_by,'Division IV');
-assert.equal(divisionSchool.p.title,'Division School of Instruction: Woodbridge Lodge No. 131');
+assert.equal(divisionSchool.p.title,'Division IV School of Instruction');
+assert.equal(divisionSchool.p.event_name,'School of Instruction');
+const divisionArbitrary=validate({...base,event_type:'Division School of Instruction',host_input:'',event_name:'Woodbridge School at 10 AM'},ctx,staff);
+assert.equal(divisionArbitrary.p.title,'Division IV School of Instruction');
 const online=validate({...base,event_type:'Division School of Instruction',host_input:'',event_name:'',
  event_mode:'online',location_name:'',virtual_meeting_url:'https://example.org/zoom'},ctx,staff);
 assert.deepEqual(Array.from(online.issues),[]);
-assert.equal(online.p.title,'Division School of Instruction: Zoom');
+assert.equal(online.p.title,'Division IV School of Instruction');
 const other=validate({...base,event_type:'Special Event',host_input:'Community Organization',district_override:'428',event_name:'Dinner'},ctx,staff);
 assert.deepEqual(Array.from(other.issues),[]);
 assert.equal(other.p.title,'Community Organization: Dinner');
