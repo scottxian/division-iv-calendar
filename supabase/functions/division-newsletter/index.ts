@@ -4,6 +4,8 @@ const db=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVI
 const origins=new Set(['https://divisionivmasons.org','https://www.divisionivmasons.org','http://127.0.0.1:5173','http://localhost:5173']);
 const fromEnv=()=>Deno.env.get('MAIL_FROM')||'';
 const key=()=>Deno.env.get('RESEND_API_KEY')||'';
+// Separate full-access Marketing credential; never replace the transactional send-only key.
+const marketingKey=()=>Deno.env.get('RESEND_MARKETING_API_KEY')||'';
 const resp=(data:any,status=200,origin='')=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json;charset=utf-8','cache-control':'no-store','vary':'Origin',...(origins.has(origin)?{'access-control-allow-origin':origin}:{})}});
 const message=(value:any)=>String(value??'').trim();
 const goodEmail=(s:string)=>s.length<=250&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
@@ -12,9 +14,10 @@ const escapeHTML=(v:any)=>message(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 const utcDate=(v:any)=>new Date(v).toISOString();
 const allowedFields=['sending_enabled','signup_enabled','free_plan_confirmed','resend_segment_id','monthly_enabled','weekly_enabled','monthly_day','weekly_day','monthly_send_hour','weekly_send_hour','lookahead_days'];
 async function config(){const {data,error}=await db.from('newsletter_settings').select('*').eq('id',true).single();if(error)throw Error('Newsletter settings unavailable');return data;}
-async function resend(path:string,method='GET',body?:unknown){
- if(!key())throw Error('Resend is not configured');
- const r=await fetch('https://api.resend.com'+path,{method,headers:{authorization:'Bearer '+key(),'content-type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});
+async function resend(path:string,method='GET',body?:unknown,mode:'marketing'|'transactional'='marketing'){
+ const credential=mode==='transactional'?key():marketingKey();
+ if(!credential)throw Error(mode==='marketing'?'Resend Marketing API key not configured. Contact an administrator.':'Resend transactional email is not configured');
+ const r=await fetch('https://api.resend.com'+path,{method,headers:{authorization:'Bearer '+credential,'content-type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});
  const data=await r.json().catch(()=>({}));
  if(!r.ok)throw Error('Resend '+r.status+': '+message(data?.message||data?.name||'Request rejected').slice(0,160));
  return data;
@@ -77,7 +80,7 @@ async function issue(kind:string,settings:any){
  return {kind,subject,html,text,groups,versions,items:list.length};
 }
 async function subscribe(req:Request,settings:any){
- if(!settings.signup_enabled||!settings.free_plan_confirmed||!settings.resend_segment_id||!fromEnv()||!key())return {message:'Newsletter signup is not yet open.'};
+ if(!settings.signup_enabled||!settings.free_plan_confirmed||!settings.resend_segment_id||!fromEnv()||!key()||!marketingKey())return {message:'Newsletter signup is not yet open.'};
  const body=await req.json(),email=message(body.email).toLowerCase();
  if(body.website||!goodEmail(email))return {message:'If signup is available, please check your inbox for confirmation.'};
  const ip=message(req.headers.get('cf-connecting-ip')||req.headers.get('x-forwarded-for')?.split(',')[0]||'unknown').slice(0,200);
@@ -96,7 +99,7 @@ async function subscribe(req:Request,settings:any){
  const {error}=await db.from('newsletter_subscribers').upsert({email,status:'pending',token_hash,token_expires_at:new Date(Date.now()+48*3600000).toISOString(),requested_at:new Date().toISOString(),last_confirmation_sent_at:new Date().toISOString()},{onConflict:'email'});
  if(error)throw Error('Unable to create signup request');
  const link='https://divisionivmasons.org/calendar/?newsletter_confirm='+encodeURIComponent(token);
- const reply=await resend('/emails','POST',{from:fromEnv(),to:[email],subject:'Confirm Division IV newsletter subscription',text:'Confirm your subscription to the Division IV Events Newsletter:\n'+link+'\n\nThis link expires in 48 hours. If you did not request this, ignore the message.'});
+ const reply=await resend('/emails','POST',{from:fromEnv(),to:[email],subject:'Confirm Division IV newsletter subscription',text:'Confirm your subscription to the Division IV Events Newsletter:\n'+link+'\n\nThis link expires in 48 hours. If you did not request this, ignore the message.'},'transactional');
  if(!reply?.id)throw Error('Confirmation email could not be sent');
  return {message:'If this address is eligible, please check your inbox for a confirmation link.'};
 }
@@ -106,7 +109,8 @@ async function confirm(req:Request,settings:any){
  const token_hash=await hash(token);
  const {data:s}=await db.from('newsletter_subscribers').select('id,email,status,token_expires_at').eq('token_hash',token_hash).maybeSingle();
  if(!s||s.status!=='pending'||Date.parse(s.token_expires_at)<Date.now())throw Error('This confirmation link has expired. Please subscribe again.');
- if(!settings.signup_enabled||!settings.free_plan_confirmed)throw Error('Signup is temporarily paused.');
+ // Confirm already-requested subscriptions even when new signup is paused.
+ if(!settings.free_plan_confirmed||!settings.resend_segment_id||!marketingKey())throw Error('Newsletter contact enrollment is being configured. Please try the same confirmation link again later.');
  const {count}=await db.from('newsletter_subscribers').select('id',{count:'exact',head:true}).eq('status','active');
  if((count||0)>=Math.min(settings.contact_cap,900))throw Error('Newsletter signup is full.');
  // Resend contact setup is performed only after email ownership is verified.
@@ -117,10 +121,10 @@ async function confirm(req:Request,settings:any){
 }
 async function summary(){
  const [settings,count,recent]=await Promise.all([config(),db.from('newsletter_subscribers').select('id',{count:'exact',head:true}).eq('status','active'),db.from('newsletter_runs').select('id,kind,issue_key,state,created_at,sent_at,error_message,provider_broadcast_id,content_summary').order('created_at',{ascending:false}).limit(25)]);
- return {settings,subscribers:count.count||0,runs:recent.data||[],resend_configured:!!key()&&!!fromEnv()};
+ return {settings,subscribers:count.count||0,runs:recent.data||[],resend_configured:!!key()&&!!fromEnv(),marketing_configured:!!marketingKey()};
 }
 async function sendIssue(kind:string,settings:any,staffId?:string){
- if(!settings.sending_enabled||!settings.free_plan_confirmed||!settings.resend_segment_id)throw Error('Newsletter sending is paused or provider setup is incomplete.');
+ if(!settings.sending_enabled||!settings.free_plan_confirmed||!settings.resend_segment_id||!marketingKey())throw Error('Newsletter sending is paused or Marketing API key is not configured.');
  if(!key()||!fromEnv())throw Error('Resend email sender is not configured');
  const {count}=await db.from('newsletter_subscribers').select('id',{count:'exact',head:true}).eq('status','active');
  if(!count||count>settings.contact_cap||count>900)throw Error('No verified subscribers or the free-tier safety cap has been reached');
@@ -157,7 +161,7 @@ Deno.serve(async(req:Request)=>{
  if(origin&&!origins.has(origin))return resp({error:'Origin not permitted'},403,origin);
  const action=new URL(req.url).searchParams.get('action')||'status';
  try{
-  if(action==='status'&&req.method==='GET'){const s=await config();return resp({signup_enabled:!!(s.signup_enabled&&s.free_plan_confirmed&&s.resend_segment_id&&key()&&fromEnv())},200,origin);}
+  if(action==='status'&&req.method==='GET'){const s=await config();return resp({signup_enabled:!!(s.signup_enabled&&s.free_plan_confirmed&&s.resend_segment_id&&marketingKey()&&key()&&fromEnv())},200,origin);}
   if(action==='subscribe'&&req.method==='POST')return resp(await subscribe(req,await config()),200,origin);
   if(action==='confirm'&&req.method==='POST')return resp(await confirm(req,await config()),200,origin);
   if(action==='cron'&&req.method==='POST'){
@@ -194,7 +198,7 @@ Deno.serve(async(req:Request)=>{
    if(data.resend_segment_id&&!/^[a-f0-9-]{36}$/i.test(String(data.resend_segment_id)))throw Error('Use a valid Resend segment ID');
    const after={...old,...data};
    if(after.sending_enabled&&!(after.monthly_enabled||after.weekly_enabled))throw Error('Choose a monthly or weekly newsletter before enabling delivery.');
-   if((after.sending_enabled||after.signup_enabled)&&(!after.free_plan_confirmed||!after.resend_segment_id||!key()||!fromEnv()))throw Error('Complete the one-time email delivery setup under Administration Settings before enabling newsletters.');
+   if((after.sending_enabled||after.signup_enabled)&&(!after.free_plan_confirmed||!after.resend_segment_id||!marketingKey()||!key()||!fromEnv()))throw Error('Complete one-time email setup and configure the Marketing API key in Supabase before enabling newsletters.');
    const {error}=await db.from('newsletter_settings').update(data).eq('id',true);
    if(error)throw Error('Newsletter settings not saved');
    return resp({ok:true,settings:(await summary()).settings},200,origin);

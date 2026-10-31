@@ -54,7 +54,8 @@
    $('newsletter-segment').value=s.resend_segment_id||'';
    $('newsletter-cost').checked=!!s.free_plan_confirmed;
    $('newsletter-overview').textContent=(s.sending_enabled?'Automatic delivery enabled':'Automatic delivery paused')+
-    ' · '+(configured(s)?'Email delivery configured':'Finish one-time setup in Administration Settings');
+    ' · '+(data.marketing_configured?'Marketing API connection available':'Marketing API key needed in Supabase')+
+    ' · '+(configured(s)?'segment saved':'finish one-time setup in Administration Settings');
    say('newsletter-admin-stats',(data.subscribers||0)+' verified subscribers · signup '+(s.signup_enabled?'open':'closed')+
     ' · contact safety limit '+s.contact_cap);
    const host=$('newsletter-runs');host.replaceChildren();

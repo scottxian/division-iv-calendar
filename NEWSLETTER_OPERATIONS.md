@@ -29,3 +29,14 @@ The newsletter uses no previous sent-document comparison. Published event versio
 Tables: newsletter_settings, newsletter_subscribers, newsletter_event_flags, newsletter_runs, newsletter_signup_limits.
 Migrations: division_iv_newsletter_opt_in_flags_and_runs, division_iv_newsletter_signup_rate_limits, newsletter_service_role_access_and_separate_schedules, newsletter_monthly_weekly_separately_paused.
 Function: supabase/functions/division-newsletter/index.ts.
+
+
+## Known integration issue found during first signup test (October 31, 2026)
+
+The first user received the confirmation email and clicked the confirmation link, but Resend returned HTTP 401: **'This API key is restricted to only send emails'** during contact enrollment. The current `RESEND_API_KEY` is intentionally Send-only for transactional notices; do not upgrade, replace, or expose it.
+
+The newsletter backend now uses a second private environment variable, `RESEND_MARKETING_API_KEY`, for contacts and Broadcasts. Resend currently offers `full_access` or `sending_access` API-key permissions; the Marketing operations need full access. The send-only key continues handling confirmation email delivery.
+
+To connect safely: Resend → API Keys → Create API Key → **Full access**, name `Division IV Marketing`. Save it privately in the Supabase project at **Edge Functions → Secrets** with key `RESEND_MARKETING_API_KEY`. Do not put the secret in the website, GitHub, or chat. The Edge Function reads the secret without a redeploy. The admin Newsletter panel displays whether the Marketing API connection is configured; this is presence-only, not an authenticated provider health test.
+
+Public signup was paused after the failed first confirmation. The original confirmation token remains pending for up to 48 hours and may be retried after installing the secret. **Pending does not equal subscribed.** Keep all automatic sends disabled until successful provider contact creation and unsubscribe tests. 

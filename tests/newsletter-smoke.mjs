@@ -18,7 +18,7 @@ for(const path of ['inspectors/index.html','events/index.html']){
   assert.ok(html.includes('id="'+id+'"'),path+' is missing '+id);
  }
  assert.ok(html.includes('data-tab="newsletter"'),path+': newsletter navigation missing');
- assert.ok(html.includes('/app/newsletter-admin.js?v=3'),path+': new newsletter client missing');
+ assert.ok(html.includes('/app/newsletter-admin.js?v=4'),path+': new newsletter client missing');
  assert.ok(html.includes('id="newsletter-monthly-preview-details" class="newsletter-preview-details" hidden'),'Monthly preview should start collapsed');
  assert.ok(html.includes('id="newsletter-weekly-preview-details" class="newsletter-preview-details" hidden'),'Weekly preview should start collapsed');
  assert.ok(html.includes('/app/styles.css?v='+(path.startsWith('inspectors')?'31':'29')));
@@ -39,6 +39,11 @@ assert.ok(adm.includes('newsletter-save-setup'));
 assert.ok(adm.includes('newsletter-save-signup'));
 assert.ok(adm.includes("sendNow('monthly')")&&adm.includes("sendNow('weekly')"));
 assert.ok(adm.includes('window.loadNewsletter='));
+assert.ok(adm.includes('data.marketing_configured'),'Show Marketing key status in the Inspector Desk');
+assert.ok(api.includes('RESEND_MARKETING_API_KEY'),'Use separate Marketing API key');
+assert.ok(api.includes("mode:'marketing'|'transactional'='marketing'"),'Keep transactional email credentials separated');
+assert.ok(api.includes("'transactional');"),'Signup confirmation must use send-only transactional key');
+assert.ok(api.includes("||!marketingKey()"),'Signup and sending must be gated on Marketing API key');
 assert.ok(adm.includes('details.hidden=false')&&adm.includes('details.open=true'),'Previews must open only after requested');
 const style=fs.readFileSync('app/styles.css','utf8');
 assert.ok(style.includes('flex-direction:row!important'),'Checkbox labels must stay horizontal');
