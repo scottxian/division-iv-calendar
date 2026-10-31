@@ -1012,7 +1012,7 @@ async function activateInspectorTab(key){
  if(key==='history')await loadHistory(0);
  if(key==='staff')await loadStaff();
  if(key==='newsletter')await window.loadNewsletter?.();
- if(key==='settings')await Promise.allSettled([loadSettings(),window.loadWebsiteSettings?.()]);
+ if(key==='settings')await Promise.allSettled([loadSettings(),window.loadWebsiteSettings?.(),window.loadNewsletter?.()]);
 }
 all('.tab').forEach(t=>t.onclick=()=>activateInspectorTab(t.dataset.tab));
 // Native details/summary menus support keyboard, touch, and mouse.
