@@ -5,11 +5,12 @@ The website contains the email-code UI and Supabase REST verification logic, pre
 
 ## Final required project configuration
 1. Sign in to Supabase Dashboard for project `lxvceqshpjnjjlllbpaq`.
-2. Open **Authentication → Email Templates → Magic Link / OTP**.
-3. Set subject to **Division IV Calendar — Your verification code**.
-4. Replace the email body with the contents of `auth-email-otp-template.html` in this directory, including the literal template variable `{{ .Token }}`.
-5. Confirm that the new body contains **no** `{{ .ConfirmationURL }}` sign-in link, then save.
-6. Confirm **Email OTP expiration** under Authentication email-provider settings is appropriate (recommended: 600 seconds / 10 minutes), without changing other sign-in or security settings.
+2. Open **Authentication → Email Templates → Magic Link** (sometimes labeled **Magic Link / OTP**).
+3. Set the subject to **Division IV Calendar — Your verification code**.
+4. Replace the email body with the contents of `auth-email-otp-template.html` in this directory. Retain the literal variable `{{ .Token }}` and save.
+5. Because the existing frontend allows first-time sign-in (`create_user: true`), also update **Confirm Signup** using the same code-only template and subject. Otherwise first-time submitter contacts or inspectors may still receive a signup link instead of a code.
+6. Confirm both templates contain **no** `{{ .ConfirmationURL }}` sign-in link and leave the **Invite user** template unchanged.
+7. Confirm **Email OTP expiration** under Authentication email-provider settings is appropriate (recommended: 600 seconds / 10 minutes), without changing other sign-in or security settings.
 
 Do not paste sample numbers or actual credentials into the template.
 
@@ -22,7 +23,7 @@ Do not paste sample numbers or actual credentials into the template.
 - Verify refresh/sign-out and an invalid or expired code. Also test a non-inspector account: email confirmation alone must **not** grant inspector access.
 
 ## Rollback
-The deployed frontend still accepts legacy email-link redirect sessions. If code email delivery fails, restore the prior Supabase Magic Link template and investigate before modifying MFA or role settings.
+The deployed frontend still accepts legacy email-link redirect sessions. If code email delivery fails, restore the prior Supabase Magic Link and Confirm Signup templates and investigate before modifying MFA or role settings.
 
 ## Separation of concerns
 Public submission, event-contact verification and staff MFA remain distinct. No database schema change is required for this email-code upgrade.
