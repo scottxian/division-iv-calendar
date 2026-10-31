@@ -382,7 +382,7 @@ const OTP_CACHE='division-iv-otp-pending-v1';
 function signInCopy(){
  const contact=state.loginPurpose==='event-contact';
  $('signin-heading').textContent=contact?'Verify Event Contact Email':'Inspector Sign In';
- $('signin-intro').textContent=contact?'Enter the original submission email address to receive a six-digit verification code.':'Enter your approved email address to receive a six-digit verification code.';
+ $('signin-intro').textContent=contact?'Enter the original submission email address to receive a eight-digit verification code.':'Enter your approved email address to receive a eight-digit verification code.';
  $('signin-help').textContent=contact?'Check Junk/Spam if the email does not arrive. Event contacts do not need inspector accounts or authenticator apps.':'Check Junk/Spam if the email does not arrive. Inspectors and administrators also complete authenticator verification.';
 }
 function clearOtp(){
@@ -394,7 +394,7 @@ function clearOtp(){
 function showOtp(){
  if(!state.pendingOtp)return;
  $('signin-form').classList.add('hidden');$('signin-code-form').classList.remove('hidden');
- $('signin-code-sent').textContent='Enter the six-digit code emailed to '+state.pendingOtp.email+'.';
+ $('signin-code-sent').textContent='Enter the eight-digit code emailed to '+state.pendingOtp.email+'.';
  $('signin-code').focus();
 }
 function rememberOtp(email,purpose){
@@ -423,14 +423,14 @@ $('signin-form').onsubmit=async e=>{
   const {error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:destination}});
   if(error)throw error;
   rememberOtp(email,state.loginPurpose);
-  notify('Verification email requested. Enter the six-digit code below. Check Junk/Spam if needed.');
+  notify('Verification email requested. Enter the eight-digit code below. Check Junk/Spam if needed.');
  }catch(ex){notify(ex.message,true)}finally{busy(btn,false)}
 };
 $('signin-code-form').onsubmit=async e=>{
  e.preventDefault();const btn=e.submitter;busy(btn,true);
  try{
   const p=state.pendingOtp;if(!p)throw Error('Request a new email code.');
-  const token=$('signin-code').value.trim();if(!/^[0-9]{6}$/.test(token))throw Error('Enter all six digits.');
+  const token=$('signin-code').value.trim();if(!/^[0-9]{8}$/.test(token))throw Error('Enter all eight digits from your email.');
   const {error}=await db.auth.verifyOtp({email:p.email,token});if(error)throw error;
   const purpose=p.purpose;clearOtp();await identity();
   if(purpose==='event-contact'){
@@ -476,7 +476,7 @@ $('lookup-button').onclick=async e=>{
     state.loginPurpose='event-contact';
     clearOtp();
     $('signin-email').value=email;show('signin');
-    notify('Verify the original contact email first. Enter the emailed six-digit code to continue.');
+    notify('Verify the original contact email first. Enter the emailed eight-digit code to continue.');
     return;
   }
   const result=await api('locate',null,{code});
