@@ -382,7 +382,7 @@ const OTP_CACHE='division-iv-otp-pending-v1';
 function signInCopy(){
  const contact=state.loginPurpose==='event-contact';
  $('signin-heading').textContent=contact?'Verify Event Contact Email':'Inspector Sign In';
- $('signin-intro').textContent=contact?'Enter the original submission email address to receive a eight-digit verification code.':'Enter your approved email address to receive a eight-digit verification code.';
+ $('signin-intro').textContent=contact?'Enter the original submission email address to receive an eight-digit verification code.':'Enter your approved email address to receive an eight-digit verification code.';
  $('signin-help').textContent=contact?'Check Junk/Spam if the email does not arrive. Event contacts do not need inspector accounts or authenticator apps.':'Check Junk/Spam if the email does not arrive. Inspectors and administrators also complete authenticator verification.';
 }
 function clearOtp(){
