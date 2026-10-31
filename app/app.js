@@ -55,6 +55,16 @@ const db={auth:{
    return {error:null};
   }catch(error){return {error}}
  },
+ async verifyOtp({email,token}){
+  try{
+   const result=await authFetch('verify',{method:'POST',body:JSON.stringify({email,token,type:'email'})});
+   if(!result.access_token||!result.refresh_token)throw Error('Verification did not return a complete sign-in session.');
+   const session={access_token:result.access_token,refresh_token:result.refresh_token,
+    expires_at:Math.floor(Date.now()/1000)+(Number(result.expires_in)||3600),user:result.user||null};
+   setSession(session);
+   return {data:{session,user:session.user},error:null};
+  }catch(error){return {data:{session:null,user:null},error}}
+ },
  async signOut(){
   const {data:{session}}=await getSession();
   if(session){try{await authFetch('logout',{method:'POST',headers:{authorization:'Bearer '+session.access_token}})}catch{}}
@@ -82,7 +92,7 @@ function canonicalHost(value){
  if(!match||/\b(?:chapter|association|district)\b/i.test(match[1]))return str;
  return match[1].replace(/[,\s]+$/,'').replace(/\s+Lodge$/i,'').trim()+' Lodge No. '+match[2];
 }
-const state={view:'public',mode:null,staff:null,user:null,config:null,event:null,original:null,page:0,historyPage:0,total:0,loginPurpose:'inspector'};
+const state={view:'public',mode:null,staff:null,user:null,config:null,event:null,original:null,page:0,historyPage:0,total:0,loginPurpose:'inspector',pendingOtp:null};
 let toastTimer,turnstileToken='';
 function toast(t,error=false){const x=$('toast');x.textContent=t;x.className='toast'+(error?' error':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.add('hidden'),6500)}
 function notify(t,error=false){const x=$('notice');x.textContent=t;x.className='notice'+(error?' error':'');}
