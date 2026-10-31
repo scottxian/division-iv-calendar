@@ -67,7 +67,9 @@ function sanitize(p:any,patch=false,allowOverride=false){
  return obj;
 }
 async function resolveSubmittedTitle(obj:any,fallback=''){
- if(!obj.event_name&&!obj.calendar_title_override)return obj; // untouched legacy title
+ if(!obj.event_name&&!obj.calendar_title_override
+  && !['District School of Instruction','Division School of Instruction'].includes(String(obj.event_type||'')))
+  return obj; // untouched legacy non-SOI title
  const {data,error}=await db.rpc('resolve_calendar_title',{
   p_event_name:obj.event_name||null,p_hosted_by:obj.hosted_by||null,
   p_event_type:obj.event_type||null,p_district:obj.district||null,
@@ -166,7 +168,9 @@ Deno.serve(async req=>{
    let event_id=null, base_event_version=null, proposed_fields:any={};
    if(kind==='new'){
      proposed_fields=sanitize(body.event||{});
-     if(!proposed_fields.event_name)throw Error('Enter the event name');
+     if(!proposed_fields.event_name
+    && !['District School of Instruction','Division School of Instruction'].includes(String(proposed_fields.event_type)))
+    throw Error('Enter the event name');
      await resolveSubmittedTitle(proposed_fields);
      const districts=await setting('district_numbers',[]);
      if(kind==='new' && proposed_fields.event_type!=='Division School of Instruction'&&!districts.includes(String(proposed_fields.district)))throw Error('Choose a valid district number');
