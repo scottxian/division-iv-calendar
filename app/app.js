@@ -377,10 +377,43 @@ async function init(){
 }
 all('.choice').forEach(b=>b.addEventListener('click',()=>mode(b.dataset.mode)));
 const onInspectorRoute=location.pathname.startsWith('/inspectors/');
+const OTP_CACHE='division-iv-otp-pending-v1';
+function signInCopy(){
+ const contact=state.loginPurpose==='event-contact';
+ $('signin-heading').textContent=contact?'Verify Event Contact Email':'Inspector Sign In';
+ $('signin-intro').textContent=contact?'Enter the original submission email address to receive a six-digit verification code.':'Enter your approved email address to receive a six-digit verification code.';
+ $('signin-help').textContent=contact?'Check Junk/Spam if the email does not arrive. Event contacts do not need inspector accounts or authenticator apps.':'Check Junk/Spam if the email does not arrive. Inspectors and administrators also complete authenticator verification.';
+}
+function clearOtp(){
+ state.pendingOtp=null;
+ try{sessionStorage.removeItem(OTP_CACHE)}catch{}
+ $('signin-form').classList.remove('hidden');$('signin-code-form').classList.add('hidden');
+ $('signin-code').value='';signInCopy();
+}
+function showOtp(){
+ if(!state.pendingOtp)return;
+ $('signin-form').classList.add('hidden');$('signin-code-form').classList.remove('hidden');
+ $('signin-code-sent').textContent='Enter the six-digit code emailed to '+state.pendingOtp.email+'.';
+ $('signin-code').focus();
+}
+function rememberOtp(email,purpose){
+ state.pendingOtp={email,purpose,route:location.pathname,sentAt:Date.now()};
+ try{sessionStorage.setItem(OTP_CACHE,JSON.stringify(state.pendingOtp))}catch{}
+ showOtp();
+}
+function restoreOtp(){
+ try{
+  const p=JSON.parse(sessionStorage.getItem(OTP_CACHE)||'null');
+  if(!p||p.route!==location.pathname||!['inspector','event-contact'].includes(p.purpose)||typeof p.email!=='string'
+   ||Date.now()-p.sentAt>15*60*1000||Date.now()<p.sentAt)return;
+  state.pendingOtp=p;state.loginPurpose=p.purpose;$('signin-email').value=p.email;
+  signInCopy();showOtp();if(p.purpose==='event-contact')show('signin');
+ }catch{}
+}
 $('nav-public').onclick=()=>{if(onInspectorRoute)location.assign('/events/');else show('public')};
-$('nav-signin').onclick=()=>{state.loginPurpose='inspector';if(!onInspectorRoute)location.assign('/inspectors/');else show('signin')};
+$('nav-signin').onclick=()=>{state.loginPurpose='inspector';if(!onInspectorRoute)location.assign('/inspectors/');else{clearOtp();show('signin')}};
 $('nav-admin').onclick=()=>{if(!onInspectorRoute)location.assign('/inspectors/');else show('admin')};
-$('nav-signout').onclick=async()=>{await db.auth.signOut();show('public');await identity();toast('Signed out')};
+$('nav-signout').onclick=async()=>{clearOtp();await db.auth.signOut();show('public');await identity();toast('Signed out')};
 $('signin-form').onsubmit=async e=>{
  e.preventDefault();const btn=e.submitter;busy(btn,true);
  try{
@@ -388,9 +421,39 @@ $('signin-form').onsubmit=async e=>{
   const destination=location.origin+(state.loginPurpose==='event-contact'?'/events/':'/inspectors/');
   const {error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:destination}});
   if(error)throw error;
-  notify('Check your email for the sign-in link. Check Junk or Spam if it does not arrive.');
+  rememberOtp(email,state.loginPurpose);
+  notify('Verification email requested. Enter the six-digit code below. Check Junk/Spam if needed.');
  }catch(ex){notify(ex.message,true)}finally{busy(btn,false)}
 };
+$('signin-code-form').onsubmit=async e=>{
+ e.preventDefault();const btn=e.submitter;busy(btn,true);
+ try{
+  const p=state.pendingOtp;if(!p)throw Error('Request a new email code.');
+  const token=$('signin-code').value.trim();if(!/^[0-9]{6}$/.test(token))throw Error('Enter all six digits.');
+  const {error}=await db.auth.verifyOtp({email:p.email,token});if(error)throw error;
+  const purpose=p.purpose;clearOtp();await identity();
+  if(purpose==='event-contact'){
+   show('public');
+   notify('Email verified. Opening your calendar submission.');
+   if($('lookup-code').value.trim()&&$('lookup-email').value.trim())$('lookup-button').click();
+  }else if(state.staff)show('admin'); // Existing server-enforced MFA lock remains until AAL2.
+  else{show('public');notify('Email verified, but this account has no inspector access. Contact an administrator.',true)}
+ }catch(ex){notify(ex.message||'Verification failed. If the code expired, request another.',true)}
+ finally{busy(btn,false)}
+};
+$('signin-resend-code').onclick=async e=>{
+ const btn=e.currentTarget,p=state.pendingOtp;
+ if(!p){notify('Request an email code first.',true);return}
+ if(Date.now()-p.sentAt<60000){notify('Wait at least 60 seconds before resending.',true);return}
+ busy(btn,true);
+ try{
+  const destination=location.origin+(p.purpose==='event-contact'?'/events/':'/inspectors/');
+  const {error}=await db.auth.signInWithOtp({email:p.email,options:{emailRedirectTo:destination}});
+  if(error)throw error;
+  rememberOtp(p.email,p.purpose);notify('A new email code was requested. Use the newest email.');
+ }catch(ex){notify(ex.message,true)}finally{busy(btn,false)}
+};
+$('signin-change-email').onclick=()=>{clearOtp();$('signin-email').focus()};
 $('new-form').onsubmit=async e=>{
  e.preventDefault();const btn=e.submitter;busy(btn,true);
  try{
