@@ -443,18 +443,6 @@
 </section>
 </section>
 <section id="tab-settings" class="panel hidden">
-<details id="newsletter-email-setup" class="newsletter-email-setup">
-<summary>Email Newsletter Delivery — One-time Setup</summary>
-<div class="newsletter-setup-body">
-  <p class="muted">Resend is the email delivery service, not a newsletter setting. Configure it once, then manage your monthly and weekly newsletters from the Newsletter page.</p>
-  <label>Resend Marketing segment ID (UUID)
-    <input id="newsletter-segment" type="text" maxlength="36" autocomplete="off" placeholder="Segment ID, not your API key">
-  </label>
-  <label class="newsletter-switch"><input type="checkbox" id="newsletter-cost"> I have checked the account's $0 Marketing plan, contact allowance, and billing restrictions.</label>
-  <p class="help">Do not enable sending if this account could incur charges. The website never upgrades the plan. Check the complete provider contact count, not just the newsletter segment.</p>
-  <button type="button" id="newsletter-save-setup" class="secondary">Save Email Delivery Setup</button>
-  <p id="newsletter-setup-message" class="help" role="status" aria-live="polite"></p>
-</div></details>
 <h3>Administration Settings</h3><p class="help">Administrator operations: <a href="https://github.com/scottxian/division-iv-calendar/blob/main/DIVISION_OPERATIONS.md" target="_blank" rel="noopener noreferrer">open the weekly, monthly, and rollout checklist ↗</a>.</p>
 <section id="website-settings-section">
 <h3>Division IV Website Settings</h3>
@@ -495,6 +483,18 @@
 <label>Calendar subscription links included in outgoing emails <textarea id="email-links" rows="6" placeholder="Google Calendar: https://...&#10;Apple / Outlook: https://..."></textarea></label>
 <p class="help">You and Morrison can update these links. They appear in emails once the email provider is configured.</p>
 <button type="button" id="save-links" class="secondary">Save Email Links</button>
+<details id="newsletter-email-setup" class="newsletter-email-setup">
+<summary>Email Newsletter Delivery — One-time Setup</summary>
+<div class="newsletter-setup-body">
+  <p class="muted">Resend is the email delivery service, not a newsletter setting. Configure it once, then manage your monthly and weekly newsletters from the Newsletter page.</p>
+  <label>Resend Marketing segment ID (UUID)
+    <input id="newsletter-segment" type="text" maxlength="36" autocomplete="off" placeholder="Segment ID, not your API key">
+  </label>
+  <label class="newsletter-switch"><input type="checkbox" id="newsletter-cost"> I have checked the account's $0 Marketing plan, contact allowance, and billing restrictions.</label>
+  <p class="help">Do not enable sending if this account could incur charges. The website never upgrades the plan. Check the complete provider contact count, not just the newsletter segment.</p>
+  <button type="button" id="newsletter-save-setup" class="secondary">Save Email Delivery Setup</button>
+  <p id="newsletter-setup-message" class="help" role="status" aria-live="polite"></p>
+</div></details>
 <hr><p class="muted">Calendar submissions are verified for accuracy and coordination before publication. Lodges retain full authority to schedule their own activities.</p>
 </section>
 </section>
