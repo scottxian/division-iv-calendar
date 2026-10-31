@@ -30,7 +30,7 @@
   const params=new URL(location.href).searchParams;
   const current= getParts(new Date().toISOString()).month;
   let month=validMonth.test(params.get('month')||'')?params.get('month'):current;
-  let events=[],selectedDay=null,loadingRequest=0;
+  let events=[],selectedDay=null,loadingRequest=0,downloadUrl=null;
   const monthEvents=()=>events.filter(e=>(!category.value||e.event_type===category.value)&&
     (!lodge.value||e.hosted_by===lodge.value)&&(!district.value||e.district===district.value));
   function options(select,values,placeholder){
@@ -130,6 +130,7 @@
       message.textContent='That event is not listed as published in this month.';
       return;
     }
+    if(downloadUrl){URL.revokeObjectURL(downloadUrl);downloadUrl=null;}
     detail.replaceChildren(make('p','public-event-type',e.event_type||'Division event'),
       make('h2','',e.title||'Division IV Event'));
     addDetail('Date and time',dateTime(e.starts_at)+' Pacific');
@@ -144,11 +145,19 @@
       const p=make('p','public-event-description',e.public_description);
       p.style.whiteSpace='pre-wrap';detail.append(p);
     }
+    const exports=window.divisionEventCalendar;
+    const calendarHeading=make('p','public-event-calendar-label','Add this event to your personal calendar');
     const actions=make('div','public-event-detail-actions');
-    const google=make('a','btn navy','Open Google Calendar ↗');
-    google.href=$('calendar-external-link')?.href||'https://calendar.google.com/calendar/';
+    const google=make('a','btn navy','Google Calendar ↗');
+    google.href=exports.googleLink(e);
     google.target='_blank';google.rel='noopener noreferrer';
-    actions.append(google);detail.append(actions);
+    const download=make('a','btn outline','Apple / Outlook (.ics)');
+    downloadUrl=URL.createObjectURL(new Blob([exports.icsContent(e)],{type:'text/calendar;charset=utf-8'}));
+    download.href=downloadUrl;
+    download.download='division-iv-event-'+e.id+'.ics';
+    actions.append(google,download);
+    detail.append(calendarHeading,actions,make('p','public-event-calendar-note',
+      'A saved copy will not update automatically if event details change. Check the Division IV listing for updates.'));
     if(navigate){
       const u=new URL(location.href);
       u.searchParams.set('month',month);u.searchParams.set('event',id);
@@ -157,6 +166,7 @@
     if(!dialog.open)dialog.showModal();
   }
   function closeDetail(){
+    if(downloadUrl){URL.revokeObjectURL(downloadUrl);downloadUrl=null;}
     const u=new URL(location.href);
     if(u.searchParams.has('event')){
       u.searchParams.delete('event');

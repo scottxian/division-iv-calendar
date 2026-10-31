@@ -200,7 +200,7 @@ for(const field of [
 ]){
  if(!calendarHTML.includes(field))errors.push('Calendar missing monthly date-grid element '+field);
 }
-if(!calendarHTML.includes('src="/month-calendar.js?v=1"'))
+if(!calendarHTML.includes('src="/event-calendar.js?v=1"')||!calendarHTML.includes('src="/month-calendar.js?v=2"'))
  errors.push('New monthly calendar script is missing');
 if(calendarHTML.includes('src="/public-events.js?v=1"'))
  errors.push('Old list-only calendar script must not load on monthly calendar');

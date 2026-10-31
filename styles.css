@@ -286,7 +286,13 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
 .public-event-close{float:right;border:1px solid #b8c2c9;border-radius:4px;background:#fff;color:#142d46;padding:7px 13px;cursor:pointer;font-size:17px}
 .public-event-detail-line{font-size:14px;line-height:1.6;margin-bottom:9px}
 .public-event-description{border-top:1px solid #e5dccb;margin-top:21px;padding-top:17px;font-size:14px;line-height:1.7}
-.public-event-detail-actions{margin-top:20px}
+.public-event-calendar-label{font-size:14px;font-weight:700;color:#142d46;margin:23px 0 9px}
+.public-event-detail-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:0}
+.public-event-detail-actions .btn{font:700 13px/1.4 'DM Sans',system-ui,sans-serif;min-height:44px;padding:11px 16px;border-radius:6px;text-align:center;white-space:normal}
+.public-event-detail-actions .btn.outline{color:#142d46;background:#fff;border:1px solid #ad955f}
+.public-event-detail-actions .btn:focus-visible{outline:3px solid #b38738;outline-offset:3px}
+.public-event-calendar-note{color:#657485;font-size:12px;line-height:1.6;margin:12px 0 0}
+@media(max-width:480px){.public-event-detail-actions{flex-direction:column;align-items:stretch}.public-event-detail-actions .btn{width:100%}}
 .nav-division-direct{font-size:12px;color:#f2f2ef;white-space:nowrap}
 .nav-division-direct:hover{color:var(--goldlight)}
 #lodge-correction{scroll-margin-top:90px;padding:23px 26px;margin:34px 0 0;background:#f1ebe0;border:1px solid #d8c8aa;border-radius:9px}

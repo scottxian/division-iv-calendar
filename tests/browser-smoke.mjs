@@ -60,7 +60,7 @@ try{
      id:'11111111-1111-4111-8111-111111111111',title:'Mock Published Degree',
      event_type:'Fellow Craft Degree',hosted_by:'Sample Lodge No. 173',district:'428',
      starts_at:month+'-06T19:00:00Z',ends_at:month+'-06T20:00:00Z',
-     event_mode:'in_person',location_name:'Sample Masonic Hall',location_tbd:false,
+     event_mode:'in_person',location_name:'Sample Masonic Hall',location_address:'123 Main St, Sacramento, CA',location_tbd:false,
      public_description:'Calendar browser test entry'
    },{
      id:'22222222-2222-4222-8222-222222222222',title:'Mock Division Fellowship',
@@ -82,6 +82,27 @@ try{
  await desktop.locator('.month-event-row').first().click();
  await desktop.locator('#public-event-dialog[open]').waitFor({state:'visible',timeout:7000});
  assert.equal(await desktop.locator('#public-event-detail h2').textContent(),'Mock Published Degree');
+ const googleUrl=new URL(await desktop.locator('#public-event-detail .public-event-detail-actions a').first().getAttribute('href'));
+ assert.equal(googleUrl.hostname,'calendar.google.com');
+ assert.equal(googleUrl.searchParams.get('action'),'TEMPLATE');
+ assert.equal(googleUrl.searchParams.get('text'),'Mock Published Degree');
+ assert.match(googleUrl.searchParams.get('location'),/Sample Masonic Hall/);
+ assert.match(googleUrl.searchParams.get('details'),/Calendar browser test entry/);
+ const downloadPromise=desktop.waitForEvent('download');
+ await desktop.locator('#public-event-detail .public-event-detail-actions a[download$=".ics"]').click();
+ const download=await downloadPromise;
+ assert.match(download.suggestedFilename(),/^division-iv-event-.*\.ics$/);
+ const content=await fs.readFile(await download.path(),'utf8');
+ assert.match(content,/BEGIN:VCALENDAR\r\n/);
+ assert.match(content,/SUMMARY:Mock Published Degree/);
+ assert.match(content,/END:VCALENDAR\r\n/);
+ assert.match(await desktop.locator('.public-event-calendar-note').textContent(),/not update automatically/);
+ await desktop.setViewportSize({width:390,height:844});
+ const buttonsFit=await desktop.locator('.public-event-detail-actions').evaluate(el=>({
+   scrollWidth:el.scrollWidth,clientWidth:el.clientWidth
+ }));
+ assert.ok(buttonsFit.scrollWidth<=buttonsFit.clientWidth+1,'Individual event calendar actions overflow on phone');
+ await desktop.setViewportSize({width:1440,height:900});
  await desktop.locator('#public-event-close').click();
  await desktop.locator('#month-clear-day').click();
  assert.equal(await desktop.locator('.month-event-row').count(),2,'Clearing selected day restores month list');
