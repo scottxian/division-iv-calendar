@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Division IV Inspector Desk | Grand Lodge of California</title><meta name="description" content="Submit, change, or cancel Division IV Masonic calendar events.">
-<meta name="apple-mobile-web-app-title" content="Division IV"><link rel="manifest" href="/inspectors/manifest.webmanifest"><meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=29"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=63"></script>
-<script defer src="/app/lodges-admin.js?v=5"></script><script defer src="/app/corrections-admin.js?v=2"></script><script defer src="/app/site-settings-admin.js?v=5"></script><script defer src="/app/resources.js?v=3"></script><script defer src="/app/newsletter-admin.js?v=1"></script>
+<meta name="apple-mobile-web-app-title" content="Division IV"><link rel="manifest" href="/inspectors/manifest.webmanifest"><meta name="theme-color" content="#142d46"><link rel="icon" type="image/x-icon" href="/assets/favicon.ico?v=20261028"><link rel="icon" type="image/png" sizes="256x256" href="/assets/favicon.png?v=20261028"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=20261028"><link rel="stylesheet" href="/app/styles.css?v=30"><link rel="stylesheet" href="/shared/header.css?v=2"><script defer src="/shared/header.js?v=2"></script><script defer src="/script.js?v=3"></script><script defer src="/app/bootstrap.js"></script><script defer src="/app/app.js?v=63"></script>
+<script defer src="/app/lodges-admin.js?v=5"></script><script defer src="/app/corrections-admin.js?v=2"></script><script defer src="/app/site-settings-admin.js?v=5"></script><script defer src="/app/resources.js?v=3"></script><script defer src="/app/newsletter-admin.js?v=2"></script>
 <script defer src="/app/mfa.js?v=9"></script><script defer src="/app/bulk-import.js?v=10"></script>
 <meta name="robots" content="noindex, nofollow, noarchive">
 </head><body>
@@ -384,27 +384,78 @@
 <div class="wide form-actions"><button type="submit" class="primary">Save Inspector</button><button type="button" id="staff-form-clear" class="secondary">Clear Form</button></div>
 </form></section>
 <section id="tab-newsletter" class="panel hidden" aria-labelledby="newsletter-admin-title">
-<h3 id="newsletter-admin-title">Division IV Newsletter</h3>
-<p class="muted">Monthly digest on the 1st at 8 AM Pacific, and Monday changes-only update. Sending and signup are off by default.</p>
-<p id="newsletter-admin-stats" class="help">Load settings to see current status.</p>
-<div class="form-grid">
-<label class="wide">Resend Marketing segment ID<input id="newsletter-segment" maxlength="36" autocomplete="off" placeholder="Resend Segment UUID"></label>
-<label class="wide checkline"><input id="newsletter-cost" type="checkbox"> I verified the $0 Resend Marketing plan, paid overages disabled, and capacity.</label>
-<label class="wide checkline"><input id="newsletter-signup" type="checkbox"> Enable verified public newsletter signup</label>
-<label class="wide checkline"><input id="newsletter-send" type="checkbox"> Enable automatic monthly and weekly newsletters</label>
-<p class="wide help">Hard local cap: 900 contacts. Published edits of any size trigger the weekly flag only after calendar synchronization succeeds. Check existing contacts in Resend before enabling.</p>
-</div><div class="form-actions">
-<button type="button" id="newsletter-save" class="primary">Save Newsletter Settings</button>
-<button type="button" id="newsletter-preview-monthly" class="secondary">Preview Monthly</button>
-<button type="button" id="newsletter-preview-weekly" class="secondary">Preview Weekly</button>
-<button type="button" id="newsletter-send-now" class="secondary" disabled>Send Now</button>
+<div class="newsletter-page-heading">
+  <div><h3 id="newsletter-admin-title">Division IV Newsletters</h3>
+    <p class="muted">Set up your monthly event digest and weekly calendar updates separately.</p></div>
+  <p id="newsletter-overview" class="newsletter-status-summary" role="status">Loading newsletter settings…</p>
 </div>
-<p id="newsletter-admin-message" class="help" role="status" aria-live="polite">No newsletters sent yet.</p>
-<h4 id="newsletter-preview-title">Newsletter Preview</h4>
-<iframe id="newsletter-preview" title="Newsletter email preview" sandbox="" style="width:100%;height:420px;border:1px solid #d9e4ed;border-radius:8px;background:white"></iframe>
-<h4>Delivery history</h4><div id="newsletter-runs" role="status" aria-live="polite"></div>
+<div class="newsletter-kind-grid">
+<section class="newsletter-kind-card" aria-labelledby="newsletter-monthly-title">
+  <div class="newsletter-kind-header"><div><p class="newsletter-kind-label">FULL EVENTS DIGEST</p><h4 id="newsletter-monthly-title">Monthly Newsletter</h4>
+    <p>All published events for the upcoming period, including newly updated listings.</p></div>
+    <label class="newsletter-switch"><input type="checkbox" id="newsletter-monthly-enabled"> Automatic sending</label>
+  </div>
+  <div class="newsletter-settings-row">
+    <label>Day of month <select id="newsletter-monthly-day"><option value="1">1st</option><option value="5">5th</option><option value="10">10th</option><option value="15">15th</option><option value="20">20th</option><option value="25">25th</option><option value="28">28th</option></select></label>
+    <label>Send time (Pacific) <select id="newsletter-monthly-hour"></select></label>
+    <label>Upcoming events <select id="newsletter-lookahead"><option value="30">Next 30 days</option><option value="60">Next 60 days</option><option value="90">Next 90 days</option><option value="120">Next 120 days</option></select></label>
+  </div>
+  <div class="newsletter-actions">
+    <button type="button" id="newsletter-preview-monthly" class="secondary">Preview Monthly</button>
+    <button type="button" id="newsletter-send-monthly" class="secondary" disabled>Send Monthly Now</button>
+  </div>
+  <p id="newsletter-monthly-preview-title" class="help">Preview has not been generated.</p>
+  <iframe id="newsletter-monthly-preview" class="newsletter-preview-frame" title="Monthly newsletter preview" sandbox=""></iframe>
 </section>
-<section id="tab-settings" class="panel hidden"><h3>Administration Settings</h3><p class="help">Administrator operations: <a href="https://github.com/scottxian/division-iv-calendar/blob/main/DIVISION_OPERATIONS.md" target="_blank" rel="noopener noreferrer">open the weekly, monthly, and rollout checklist ↗</a>.</p>
+<section class="newsletter-kind-card" aria-labelledby="newsletter-weekly-title">
+  <div class="newsletter-kind-header"><div><p class="newsletter-kind-label">CALENDAR CHANGES</p><h4 id="newsletter-weekly-title">Weekly Updates</h4>
+    <p>Only new, changed, or cancelled events. Any published edit counts, even a minor correction.</p></div>
+    <label class="newsletter-switch"><input type="checkbox" id="newsletter-weekly-enabled"> Automatic sending</label>
+  </div>
+  <div class="newsletter-settings-row">
+    <label>Day of week <select id="newsletter-weekly-day"><option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option></select></label>
+    <label>Send time (Pacific) <select id="newsletter-weekly-hour"></select></label>
+    <p class="newsletter-weekly-rule">If nothing has changed, no weekly newsletter is sent. When the monthly digest falls on the same day, the weekly edition is skipped to avoid duplicates.</p>
+  </div>
+  <div class="newsletter-actions">
+    <button type="button" id="newsletter-preview-weekly" class="secondary">Preview Weekly</button>
+    <button type="button" id="newsletter-send-weekly" class="secondary" disabled>Send Weekly Now</button>
+  </div>
+  <p id="newsletter-weekly-preview-title" class="help">Preview has not been generated.</p>
+  <iframe id="newsletter-weekly-preview" class="newsletter-preview-frame" title="Weekly updates preview" sandbox=""></iframe>
+</section>
+</div>
+<div class="newsletter-save-row">
+  <button type="button" id="newsletter-save" class="primary">Save Newsletter Schedules</button>
+  <p id="newsletter-admin-message" class="help" role="status" aria-live="polite"></p>
+</div>
+<section class="newsletter-subscribers" aria-labelledby="newsletter-subscribers-title">
+  <h4 id="newsletter-subscribers-title">Subscribers &amp; Signup</h4>
+  <p id="newsletter-admin-stats" class="help">Loading subscriber information…</p>
+  <label class="newsletter-switch"><input id="newsletter-signup" type="checkbox"> Accept new, email-verified newsletter subscriptions</label>
+  <p class="help">Signup is optional and remains off until you enable it. The system stops accepting additional subscriptions at its safety cap.</p>
+  <button type="button" id="newsletter-save-signup" class="secondary">Save Signup Setting</button>
+  <p id="newsletter-signup-message" class="help" role="status" aria-live="polite"></p>
+</section>
+<section class="newsletter-history" aria-labelledby="newsletter-history-title">
+  <h4 id="newsletter-history-title">Newsletter Delivery History</h4>
+  <div id="newsletter-runs" role="status" aria-live="polite">No newsletter has been sent.</div>
+</section>
+</section>
+<section id="tab-settings" class="panel hidden">
+<details id="newsletter-email-setup" class="newsletter-email-setup">
+<summary>Email Newsletter Delivery — One-time Setup</summary>
+<div class="newsletter-setup-body">
+  <p class="muted">Resend is the email delivery service, not a newsletter setting. Configure it once, then manage your monthly and weekly newsletters from the Newsletter page.</p>
+  <label>Resend Marketing segment ID (UUID)
+    <input id="newsletter-segment" type="text" maxlength="36" autocomplete="off" placeholder="Segment ID, not your API key">
+  </label>
+  <label class="newsletter-switch"><input type="checkbox" id="newsletter-cost"> I have checked the account's $0 Marketing plan, contact allowance, and billing restrictions.</label>
+  <p class="help">Do not enable sending if this account could incur charges. The website never upgrades the plan. Check the complete provider contact count, not just the newsletter segment.</p>
+  <button type="button" id="newsletter-save-setup" class="secondary">Save Email Delivery Setup</button>
+  <p id="newsletter-setup-message" class="help" role="status" aria-live="polite"></p>
+</div></details>
+<h3>Administration Settings</h3><p class="help">Administrator operations: <a href="https://github.com/scottxian/division-iv-calendar/blob/main/DIVISION_OPERATIONS.md" target="_blank" rel="noopener noreferrer">open the weekly, monthly, and rollout checklist ↗</a>.</p>
 <section id="website-settings-section">
 <h3>Division IV Website Settings</h3>
 <p class="muted">Edit public website destinations in one place. The public website uses these settings when loaded. Only administrators can save them.</p>

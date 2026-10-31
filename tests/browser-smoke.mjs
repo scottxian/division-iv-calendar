@@ -212,6 +212,11 @@ try{
  assert.equal(await administration.getAttribute('open'),'','Administration dropdown did not open');
  assert.equal(await eventGroup.getAttribute('open'),null,'Opening Administration should close Events dropdown');
  assert.equal(await administration.locator('.tab').count(),5,'Newsletter adds a fifth admin tab');
+ const newsletterPanel=desktop.locator('#tab-newsletter');
+ assert.equal(await newsletterPanel.locator('.newsletter-kind-card').count(),2,'Monthly and weekly newsletters must have separate cards');
+ assert.equal(await newsletterPanel.locator('iframe').count(),2,'Newsletter types must have separate previews');
+ assert.equal(await newsletterPanel.locator('#newsletter-cost').count(),0,'Resend billing verification must not be on newsletter page');
+ assert.equal(await desktop.locator('#tab-settings #newsletter-email-setup').count(),1,'One-time delivery setup must be in Administration Settings');
  await desktop.keyboard.press('Escape');
  assert.equal(await administration.getAttribute('open'),null,'Escape should close admin menu');
  pass.push('Inspector Desk groups menus, avoids horizontal scrolling, and supports keyboard close');

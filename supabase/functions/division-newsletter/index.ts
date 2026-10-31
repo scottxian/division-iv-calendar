@@ -10,7 +10,7 @@ const goodEmail=(s:string)=>s.length<=250&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 const hash=async s=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))).map(x=>x.toString(16).padStart(2,'0')).join('');
 const escapeHTML=(v:any)=>message(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c));
 const utcDate=(v:any)=>new Date(v).toISOString();
-const allowedFields=['sending_enabled','signup_enabled','free_plan_confirmed','resend_segment_id'];
+const allowedFields=['sending_enabled','signup_enabled','free_plan_confirmed','resend_segment_id','monthly_enabled','weekly_enabled','monthly_day','weekly_day','monthly_send_hour','weekly_send_hour','lookahead_days'];
 async function config(){const {data,error}=await db.from('newsletter_settings').select('*').eq('id',true).single();if(error)throw Error('Newsletter settings unavailable');return data;}
 async function resend(path:string,method='GET',body?:unknown){
  if(!key())throw Error('Resend is not configured');
@@ -120,16 +120,20 @@ async function summary(){
  return {settings,subscribers:count.count||0,runs:recent.data||[],resend_configured:!!key()&&!!fromEnv()};
 }
 async function sendIssue(kind:string,settings:any,staffId?:string){
- if(!settings.sending_enabled||!settings.free_plan_confirmed||!settings.resend_segment_id)throw Error('Newsletter sending is paused or the free-plan/segment confirmation is incomplete.');
+ if(!settings.sending_enabled||!settings.free_plan_confirmed||!settings.resend_segment_id)throw Error('Newsletter sending is paused or provider setup is incomplete.');
  if(!key()||!fromEnv())throw Error('Resend email sender is not configured');
  const {count}=await db.from('newsletter_subscribers').select('id',{count:'exact',head:true}).eq('status','active');
  if(!count||count>settings.contact_cap||count>900)throw Error('No verified subscribers or the free-tier safety cap has been reached');
- const local=localParts(),issueKey=kind==='monthly'?'monthly:'+local.month:kind==='weekly'?'weekly:'+new Date().toISOString().slice(0,10):'manual:'+new Date().toISOString().slice(0,13);
+ const local=localParts();
+ const effectiveKind=kind==='manual_weekly'?'weekly':kind==='manual_monthly'?'monthly':kind;
+ const manual=kind.startsWith('manual_');
+ const issueKey=manual?'manual:'+effectiveKind+':'+new Date().toISOString().slice(0,16)+':'+crypto.randomUUID()
+  :kind==='monthly'?'monthly:'+local.month:'weekly:'+new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
  const {data:existing}=await db.from('newsletter_runs').select('id,state').eq('issue_key',issueKey).maybeSingle();
  if(existing)return {status:'already_processed',state:existing.state,issue_key:issueKey};
- const built=await issue(kind==='manual'?'monthly':kind,settings);
- if(kind==='weekly'&&!built.versions.length)return {status:'skipped',reason:'no_calendar_changes'};
- const {data:run,error:insertError}=await db.from('newsletter_runs').insert({issue_key:issueKey,kind,state:'prepared',event_versions:built.versions,content_summary:{events:built.items,subscribers:count,monthly:kind!=='weekly'},created_by:staffId||null}).select('id').single();
+ const built=await issue(effectiveKind,settings);
+ if(effectiveKind==='weekly'&&!built.versions.length)return {status:'skipped',reason:'no_calendar_changes'};
+ const {data:run,error:insertError}=await db.from('newsletter_runs').insert({issue_key:issueKey,kind:manual?'manual':kind,state:'prepared',event_versions:built.versions,content_summary:{events:built.items,subscribers:count,monthly:effectiveKind==='monthly'},created_by:staffId||null}).select('id').single();
  if(insertError)throw Error('Issue already claimed or database unavailable');
  try{
   // Draft-first: keep provider ID before making a single non-retriable send call.
@@ -159,10 +163,13 @@ Deno.serve(async(req:Request)=>{
   if(action==='cron'&&req.method==='POST'){
    if(!Deno.env.get('JOB_RUNNER_SECRET')||req.headers.get('x-newsletter-secret')!==Deno.env.get('JOB_RUNNER_SECRET'))return resp({error:'Unauthorized'},401,origin);
    const s=await config(),p=localParts();
-   if(!s.sending_enabled||p.hour!==s.send_hour)return resp({status:'paused_or_not_due'},200,origin);
+   if(!s.sending_enabled)return resp({status:'paused'},200,origin);
    const output=[];
-   if(p.day===s.monthly_day)output.push(await sendIssue('monthly',s));
-   if(p.weekday===s.weekly_day && p.day!==s.monthly_day)output.push(await sendIssue('weekly',s));
+   const monthlyDue=!!s.monthly_enabled&&p.day===s.monthly_day&&p.hour===s.monthly_send_hour;
+   const weeklyDue=!!s.weekly_enabled&&p.weekday===s.weekly_day&&p.hour===s.weekly_send_hour
+      &&!(s.monthly_enabled&&p.day===s.monthly_day);
+   if(monthlyDue)output.push(await sendIssue('monthly',s));
+   if(weeklyDue)output.push(await sendIssue('weekly',s));
    return resp({status:'checked',output},200,origin);
   }
   const who=await admin(req);
@@ -176,15 +183,27 @@ Deno.serve(async(req:Request)=>{
    const body=await req.json(),old=await config();
    const data:any={updated_at:new Date().toISOString(),updated_by:who.id};
    for(const f of allowedFields)if(Object.hasOwn(body,f))data[f]=body[f];
-   for(const f of ['signup_enabled','sending_enabled','free_plan_confirmed'])if(f in data)data[f]=data[f]===true;
+   for(const f of ['signup_enabled','sending_enabled','free_plan_confirmed','monthly_enabled','weekly_enabled'])if(f in data)data[f]=data[f]===true;
+   const bounds={monthly_day:[1,28],weekly_day:[0,6],monthly_send_hour:[0,23],weekly_send_hour:[0,23],lookahead_days:[7,120]};
+   for(const [field,[min,max]] of Object.entries(bounds)){
+    if(!(field in data))continue;
+    const value=Number(data[field]);
+    if(!Number.isInteger(value)||value<min||value>max)throw Error('Invalid '+field.replaceAll('_',' '));
+    data[field]=value;
+   }
    if(data.resend_segment_id&&!/^[a-f0-9-]{36}$/i.test(String(data.resend_segment_id)))throw Error('Use a valid Resend segment ID');
    const after={...old,...data};
-   if((after.sending_enabled||after.signup_enabled)&&(!after.free_plan_confirmed||!after.resend_segment_id||!key()||!fromEnv()))throw Error('Confirm the $0 Resend Marketing plan and configure the newsletter segment before enabling.');
+   if(after.sending_enabled&&!(after.monthly_enabled||after.weekly_enabled))throw Error('Choose a monthly or weekly newsletter before enabling delivery.');
+   if((after.sending_enabled||after.signup_enabled)&&(!after.free_plan_confirmed||!after.resend_segment_id||!key()||!fromEnv()))throw Error('Complete the one-time email delivery setup under Administration Settings before enabling newsletters.');
    const {error}=await db.from('newsletter_settings').update(data).eq('id',true);
    if(error)throw Error('Newsletter settings not saved');
    return resp({ok:true,settings:(await summary()).settings},200,origin);
   }
-  if(action==='send-now'&&req.method==='POST')return resp(await sendIssue('manual',await config(),who.id),200,origin);
+  if(action==='send-now'&&req.method==='POST'){
+   const body=await req.json().catch(()=>({}));
+   if(!['monthly','weekly'].includes(body.kind))throw Error('Choose monthly or weekly newsletter.');
+   return resp(await sendIssue(body.kind==='weekly'?'manual_weekly':'manual_monthly',await config(),who.id),200,origin);
+  }
   return resp({error:'Unsupported newsletter action'},404,origin);
  }catch(error){
   const msg=message(error),auth=/admin|authenticator|session|sign-in|unauthorized/i.test(msg);
