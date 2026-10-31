@@ -369,7 +369,7 @@ async function init(){
   }
   await identity();
   if(location.pathname.startsWith('/inspectors/')) show(state.staff?'admin':'signin');
-  if(!state.staff)restoreOtp();
+  if(!state.user)restoreOtp();
   const qs=new URLSearchParams(location.search);
   const action=qs.get('action');
   if(action==='change'||action==='cancel'){mode(action);$('lookup-code').value=qs.get('id')||qs.get('code')||''}
