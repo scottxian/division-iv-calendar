@@ -195,11 +195,11 @@ function composedCalendarTitle(form){
  const district=String(form.elements.district?.value||'');
  const override=String(form.elements.calendar_title_override?.value||'').trim();
  if(form.querySelector('.calendar-title-override-toggle')?.checked&&override)return override;
+ // Standard School of Instruction titles do not depend on event name or venue.
+ if(eventType==='District School of Instruction')
+  return /^\d{3,4}$/.test(district)?'District '+district+' School of Instruction':'';
+ if(eventType==='Division School of Instruction')return 'Division IV School of Instruction';
  if(!name)return form.elements.title?.dataset.originalTitle||'';
- if(eventType==='District School of Instruction'&&/^\d{3,4}$/.test(district))
-  return 'District '+district+' School of Instruction';
- if(eventType==='Division School of Instruction')
-  return name.toLowerCase().startsWith('division school of instruction')?name:'Division School of Instruction: '+name;
  if(!host)return '';
  const lodge=(state.config?.lodge_titles||[]).find(x=>{
   const number=String(x.number||'').trim(),lodgeName=String(x.name||'').trim();
@@ -217,14 +217,24 @@ function titleControls(form){
  const override=form.elements.calendar_title_override;
  if(!hidden)return ()=>{};
  hidden.dataset.originalTitle=hidden.value||'';
+ const eventName=form.elements.event_name;
+ const nameOriginallyRequired=!!eventName?.required;
+ if(eventName)eventName.dataset.defaultPlaceholder=eventName.placeholder||'';
  function update(){
+  const school=['District School of Instruction','Division School of Instruction'].includes(form.elements.event_type?.value);
+  if(eventName){
+   eventName.required=nameOriginallyRequired&&!school;
+   eventName.placeholder=school?'Optional — school title is automatic':eventName.dataset.defaultPlaceholder;
+   eventName.closest('label')?.querySelector('.req')?.classList.toggle('hidden',school);
+  }
   if(toggle&&override){
    override.disabled=!toggle.checked;
    if(!toggle.checked)override.value='';
   }
   const title=composedCalendarTitle(form);
   hidden.value=title;
-  if(preview)preview.textContent=title||'Enter an event name and hosting lodge.';
+  if(preview)preview.textContent=title||(form.elements.event_type?.value==='District School of Instruction'
+   ?'Choose a district to generate the calendar title.':'Enter an event name and hosting lodge.');
   if(preview&&title.length>180)preview.textContent+=' (Too long; maximum 180 characters)';
  }
  for(const name of ['event_name','hosted_by','event_type','district','calendar_title_override']){
