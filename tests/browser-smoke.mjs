@@ -50,7 +50,8 @@ try{
  assert.equal(await homeInstall.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(245, 241, 231)',
    'Home Screen guide must match the cream Division IV homepage palette');
  assert.equal(await homeInstall.locator('.home-install-device').count(),2);
- assert.equal(await homeInstall.locator('a[href="/inspectors/#install-desk"]').count(),1);
+ assert.equal(await homeInstall.locator('img').count(),0,'No extra logo in homepage installation guide');
+ assert.equal(await homeInstall.locator('a[href*="/inspectors/"]').count(),0,'Public guide should not mention Inspector Desk');
  pass.push('Homepage Home Screen guide and navy/cream branding');
  // Mock the public read-only month feed for deterministic UI tests.
  await desktop.route('**/functions/v1/division-upcoming-events?month=*',async route=>{
@@ -153,6 +154,7 @@ try{
    'Inspector auth controls must survive shared header include');
  pass.push('Shared public/inspector header identity and functional inspector navigation');
  const deskInstall=desktop.locator('#install-desk');
+ assert.equal(await deskInstall.locator('img').count(),0,'No extra logo in Inspector Desk guide');
  assert.equal(await deskInstall.isVisible(),true,'Inspector installation guide must be available before signing in');
  assert.equal(await deskInstall.locator('details').getAttribute('open'),null,'Keep Inspector install steps collapsed initially');
  await deskInstall.locator('summary').click();

@@ -486,8 +486,7 @@ body.inspector-desk-mode #admin-view>section>.panel{margin-top:15px}
 
 /* Inspector Desk: compact Home Screen guide using the existing panel palette. */
 .desk-install-guide{background:#fff;border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:13px;padding:19px 23px 16px;margin:28px 0 8px;scroll-margin-top:100px;box-shadow:0 4px 18px #142d4609}
-.desk-install-heading{display:flex;gap:16px;align-items:center}
-.desk-install-heading img{width:54px;height:54px;flex:0 0 54px;object-fit:contain;border-radius:11px;background:#142d46;border:1px solid var(--gold);padding:4px}
+.desk-install-heading{max-width:730px}
 .desk-install-kicker{font-size:10px;letter-spacing:.12em;font-weight:800;color:#8a642b;margin:0 0 3px}
 .desk-install-guide h2{font:600 23px/1.2 Georgia,serif;color:var(--navy);margin:0 0 4px}
 .desk-install-heading p:not(.desk-install-kicker){font-size:13px;line-height:1.55;color:var(--muted);margin:0}
@@ -502,8 +501,6 @@ body.inspector-desk-mode #admin-view>section>.panel{margin-top:15px}
 .desk-install-security{color:var(--muted);font-size:12px;line-height:1.6;margin:0}
 @media(max-width:650px){
  .desk-install-guide{padding:16px;margin-top:19px}
- .desk-install-heading{align-items:flex-start;gap:12px}
- .desk-install-heading img{width:44px;height:44px;flex-basis:44px;border-radius:9px}
  .desk-install-guide h2{font-size:19px}
  .desk-install-platforms{grid-template-columns:1fr;gap:9px}
 }

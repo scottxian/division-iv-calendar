@@ -398,8 +398,7 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
 /* Homepage: unobtrusive, on-brand Home Screen setup section above the footer. */
 .home-install{background:#f5f1e7;border-top:1px solid #e4ddcc;padding:54px clamp(24px,6vw,94px) 48px;scroll-margin-top:110px}
 .home-install-inner{max-width:1320px;margin:0 auto}
-.home-install-heading{display:flex;align-items:center;gap:24px;max-width:940px}
-.home-install-icon{width:76px;height:76px;flex:0 0 76px;object-fit:contain;background:#0b2138;border:1px solid #d7b56e;border-radius:16px;padding:5px;box-shadow:0 7px 20px #091b3118}
+.home-install-heading{max-width:940px}
 .home-install .kicker{color:#8b692f;margin:0 0 9px;font-size:10px}
 .home-install h2{font-size:clamp(34px,3.5vw,50px);color:#0b2138;margin:0 0 10px}
 .home-install-heading p:not(.kicker){font-size:14px;color:#495b6a;line-height:1.7;max-width:720px;margin:0}
@@ -409,15 +408,10 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
 .home-install-device p{font-size:13px;line-height:1.75;color:#435365;margin:0}
 .home-install-device strong{color:#142b47}
 .home-install-note{color:#5d6a76;font-size:12px;line-height:1.7;margin:0}
-.home-install-note a{color:#735319;text-decoration:underline;text-underline-offset:3px;font-weight:700}
-.home-install-note a:hover{color:#0b2138}
-.home-install-note a:focus-visible{outline:2px solid #9b7939;outline-offset:3px}
 @media(max-width:700px){
  .home-install{padding:38px 20px 39px}
- .home-install-heading{align-items:flex-start;gap:15px}
- .home-install-icon{width:58px;height:58px;flex-basis:58px;border-radius:12px}
  .home-install h2{font-size:36px}
  .home-install-devices{grid-template-columns:1fr;gap:12px;margin-top:22px}
  .home-install-device{padding:18px}
 }
-@media(max-width:400px){.home-install-heading{flex-wrap:wrap}.home-install h2{font-size:34px}}
+@media(max-width:400px){.home-install h2{font-size:34px}}
