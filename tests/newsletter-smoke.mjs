@@ -81,7 +81,7 @@ for(const item of ['function brandedEmail(', 'function confirmationHtml(', 'html
  assert.ok(api.includes(item),'Branded email missing: '+item);
 }
 assert.ok(api.includes("},'transactional');"),'Confirmation must remain a transactional send');
-assert.ok(api.includes('text:[label,'),'Broadcasts must retain their plain text fallback');
+assert.ok(api.includes('const text=[label,'),'Broadcasts must retain their plain text fallback');
 assert.ok(api.includes("text:'Confirm your subscription"),'Confirmations must retain a plain text fallback');
 new vm.Script(pub,{filename:'newsletter-public.js'});
 new vm.Script(adm,{filename:'app/newsletter-admin.js'});
