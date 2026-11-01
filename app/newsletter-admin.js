@@ -112,7 +112,7 @@
   try{
    const data=await request('preview','GET',undefined,'&kind='+encodeURIComponent(kind));
    frame.srcdoc=data.html;
-   say(label,data.subject+' · '+data.included_events+' events · preview only; no emails sent');
+   say(label,data.subject+' · '+data.included_events+' listings · preview only; no emails sent');
    details.hidden=false;
    details.open=true;
   }catch(error){
@@ -129,7 +129,7 @@
   try{
    const answer=await request('send-now','POST',{kind});
    await load();
-   say('newsletter-admin-message',answer.status==='skipped'?'No published changes; nothing sent.':'Provider result: '+answer.status+'. View delivery history.');
+   say('newsletter-admin-message',answer.status==='skipped'?'No verified subscribers; nothing sent.':'Provider result: '+answer.status+'. View delivery history.');
   }catch(error){say('newsletter-admin-message','Send not completed: '+error.message,true);}
   finally{btn.disabled=!(current&&isEnabled(current)&&current[kind+'_enabled']);}
  }

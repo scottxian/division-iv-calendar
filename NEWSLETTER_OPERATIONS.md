@@ -3,9 +3,10 @@
 Monthly and weekly newsletter controls are separate in **Inspector Desk → Administration → Newsletter**.
 
 - Monthly: first day of month, 8 AM Pacific, next 60 days by default. Configurable day, hour and lookahead.
-- Weekly: Monday, 8 AM Pacific by default. Sends only when new, edited or cancelled published events have flags.
-- Every successful publication update triggers a flag, however small. Flags clear only for included event versions after a successful Broadcast submission.
-- If the monthly digest and weekly update fall on the same date, monthly takes precedence (weekly skipped).
+- Weekly: configured weekday/hour (Monday 8 AM Pacific by default). Sends a week-ahead agenda each week, regardless of change flags: verified events through the following Sunday inclusive; stated meetings drawn from the Lodge Directory (honoring quarterly rules); and newly submitted events from the past seven days, only once verified and published. Additional updates and cancellations appear separately. New events already shown in the upcoming section are not repeated.
+- Calendar dates are Pacific local dates, not a fixed 168-hour time block. A Sunday send includes the *next* Sunday through 11:59 PM, including DST changes.
+- Every successful publication update triggers a flag, however small. Flags clear only for versions actually included after a successful Broadcast submission.
+- Monthly and weekly have distinct purposes; both may send on the same day if scheduled. Neither silently suppresses the other.
 
 ## Email delivery (one-time)
 Go to Inspector Desk → Administration → Settings → **Email Newsletter Delivery — One-time Setup**.

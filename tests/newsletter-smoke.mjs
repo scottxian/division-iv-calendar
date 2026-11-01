@@ -18,7 +18,7 @@ for(const path of ['inspectors/index.html','events/index.html']){
   assert.ok(html.includes('id="'+id+'"'),path+' is missing '+id);
  }
  assert.ok(html.includes('data-tab="newsletter"'),path+': newsletter navigation missing');
- assert.ok(html.includes('/app/newsletter-admin.js?v=4'),path+': new newsletter client missing');
+ assert.ok(html.includes('/app/newsletter-admin.js?v=5'),path+': new newsletter client missing');
  assert.ok(html.includes('id="newsletter-monthly-preview-details" class="newsletter-preview-details" hidden'),'Monthly preview should start collapsed');
  assert.ok(html.includes('id="newsletter-weekly-preview-details" class="newsletter-preview-details" hidden'),'Weekly preview should start collapsed');
  assert.ok(html.includes('/app/styles.css?v='+(path.startsWith('inspectors')?'32':'29')));
@@ -75,7 +75,7 @@ for(const piece of [
  "if(!settings.sending_enabled",
  "if(!settings.signup_enabled",
  "claims.aal!=='aal2'",
- "effectiveKind==='weekly'&&!built.versions.length",
+ "if(kind==='weekly')return weeklyIssue(settings)",
  "eq('event_version',item.version)",
  "RESEND_UNSUBSCRIBE_URL",
  "send:false",

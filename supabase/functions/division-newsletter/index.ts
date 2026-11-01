@@ -1,5 +1,7 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2.57.0';
+import { weeklyWindow } from './weekly-agenda.mjs';
+import { buildWeeklyContent } from './weekly-content.mjs';
 const db=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false,autoRefreshToken:false}});
 const origins=new Set(['https://divisionivmasons.org','https://www.divisionivmasons.org','http://127.0.0.1:5173','http://localhost:5173']);
 const fromEnv=()=>Deno.env.get('MAIL_FROM')||'';
@@ -102,7 +104,59 @@ function localParts(date=new Date()){
 }
 const friendlyDate=s=>new Intl.DateTimeFormat('en-US',{timeZone:'America/Los_Angeles',weekday:'short',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}).format(new Date(s));
 const eventLink=id=>'https://divisionivmasons.org/calendar/?event='+encodeURIComponent(id)+'#events-list';
+async function weeklyIssue(settings:any) {
+ const now=new Date(), window=weeklyWindow(now);
+ const since=new Date(now.getTime()-7*86400000).toISOString();
+ const fields='id,title,hosted_by,starts_at,ends_at,event_mode,location_name,location_address,location_tbd,status,version,google_event_id,calendar_last_synced_at';
+ const [upcoming,added,flags,lodges]=await Promise.all([
+  db.from('events').select(fields).eq('status','active')
+   .gte('starts_at',window.queryFrom).lt('starts_at',window.queryUntil)
+   .order('starts_at',{ascending:true}).limit(500),
+  db.from('event_requests').select('request_type,status,approved_event_id,submitted_at')
+   .eq('request_type','new').eq('status','approved').gte('submitted_at',since)
+   .order('submitted_at',{ascending:false}).limit(500),
+  db.from('newsletter_event_flags').select('event_id,event_version,change_kind,dirty')
+   .eq('dirty',true).limit(1000),
+  db.from('lodges').select('lodge_name,lodge_number,meeting_day,meeting_time,meeting_notes,address_line1,city,state,active')
+   .eq('active',true).limit(200)
+ ]);
+ if(upcoming.error||added.error||flags.error||lodges.error)
+  throw Error('Unable to prepare weekly events or lodge meeting schedules');
+ const ids=[...new Set([...(added.data||[]).map((x:any)=>x.approved_event_id),
+  ...(flags.data||[]).map((x:any)=>x.event_id)].filter(Boolean))];
+ // Fail closed if a future large backlog exceeds one safe indexed lookup.
+ if(ids.length>200)throw Error('Too many weekly event updates to prepare safely');
+ const extra=ids.length?await db.from('events').select(fields).in('id',ids).limit(200):{data:[],error:null};
+ if(extra.error)throw Error('Unable to retrieve newly published weekly events');
+ const unique=new Map<string,any>();
+ for(const e of [...(upcoming.data||[]),...(extra.data||[])])unique.set(e.id,e);
+ const allIds=[...unique.keys()];
+ const jobs=allIds.length?await db.from('calendar_jobs')
+  .select('event_id,event_version,status,created_at').in('event_id',allIds)
+  .order('created_at',{ascending:false}).limit(4000):{data:[],error:null};
+ if(jobs.error)throw Error('Unable to verify calendar publication for weekly events');
+ const built=buildWeeklyContent({events:[...unique.values()],
+  submissions:added.data||[],flags:flags.data||[],lodges:lodges.data||[],
+  jobs:jobs.data||[],now});
+ const label='This Week Around Division IV';
+ const subject=label+' — '+built.range;
+ const html=brandedEmail({
+  preheader:'Events and stated meetings through the following Sunday, plus newly published events.',
+  eyebrow:'DIVISION IV CALENDAR · WEEKLY EVENTS',
+  title:label,
+  intro:'Your Division IV week ahead: verified calendar events, regularly scheduled lodge stated meetings, and new events submitted during the past seven days and published after verification.',
+  content:built.htmlContent,
+  actionText:'View the Division IV Calendar',
+  actionUrl:'https://divisionivmasons.org/calendar/',
+  finePrint:'Stated meetings can change; confirm with the lodge before attending. Saved personal-calendar copies do not automatically update when event details change.',
+  unsubscribe:true
+ });
+ const text=[label,built.textBody,'View the Division IV Calendar: https://divisionivmasons.org/calendar/',
+  'Unsubscribe: {{{RESEND_UNSUBSCRIBE_URL}}}'].join('\n\n');
+ return {kind:'weekly',subject,html,text,groups:built.groups,versions:built.versions,items:built.items};
+}
 async function issue(kind:string,settings:any){
+ if(kind==='weekly')return weeklyIssue(settings);
  const now=new Date(),until=new Date(now.getTime()+settings.lookahead_days*86400000).toISOString();
  const [ev,flags,jobs]=await Promise.all([
   db.from('events').select('id,title,hosted_by,starts_at,ends_at,event_mode,location_name,location_address,location_tbd,public_description,invited_audience,attire,status,version,google_event_id,calendar_last_synced_at').gte('starts_at',now.toISOString()).lt('starts_at',until).order('starts_at',{ascending:true}).limit(300),
@@ -270,7 +324,6 @@ async function sendIssue(kind:string,settings:any,staffId?:string){
  const {data:existing}=await db.from('newsletter_runs').select('id,state').eq('issue_key',issueKey).maybeSingle();
  if(existing)return {status:'already_processed',state:existing.state,issue_key:issueKey};
  const built=await issue(effectiveKind,settings);
- if(effectiveKind==='weekly'&&!built.versions.length)return {status:'skipped',reason:'no_calendar_changes'};
  const {data:run,error:insertError}=await db.from('newsletter_runs').insert({issue_key:issueKey,kind:manual?'manual':kind,state:'prepared',event_versions:built.versions,content_summary:{events:built.items,subscribers:count,monthly:effectiveKind==='monthly'},created_by:staffId||null}).select('id').single();
  if(insertError)throw Error('Issue already claimed or database unavailable');
  try{
@@ -304,8 +357,7 @@ Deno.serve(async(req:Request)=>{
    if(!s.sending_enabled)return resp({status:'paused'},200,origin);
    const output=[];
    const monthlyDue=!!s.monthly_enabled&&p.day===s.monthly_day&&p.hour===s.monthly_send_hour;
-   const weeklyDue=!!s.weekly_enabled&&p.weekday===s.weekly_day&&p.hour===s.weekly_send_hour
-      &&!(s.monthly_enabled&&p.day===s.monthly_day);
+   const weeklyDue=!!s.weekly_enabled&&p.weekday===s.weekly_day&&p.hour===s.weekly_send_hour;
    if(monthlyDue)output.push(await sendIssue('monthly',s));
    if(weeklyDue)output.push(await sendIssue('weekly',s));
    return resp({status:'checked',output},200,origin);
