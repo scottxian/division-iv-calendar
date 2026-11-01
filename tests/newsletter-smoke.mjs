@@ -32,7 +32,7 @@ const html=fs.readFileSync('calendar/index.html','utf8');
 const homepage=fs.readFileSync('index.html','utf8');
 const navigation=fs.readFileSync('script.js','utf8');
 assert.ok(homepage.includes('id="newsletter-signup"'),'Newsletter section must live on homepage');
-assert.ok(homepage.indexOf('class="upcoming-section"')<homepage.indexOf('class="division-overview"')&&
+assert.ok(homepage.indexOf('class="section dark-section upcoming-section"')<homepage.indexOf('class="division-overview"')&&
  homepage.indexOf('class="division-overview"')<homepage.indexOf('class="home-newsletter"')&&
  homepage.indexOf('class="home-newsletter"')<homepage.indexOf('class="homepage-cta"'),
  'Homepage flow should be upcoming events, Our Division, newsletter, submissions');
