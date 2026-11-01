@@ -28,7 +28,13 @@
  const publicNavigation=[
  '<nav id="main-nav" aria-label="Main navigation">',
  ' <a class="nav-home" href="'+(home?'#home':'/#home')+'"'+current(home)+'>Home</a>',
- ' <a class="nav-division-direct" href="/#about">Division</a>',
+ ' <div class="nav-group">',
+ '  <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="nav-division">Division <span class="nav-chevron" aria-hidden="true">⌄</span></button>',
+ '  <div class="nav-submenu" id="nav-division">',
+ '   <a href="/#about">About Division IV</a>',
+ '   <a href="/#install-app">Install App</a>',
+ '  </div>',
+ ' </div>',
  ' <div class="nav-group">',
  '  <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="nav-lodges">Lodges <span class="nav-chevron" aria-hidden="true">⌄</span></button>',
  '  <div class="nav-submenu" id="nav-lodges">',
@@ -40,11 +46,10 @@
  '  <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="nav-calendar">Calendar <span class="nav-chevron" aria-hidden="true">⌄</span></button>',
  '  <div class="nav-submenu" id="nav-calendar">',
  '   <a href="/calendar/"'+current(calendar)+'>View Division IV Calendar</a>',
+ '   <a href="/#newsletter-signup">Events Newsletter</a>',
  '   <a href="/events/"'+current(events)+'>Submit / Update Event</a>',
  '  </div>',
  ' </div>',
- ' <a class="nav-division-direct" href="/#newsletter-signup">Newsletter</a>',
- ' <a class="nav-division-direct" href="/#install-app">Install App</a>',
  ...(mode==='public'?[' <a class="nav-inspector-login" href="/inspectors/"'+current(inspector)+'>Inspector Login ↗</a>']:[]),
  '</nav>'].join('');
  const appActions=mode==='app'?[
