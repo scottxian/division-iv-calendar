@@ -32,6 +32,17 @@ const html=fs.readFileSync('calendar/index.html','utf8');
 const homepage=fs.readFileSync('index.html','utf8');
 const navigation=fs.readFileSync('script.js','utf8');
 assert.ok(homepage.includes('id="newsletter-signup"'),'Newsletter section must live on homepage');
+assert.ok(homepage.indexOf('class="upcoming-section"')<homepage.indexOf('class="division-overview"')&&
+ homepage.indexOf('class="division-overview"')<homepage.indexOf('class="home-newsletter"')&&
+ homepage.indexOf('class="home-newsletter"')<homepage.indexOf('class="homepage-cta"'),
+ 'Homepage flow should be upcoming events, Our Division, newsletter, submissions');
+const inspectorsPage=fs.readFileSync('inspectors/index.html','utf8');
+const deskCSS=fs.readFileSync('app/styles.css','utf8');
+assert.ok(inspectorsPage.includes('class="panel desk-install-guide"'),'Installation guidance must use the Inspector Desk panel style');
+assert.ok(inspectorsPage.includes('/app/styles.css?v=32'),'Inspector Desk must load the revised stylesheet');
+assert.ok(deskCSS.includes('.desk-install-guide.panel{')&&deskCSS.includes('border:1px solid var(--border)'),
+ 'Installation guide must inherit the Desk panel palette and borders');
+
 assert.ok(homepage.includes('id="division-newsletter-form"'),'Homepage must contain the real newsletter opt-in form');
 assert.ok(!html.includes('id="division-newsletter-form"'),'Calendar should link to one shared signup instead of duplicating the form');
 assert.ok(html.includes('href="/#newsletter-signup"'),'Calendar must link to homepage newsletter form');
