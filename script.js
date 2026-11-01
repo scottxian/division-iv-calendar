@@ -127,6 +127,13 @@
     if(!wrapper.contains(ev.relatedTarget))setExpanded(wrapper,false);
    });
   }
+  // Permanent quick links stay visible regardless of admin-customized menu entries.
+  for(const [label,href] of [['Newsletter','/#newsletter-signup'],['Install App','/#install-app']]){
+   const item=link(label,href,false);
+   item.className='nav-division-direct';
+   item.addEventListener('click',closeMenu);
+   nav.append(item);
+  }
   if(!appMode){
    const desk=link('Inspector Login ↗','/inspectors/',false);
    desk.className='nav-inspector-login';desk.addEventListener('click',closeMenu);
