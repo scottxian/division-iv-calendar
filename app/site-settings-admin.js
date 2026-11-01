@@ -29,6 +29,8 @@
  const destinations=[
   ['','Custom website path or HTTPS URL','Enter /calendar/, /events/, or a complete HTTPS URL.'],
   ['/#about','About Division IV','About section on the homepage'],
+  ['/#install-app','Install App','Homepage instructions to add Division IV to a phone or tablet'],
+  ['/#newsletter-signup','Events Newsletter','Email signup section on the homepage'],
   ['/#home','Homepage','Home section of the website'],
   ['/lodges/','Lodge Directory','Public lodge directory'],
   ['/calendar/','Public Calendar','Live embedded public calendar'],
