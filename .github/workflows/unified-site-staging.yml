@@ -5,6 +5,7 @@ on:
     branches:
       - phase-1-unified-site
       - phase-3-release-candidate
+      - feature/weekly-agenda-sunday-window
       - main
   workflow_dispatch:
 
@@ -36,6 +37,8 @@ jobs:
         run: node tests/soi-title-smoke.mjs
       - name: Test gated newsletter and subscriber lifecycle
         run: node tests/newsletter-smoke.mjs
+      - name: Test Sunday-inclusive weekly agenda, stated meetings and new events
+        run: node tests/weekly-agenda-smoke.mjs
       - name: Test individual Google, Apple, and Outlook event export
         run: node tests/individual-event-calendar-smoke.mjs
       - name: Test Google Calendar publishing title and notes
