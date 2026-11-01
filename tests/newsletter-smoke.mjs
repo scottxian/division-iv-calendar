@@ -80,6 +80,9 @@ assert.ok(api.includes('factors?.factors?.some'));
 // Branded HTML must use the same real emblem as the shared site masthead and
 // existing OTP email; keep transactional confirmation and Broadcasts separate.
 const sharedHeader=fs.readFileSync('shared/header.js','utf8');
+const menuEditor=fs.readFileSync('app/site-settings-admin.js','utf8');
+assert.ok(sharedHeader.includes('nav-division')&&sharedHeader.includes('nav-calendar'),'Shared menu must use dropdown sections');
+assert.ok(menuEditor.includes("['/#install-app'")&&menuEditor.includes("['/#newsletter-signup'"),'Menu editor must offer both homepage destinations');
 const otpTemplate=fs.readFileSync('docs/auth-email-otp-template.html','utf8');
 const logo='https://divisionivmasons.org/app/assets/division-iv-emblem.png?v=20261028b';
 assert.ok(api.includes(logo),'Newsletter logo must use approved Division IV emblem');
