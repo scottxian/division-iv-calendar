@@ -43,6 +43,8 @@
  '   <a href="/events/"'+current(events)+'>Submit / Update Event</a>',
  '  </div>',
  ' </div>',
+ ' <a class="nav-division-direct" href="/#newsletter-signup">Newsletter</a>',
+ ' <a class="nav-division-direct" href="/#install-app">Install App</a>',
  ...(mode==='public'?[' <a class="nav-inspector-login" href="/inspectors/"'+current(inspector)+'>Inspector Login ↗</a>']:[]),
  '</nav>'].join('');
  const appActions=mode==='app'?[
