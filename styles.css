@@ -434,3 +434,27 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
 .division-newsletter-box .division-newsletter-status{margin:12px 0 0;font-weight:600}
 .division-newsletter-box .division-newsletter-privacy{font-size:12px;color:#657485;margin:10px 0 0}
 .division-newsletter-honeypot{position:absolute!important;left:-9999px!important;opacity:0;height:1px;width:1px;pointer-events:none}
+
+
+/* Homepage newsletter signup: one public opt-in form, linked from shared navigation. */
+.home-newsletter{background:#fffdf8;padding:62px clamp(22px,6vw,94px) 68px;border-top:1px solid #e9dfcf;scroll-margin-top:110px}
+.home-newsletter-inner{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr);align-items:center;gap:clamp(26px,5vw,80px)}
+.home-newsletter-copy .kicker{color:#8b692f;margin:0 0 14px}
+.home-newsletter-copy h2{font-size:clamp(37px,4vw,58px);line-height:1.05;color:#122b43;margin:0 0 20px}
+.home-newsletter-copy h2 em{color:#966f32}
+.home-newsletter-copy>p:not(.kicker){font-size:15px;line-height:1.85;max-width:650px;color:#435667;margin:0 0 14px}
+.home-newsletter-copy .home-newsletter-free{font-size:12px!important;font-weight:700;color:#826132!important}
+.home-newsletter .home-newsletter-card{margin:0;padding:30px 33px;background:#f8f2e5;box-shadow:0 12px 38px #15263b12}
+.home-newsletter .home-newsletter-card h3{font-size:35px;line-height:1.1}
+.home-newsletter .home-newsletter-card form{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px}
+.home-newsletter .home-newsletter-card form[hidden]{display:none}
+.home-newsletter .home-newsletter-card label{grid-column:1/-1}
+.home-newsletter .home-newsletter-card input[type=email]{width:100%;min-width:0;min-height:46px}
+.home-newsletter .home-newsletter-card button{min-height:46px}
+.calendar-newsletter-link{margin:32px 0 0;padding:18px 22px;background:#f8f2e5;border:1px solid #e1d6bf;border-radius:8px;color:#142b47}
+.calendar-newsletter-link p{font-size:14px;line-height:1.65;margin:0}
+.calendar-newsletter-link a{color:#795520;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.calendar-newsletter-link a:hover{color:#142b47}
+.calendar-newsletter-link .division-newsletter-status:not([hidden]){margin-top:12px;font-weight:700}
+@media(max-width:850px){.home-newsletter-inner{grid-template-columns:1fr;gap:24px}.home-newsletter{padding:48px 23px 55px}}
+@media(max-width:480px){.home-newsletter .home-newsletter-card{padding:24px 20px}.home-newsletter .home-newsletter-card form{grid-template-columns:1fr}.home-newsletter .home-newsletter-card label{grid-column:1}.home-newsletter .home-newsletter-card button{width:100%}.home-newsletter-copy h2{font-size:37px}}
