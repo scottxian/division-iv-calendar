@@ -178,7 +178,7 @@ async function subscribe(req:Request,settings:any){
  const token=crypto.randomUUID()+crypto.randomUUID(),token_hash=await hash(token);
  const {error}=await db.from('newsletter_subscribers').upsert({email,status:'pending',token_hash,token_expires_at:new Date(Date.now()+48*3600000).toISOString(),requested_at:new Date().toISOString(),last_confirmation_sent_at:new Date().toISOString()},{onConflict:'email'});
  if(error)throw Error('Unable to create signup request');
- const link='https://divisionivmasons.org/calendar/?newsletter_confirm='+encodeURIComponent(token);
+ const link='https://divisionivmasons.org/?newsletter_confirm='+encodeURIComponent(token)+'#newsletter-signup';
  const reply=await resend('/emails','POST',{from:fromEnv(),to:[email],subject:'Confirm your Division IV newsletter subscription',html:confirmationHtml(link),text:'Confirm your subscription to the Division IV Events Newsletter:\n'+link+'\n\nThis link expires in 48 hours. If you did not request this, ignore the message.'},'transactional');
  if(!reply?.id)throw Error('Confirmation email could not be sent');
  return {message:'If this address is eligible, please check your inbox for a confirmation link.'};
