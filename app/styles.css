@@ -484,26 +484,22 @@ body.inspector-desk-mode #admin-view>section>.panel{margin-top:15px}
  #tab-import .bulk-upload-area{padding-top:12px}
 }
 
-/* Inspector Desk: compact Home Screen guide using the existing panel palette. */
-.desk-install-guide{background:#fff;border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:13px;padding:19px 23px 16px;margin:28px 0 8px;scroll-margin-top:100px;box-shadow:0 4px 18px #142d4609}
-.desk-install-heading{max-width:730px}
-.desk-install-kicker{font-size:10px;letter-spacing:.12em;font-weight:800;color:#8a642b;margin:0 0 3px}
-.desk-install-guide h2{font:600 23px/1.2 Georgia,serif;color:var(--navy);margin:0 0 4px}
-.desk-install-heading p:not(.desk-install-kicker){font-size:13px;line-height:1.55;color:var(--muted);margin:0}
-.desk-install-steps{border:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:17px 0 11px}
-.desk-install-steps>summary{font-size:13px;font-weight:750;color:#174465;padding:12px 0;list-style:disclosure-closed}
-.desk-install-steps[open]>summary{list-style:disclosure-open}
-.desk-install-steps>summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px}
-.desk-install-platforms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:2px 0 16px}
-.desk-install-platforms>div{background:#f8fafc;border:1px solid #e2e8ee;border-radius:9px;padding:13px 15px}
-.desk-install-platforms h3{font-size:14px;color:var(--navy);margin:0 0 7px}
-.desk-install-platforms p{font-size:12px;line-height:1.7;color:#465d71;margin:0;overflow-wrap:anywhere}
-.desk-install-security{color:var(--muted);font-size:12px;line-height:1.6;margin:0}
-@media(max-width:650px){
- .desk-install-guide{padding:16px;margin-top:19px}
- .desk-install-guide h2{font-size:19px}
- .desk-install-platforms{grid-template-columns:1fr;gap:9px}
-}
+/* Inspector Desk Home Screen guide: same panel, typography and controls as the Desk. */
+.desk-install-guide.panel{background:#fff;border:1px solid var(--border);border-radius:15px;padding:24px 28px;margin:20px 0;box-shadow:0 5px 26px rgba(20,45,70,.04);scroll-margin-top:100px}
+.desk-install-heading{max-width:820px}
+.desk-install-kicker{font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:800;color:#8a642b;margin:0 0 8px}
+.desk-install-guide h2{font:29px Georgia,serif;color:var(--ink);margin:0 0 10px}
+.desk-install-heading p:not(.desk-install-kicker){font-size:15px;line-height:1.6;color:var(--muted);margin:0}
+.desk-install-steps{border:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:18px 0 14px}
+.desk-install-steps>summary{padding:14px 0;font-size:15px;font-weight:700;color:var(--navy);cursor:pointer}
+.desk-install-steps>summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+.desk-install-platforms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:3px 0 18px}
+.desk-install-platforms>div{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:17px 18px;min-width:0}
+.desk-install-platforms h3{font-size:19px;color:var(--ink);margin:0 0 9px}
+.desk-install-platforms p{font-size:13px;line-height:1.65;color:var(--muted);margin:0;overflow-wrap:anywhere}
+.desk-install-platforms strong{color:var(--ink)}
+.desk-install-security{color:var(--muted);font-size:13px;line-height:1.55;margin:0}
+@media(max-width:650px){.desk-install-guide.panel{padding:19px 16px}.desk-install-guide h2{font-size:26px}.desk-install-platforms{grid-template-columns:1fr;gap:10px}.desk-install-platforms>div{padding:15px 16px}}
 
 .newsletter-error{color:#a43d31;font-weight:700}
 .newsletter-runs{border-top:1px solid #d9e4ed;padding-top:12px}
