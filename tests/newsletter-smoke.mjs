@@ -21,7 +21,7 @@ for(const path of ['inspectors/index.html','events/index.html']){
  assert.ok(html.includes('/app/newsletter-admin.js?v=4'),path+': new newsletter client missing');
  assert.ok(html.includes('id="newsletter-monthly-preview-details" class="newsletter-preview-details" hidden'),'Monthly preview should start collapsed');
  assert.ok(html.includes('id="newsletter-weekly-preview-details" class="newsletter-preview-details" hidden'),'Weekly preview should start collapsed');
- assert.ok(html.includes('/app/styles.css?v='+(path.startsWith('inspectors')?'31':'29')));
+ assert.ok(html.includes('/app/styles.css?v='+(path.startsWith('inspectors')?'32':'29')));
  assert.ok(!panel.includes('newsletter-cost')&&!panel.includes('newsletter-segment'),'Provider billing should not be on day-to-day newsletter page');
  assert.ok(setup.includes('newsletter-cost')&&setup.includes('newsletter-segment'),'Provider setup belongs under Administration Settings');
 }
