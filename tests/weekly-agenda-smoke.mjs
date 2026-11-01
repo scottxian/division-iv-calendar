@@ -18,7 +18,7 @@ const lodges=[
  {active:true,lodge_name:'Woodbridge',lodge_number:'131',meeting_day:'1st Tue',meeting_time:'7:30 PM',meeting_notes:'Every month'},
  {active:true,lodge_name:'Golden Compasses Research',lodge_number:'1006',meeting_day:'1st Tue',meeting_time:'7:00 PM',meeting_notes:'Feb, May, Aug, Nov only'},
  {active:true,lodge_name:'Test Sunday',lodge_number:'999',meeting_day:'2nd Sun',meeting_time:'9:00 AM',meeting_notes:'Every month'},
- {active:true,lodge_name:'Inactive',meeting_day:'1st Mon',meeting_time:'7:00 PM',meeting_notes:'Every month'}
+ {active:false,lodge_name:'Inactive',meeting_day:'1st Mon',meeting_time:'7:00 PM',meeting_notes:'Every month'}
 ];
 let meetings=statedMeetings(lodges,sunday.from,sunday.through);
 assert.deepEqual(meetings.map(x=>x.lodge_name),['Scepter','Golden Compasses Research','Woodbridge','Test Sunday']);
