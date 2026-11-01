@@ -48,3 +48,6 @@ The same **approved Division IV emblem** used in the shared website masthead and
 - Monthly digest / weekly changes: same brand and event-card layout, corresponding heading/eyebrow, main calendar link, Resend unsubscribe merge tag and plain-text fallback; remain Resend Marketing Broadcasts.
 - The approved logo and site host are external HTTPS links; do not attach, inline as Base64, or replace with generic Masonic stock imagery.
 - This is a presentation-only change. Signup, MFA, event publication, schedules and broadcast sending settings are unchanged. To inspect, visit Inspector Desk → Newsletter → Preview Monthly / Preview Weekly. Do not turn on sending solely to test styling.
+
+## Returning subscribers — verified opt-in (October 31, 2026)
+If a member previously unsubscribed, they may submit the newsletter signup form again even within the initial 12-hour confirmation cooldown. The request sends a **new** 48-hour confirmation link; the address is never reactivated solely by filling in the form. After the member clicks the link, the newsletter function restores the existing global Resend contact with `PATCH /contacts/{id}` and `unsubscribed: false`, rather than trying to create a duplicate contact. It then marks that subscription active locally. The Resend contact must remain in the Division IV newsletter Segment.
