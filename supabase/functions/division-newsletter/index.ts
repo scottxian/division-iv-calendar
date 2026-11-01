@@ -199,15 +199,66 @@ async function confirm(req:Request,settings:any){
  if(error)throw Error('Contact created; administrator reconciliation required');
  return {message:'You are subscribed to Division IV newsletter updates.'};
 }
+
+/**
+ * Resend is authoritative for opt-outs. Refresh confirmed contacts from the
+ * configured newsletter Segment before reporting subscriber totals or sending.
+ * Never automatically reactivate a locally unsubscribed contact; returning to
+ * the mailing list requires a new verified opt-in.
+ */
+async function reconcileUnsubscribes(settings:any){
+ if(!settings.resend_segment_id||!marketingKey())throw Error('Newsletter contact synchronization is not configured');
+ const {data:active,error:activeError}=await db.from('newsletter_subscribers')
+  .select('email').eq('status','active').limit(901);
+ if(activeError)throw Error('Could not load active newsletter subscribers');
+ if(!active?.length)return {checked:0,unsubscribed:0};
+ if(active.length>900)throw Error('Newsletter contact safety cap exceeded');
+ const local=new Set(active.map((s:any)=>message(s.email).toLowerCase()));
+ const optedOut=new Set<string>();
+ let after='',finished=false;
+ for(let page=0;page<20;page++){
+  const qs=new URLSearchParams({segment_id:settings.resend_segment_id,limit:'100'});
+  if(after)qs.set('after',after);
+  const result=await resend('/contacts?'+qs.toString(),'GET',undefined,'marketing');
+  if(!Array.isArray(result?.data)||typeof result?.has_more!=='boolean')
+   throw Error('Invalid Resend contacts response; subscriber totals not reconciled');
+  for(const contact of result.data){
+   const email=message(contact?.email).toLowerCase();
+   if(local.has(email)&&contact?.unsubscribed===true)optedOut.add(email);
+  }
+  if(!result.has_more){finished=true;break}
+  const next=message(result.data.at(-1)?.id);
+  if(!next||next===after)throw Error('Unable to complete Resend contact pagination');
+  after=next;
+ }
+ if(!finished)throw Error('Resend contact list exceeded safe pagination bound');
+ for(const email of optedOut){
+  const {error}=await db.from('newsletter_subscribers')
+   .update({status:'unsubscribed',provider_synced_at:new Date().toISOString()})
+   .eq('email',email).eq('status','active');
+  if(error)throw Error('Unable to record an opted-out newsletter contact');
+ }
+ return {checked:local.size,unsubscribed:optedOut.size};
+}
+
 async function summary(){
- const [settings,count,recent]=await Promise.all([config(),db.from('newsletter_subscribers').select('id',{count:'exact',head:true}).eq('status','active'),db.from('newsletter_runs').select('id,kind,issue_key,state,created_at,sent_at,error_message,provider_broadcast_id,content_summary').order('created_at',{ascending:false}).limit(25)]);
- return {settings,subscribers:count.count||0,runs:recent.data||[],resend_configured:!!key()&&!!fromEnv(),marketing_configured:!!marketingKey()};
+ const settings=await config();
+ let subscriber_sync_warning='';
+ try{await reconcileUnsubscribes(settings);}
+ catch(error){subscriber_sync_warning='Resend contact status could not be refreshed';console.warn('Newsletter subscriber sync',message(error));}
+ const [count,recent]=await Promise.all([db.from('newsletter_subscribers').select('id',{count:'exact',head:true}).eq('status','active'),db.from('newsletter_runs').select('id,kind,issue_key,state,created_at,sent_at,error_message,provider_broadcast_id,content_summary').order('created_at',{ascending:false}).limit(25)]);
+ if(count.error)throw Error('Unable to load newsletter subscriber count');
+ return {settings,subscribers:count.count||0,runs:recent.data||[],resend_configured:!!key()&&!!fromEnv(),marketing_configured:!!marketingKey(),subscriber_sync_warning};
 }
 async function sendIssue(kind:string,settings:any,staffId?:string){
  if(!settings.sending_enabled||!settings.free_plan_confirmed||!settings.resend_segment_id||!marketingKey())throw Error('Newsletter sending is paused or Marketing API key is not configured.');
  if(!key()||!fromEnv())throw Error('Resend email sender is not configured');
- const {count}=await db.from('newsletter_subscribers').select('id',{count:'exact',head:true}).eq('status','active');
- if(!count||count>settings.contact_cap||count>900)throw Error('No verified subscribers or the free-tier safety cap has been reached');
+ // Fail closed if Resend contact opt-outs cannot be checked before broadcast.
+ await reconcileUnsubscribes(settings);
+ const {count,error:countError}=await db.from('newsletter_subscribers').select('id',{count:'exact',head:true}).eq('status','active');
+ if(countError)throw Error('Unable to verify active newsletter subscribers');
+ if(!count)return {status:'skipped',reason:'no_active_subscribers'};
+ if(count>settings.contact_cap||count>900)throw Error('The free-tier contact safety cap has been reached');
  const local=localParts();
  const effectiveKind=kind==='manual_weekly'?'weekly':kind==='manual_monthly'?'monthly':kind;
  const manual=kind.startsWith('manual_');
