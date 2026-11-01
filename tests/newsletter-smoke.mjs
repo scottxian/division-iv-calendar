@@ -82,6 +82,11 @@ for(const item of ['function brandedEmail(', 'function confirmationHtml(', 'html
 }
 assert.ok(api.includes("},'transactional');"),'Confirmation must remain a transactional send');
 assert.ok(api.includes('const text=[label,'),'Broadcasts must retain their plain text fallback');
+assert.ok(api.includes("old?.status!=='unsubscribed'"),'A returning subscriber must not be blocked by the initial signup cooldown');
+assert.ok(api.includes("token_expires_at,provider_contact_id"),'Returning subscriber confirmation must retrieve prior provider identity');
+assert.ok(api.includes("'PATCH',{unsubscribed:false}"),'Returning subscribers must update the existing Resend contact');
+assert.ok(api.includes("s.provider_contact_id"),'Resubscription must preserve and reuse the existing contact');
+
 assert.ok(api.includes("text:'Confirm your subscription"),'Confirmations must retain a plain text fallback');
 new vm.Script(pub,{filename:'newsletter-public.js'});
 new vm.Script(adm,{filename:'app/newsletter-admin.js'});
