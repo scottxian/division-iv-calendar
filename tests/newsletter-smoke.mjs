@@ -29,8 +29,20 @@ const app=fs.readFileSync('app/app.js','utf8');
 assert.ok(app.includes("key==='newsletter'")&&app.includes('window.loadNewsletter'));
 assert.ok(app.includes("'staff','newsletter','settings'"));
 const html=fs.readFileSync('calendar/index.html','utf8');
-assert.ok(html.includes('id="division-newsletter-form"'));
-assert.ok(html.includes('/newsletter-public.js?v=1'));
+const homepage=fs.readFileSync('index.html','utf8');
+const navigation=fs.readFileSync('script.js','utf8');
+assert.ok(homepage.includes('id="newsletter-signup"'),'Newsletter section must live on homepage');
+assert.ok(homepage.includes('id="division-newsletter-form"'),'Homepage must contain the real newsletter opt-in form');
+assert.ok(!html.includes('id="division-newsletter-form"'),'Calendar should link to one shared signup instead of duplicating the form');
+assert.ok(html.includes('href="/#newsletter-signup"'),'Calendar must link to homepage newsletter form');
+assert.ok(homepage.includes('/newsletter-public.js?v=2'),'Homepage must load newsletter client');
+assert.ok(html.includes('/newsletter-public.js?v=2'),'Old calendar confirmation URLs must continue to work');
+assert.ok(pub.includes('if(!form&&!token)return'),'Calendar confirmation must still work without a form');
+assert.ok(api.includes("'#newsletter-signup'"),'New confirmation links should return to the homepage');
+for(const href of ['/#newsletter-signup','/#install-app']){
+ assert.ok(fs.readFileSync('shared/header.js','utf8').includes(href),'Shared header must expose '+href);
+ assert.ok(navigation.includes(href),'Dynamic navigation must expose '+href);
+}
 assert.ok(pub.includes("request('confirm'"));
 assert.ok(pub.includes('history.replaceState'));
 assert.ok(adm.includes('await db.auth.getSession()'));
