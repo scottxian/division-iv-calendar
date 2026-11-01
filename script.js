@@ -11,9 +11,11 @@
   website_site_url:'https://divisionivmasons.org',
   website_navigation:[
    {group:'division',label:'About Division IV',href:'index.html#about'},
+   {group:'division',label:'Install App',href:'/#install-app'},
    {group:'lodges',label:'Lodge Directory',href:'lodges.html'},
    {group:'lodges',label:'Grand Lodge Finder ↗',href:'@grand_lodge'},
    {group:'calendar',label:'View Division IV Calendar',href:'calendar.html'},
+   {group:'calendar',label:'Events Newsletter',href:'/#newsletter-signup'},
    {group:'calendar',label:'Submit / Update Event ↗',href:'@event_requests'}
   ]
  };
@@ -126,13 +128,6 @@
    wrapper.addEventListener('focusout',ev=>{
     if(!wrapper.contains(ev.relatedTarget))setExpanded(wrapper,false);
    });
-  }
-  // Permanent quick links stay visible regardless of admin-customized menu entries.
-  for(const [label,href] of [['Newsletter','/#newsletter-signup'],['Install App','/#install-app']]){
-   const item=link(label,href,false);
-   item.className='nav-division-direct';
-   item.addEventListener('click',closeMenu);
-   nav.append(item);
   }
   if(!appMode){
    const desk=link('Inspector Login ↗','/inspectors/',false);
