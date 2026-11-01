@@ -75,7 +75,7 @@ for(const piece of [
  "if(!settings.sending_enabled",
  "if(!settings.signup_enabled",
  "claims.aal!=='aal2'",
- "effectiveKind==='weekly'&&!built.versions.length",
+ "if(kind==='weekly')return weeklyIssue(settings)",
  "eq('event_version',item.version)",
  "RESEND_UNSUBSCRIBE_URL",
  "send:false",
