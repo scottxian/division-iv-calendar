@@ -174,7 +174,7 @@ async function subscribe(req:Request,settings:any){
  if((count||0)>=Math.min(settings.contact_cap,900))return {message:'Newsletter signup is temporarily full.'};
  const {data:old}=await db.from('newsletter_subscribers').select('status,last_confirmation_sent_at').eq('email',email).maybeSingle();
  if(old?.status==='active')return {message:'If this address is eligible, please check your inbox.'};
- if(old?.last_confirmation_sent_at&&Date.now()-Date.parse(old.last_confirmation_sent_at)<12*3600000)return {message:'If this address is eligible, please check your inbox.'};
+ if(old?.status!=='unsubscribed'&&old?.last_confirmation_sent_at&&Date.now()-Date.parse(old.last_confirmation_sent_at)<12*3600000)return {message:'If this address is eligible, please check your inbox.'};
  const token=crypto.randomUUID()+crypto.randomUUID(),token_hash=await hash(token);
  const {error}=await db.from('newsletter_subscribers').upsert({email,status:'pending',token_hash,token_expires_at:new Date(Date.now()+48*3600000).toISOString(),requested_at:new Date().toISOString(),last_confirmation_sent_at:new Date().toISOString()},{onConflict:'email'});
  if(error)throw Error('Unable to create signup request');
@@ -187,16 +187,19 @@ async function confirm(req:Request,settings:any){
  const body=await req.json(),token=message(body.token);
  if(!/^[a-f0-9-]{72}$/i.test(token))throw Error('Invalid confirmation link');
  const token_hash=await hash(token);
- const {data:s}=await db.from('newsletter_subscribers').select('id,email,status,token_expires_at').eq('token_hash',token_hash).maybeSingle();
+ const {data:s}=await db.from('newsletter_subscribers').select('id,email,status,token_expires_at,provider_contact_id').eq('token_hash',token_hash).maybeSingle();
  if(!s||s.status!=='pending'||Date.parse(s.token_expires_at)<Date.now())throw Error('This confirmation link has expired. Please subscribe again.');
  // Confirm already-requested subscriptions even when new signup is paused.
  if(!settings.free_plan_confirmed||!settings.resend_segment_id||!marketingKey())throw Error('Newsletter contact enrollment is being configured. Please try the same confirmation link again later.');
  const {count}=await db.from('newsletter_subscribers').select('id',{count:'exact',head:true}).eq('status','active');
  if((count||0)>=Math.min(settings.contact_cap,900))throw Error('Newsletter signup is full.');
- // Resend contact setup is performed only after email ownership is verified.
- const contact=await resend('/contacts','POST',{email:s.email,unsubscribed:false,segments:[{id:settings.resend_segment_id}]});
+ // New signups create a contact; returning opt-ins update their existing contact.
+ // NEVER restore marketing subscription before the new confirmation link is used.
+ const contact=s.provider_contact_id
+  ? await resend('/contacts/'+encodeURIComponent(s.provider_contact_id),'PATCH',{unsubscribed:false})
+  : await resend('/contacts','POST',{email:s.email,unsubscribed:false,segments:[{id:settings.resend_segment_id}]});
  const {error}=await db.from('newsletter_subscribers').update({status:'active',token_hash:null,token_expires_at:null,confirmed_at:new Date().toISOString(),provider_contact_id:contact.id||null,provider_synced_at:new Date().toISOString()}).eq('id',s.id).eq('status','pending');
- if(error)throw Error('Contact created; administrator reconciliation required');
+ if(error)throw Error('Contact enrollment succeeded; administrator reconciliation required');
  return {message:'You are subscribed to Division IV newsletter updates.'};
 }
 
