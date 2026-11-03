@@ -6,7 +6,6 @@ on:
       - phase-1-unified-site
       - phase-3-release-candidate
       - main
-      - fix/require-public-event-description-20261102
   workflow_dispatch:
 
 permissions:
