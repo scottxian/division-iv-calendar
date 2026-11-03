@@ -168,6 +168,8 @@ Deno.serve(async req=>{
    let event_id=null, base_event_version=null, proposed_fields:any={};
    if(kind==='new'){
      proposed_fields=sanitize(body.event||{});
+     // Public submissions need details; inspector-managed imports stay compatible with legacy records.
+     if(!a.staff&&!clean(proposed_fields.public_description))throw Error('Enter a public event description');
      if(!proposed_fields.event_name
     && !['District School of Instruction','Division School of Instruction'].includes(String(proposed_fields.event_type)))
     throw Error('Enter the event name');
