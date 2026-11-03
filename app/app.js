@@ -597,6 +597,8 @@ function inspectorEditor(host, initial, save, buttonLabel='Save Inspector Revisi
    field.value=initial[key]??(key==='location_state'?'CA':'');
   }
  }
+ // Preserve editing of older published events without a description; new public submissions require one.
+ if(!initial.public_description&&f.elements.public_description)f.elements.public_description.required=false;
  // Older published events can have no dedicated POC; allow those to be edited without inventing contact data.
  for(const key of ['poc_name','poc_position','poc_phone','poc_email'])if(!initial[key]&&f.elements[key])f.elements[key].required=false;
  const details=f.querySelector('.location-details');
