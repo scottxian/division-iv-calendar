@@ -6,6 +6,7 @@ on:
       - phase-1-unified-site
       - phase-3-release-candidate
       - main
+      - fix/require-public-event-description-20261102
   workflow_dispatch:
 
 permissions:
@@ -26,6 +27,8 @@ jobs:
         run: node tests/weekly-agenda-smoke.mjs
       - name: Test gated newsletter and subscriber lifecycle
         run: node tests/newsletter-smoke.mjs
+      - name: Validate required public event descriptions (read only)
+        run: node tests/public-description-required-smoke.mjs
       - name: Validate navigation, assets, JavaScript, and security boundaries
         run: node tests/site-smoke.mjs
       - name: Verify email OTP request, code exchange, and MFA boundaries
