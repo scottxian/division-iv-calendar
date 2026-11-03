@@ -144,6 +144,12 @@ try{
  pass.push('Public and change-event district choices limited to Divisions I, II, III, IV and X');
 
  await desktop.locator('.choice[data-mode="new"]').click();
+ const description=desktop.locator('#new-form textarea[name="public_description"]');
+ assert.equal(await description.getAttribute('required'),'','Public event description must be required');
+ assert.equal(await description.evaluate(el=>el.validity.valueMissing),true,'An empty event description must be invalid');
+ await description.fill('Degree work and refreshments will follow.');
+ assert.equal(await description.evaluate(el=>el.checkValidity()),true,'Completed public description must be valid');
+ pass.push('Public event description required, with standard browser validation');
  const newTbd=desktop.locator('#new-location-tbd');
  await desktop.locator('#new-form .location-tbd-control').click();
  assert.equal(await newTbd.isChecked(),true,'New event Location TBD checkbox cannot be clicked');
