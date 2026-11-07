@@ -6,6 +6,7 @@ on:
       - phase-1-unified-site
       - phase-3-release-candidate
       - main
+      - feature/home-stated-meetings-week-nav
   workflow_dispatch:
 
 permissions:
@@ -22,6 +23,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Test Pacific homepage stated meetings and weekly navigation
+        run: node tests/home-stated-meetings-smoke.mjs
       - name: Test Sunday-inclusive weekly agenda, stated meetings and new events
         run: node tests/weekly-agenda-smoke.mjs
       - name: Test gated newsletter and subscriber lifecycle
