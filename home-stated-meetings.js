@@ -22,9 +22,10 @@
  };
  const currentWeek=()=>{const today=pacificDate(new Date());return addDays(today,-dateOf(today).getUTCDay());};
  const weekLabel=(start,end)=>{
-  const year=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',year:'numeric'}).format(dateOf(end));
   const fmt=iso=>new Intl.DateTimeFormat('en-US',{timeZone:'UTC',month:'short',day:'numeric'}).format(dateOf(iso));
-  return fmt(start)+' – '+fmt(end)+', '+year;
+  const startYear=start.slice(0,4),endYear=end.slice(0,4);
+  return startYear===endYear?fmt(start)+' – '+fmt(end)+', '+endYear
+   :fmt(start)+', '+startYear+' – '+fmt(end)+', '+endYear;
  };
  const clock=value=>{
   const m=String(value||'').match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
@@ -77,7 +78,7 @@
   item.append(badge,info);
   return item;
  }
- let lodges=[],offset=0,loaded=false;
+ let lodges=[],offset=0,loaded=false,loadError=false;
  function status(text,isError=false){
   root.replaceChildren(el('p','home-stated-empty'+(isError?' is-error':''),text));
   root.setAttribute('aria-busy','false');
@@ -88,6 +89,7 @@
   back.disabled=offset===0;back.setAttribute('aria-label','Previous week');
   next.disabled=offset>=52;next.setAttribute('aria-label','Next week');
   if(!loaded)return;
+  if(loadError){status('Stated meeting schedules are temporarily unavailable. Please use the Lodge Directory.',true);return;}
   const items=meetingsForWeek(start,lodges);
   if(!items.length){status('No regular stated meetings listed for this week.');return;}
   const grid=el('div','home-stated-grid');
@@ -108,7 +110,7 @@
    loaded=true;render();
   })
   .catch(()=>{
-   loaded=true;status('Stated meeting schedules are temporarily unavailable. Please use the Lodge Directory.',true);
+   loaded=true;loadError=true;render();
   })
   .finally(()=>clearTimeout(timer));
 })();
