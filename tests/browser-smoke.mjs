@@ -62,7 +62,15 @@ try{
  assert.ok(backgrounds[1].includes('rgba(0, 0, 0, 0)'), 'Stated meeting area should share the tan section background');
  assert.match(backgrounds[2],/22, 57, 84|#163954/i,'Division Overview band should remain navy');
  assert.equal(backgrounds[5].includes('245, 241, 231'),true,'Installation band should remain tan');
- pass.push('Sunday–Saturday stated meetings, weekly arrow controls, and original homepage palette');
+ assert.equal(await desktop.locator('#division-events-title').textContent(),'Division Events');
+ assert.equal(await desktop.locator('#home-stated-title').textContent(),'Stated Meetings');
+ const meetingColors=await desktop.locator('.home-stated-card').first().evaluate(node=>({
+  card:getComputedStyle(node).backgroundColor,
+  title:getComputedStyle(node.querySelector('h3')).color
+ }));
+ assert.equal(meetingColors.card,'rgb(255, 253, 248)','Meeting card should match ivory Division Events cards');
+ assert.equal(meetingColors.title,'rgb(20, 45, 70)','Meeting card title should use dark navy text');
+ pass.push('Sunday–Saturday meeting navigation and matching tan event sections');
  await desktop.locator('header[data-header-ready="true"]').waitFor();
  const headerIdentity=async page=>page.locator('header .division-brand').evaluate(el=>{
   const img=el.querySelector('img.brand-emblem');
