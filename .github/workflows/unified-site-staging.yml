@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   verify-staging:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Check out staging
@@ -22,6 +22,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Test Pacific homepage stated meetings and weekly navigation
+        run: node tests/home-stated-meetings-smoke.mjs
+      - name: Verify public lodge feed is live, read-only and limited to directory fields
+        run: |
+          node --input-type=module <<'NODE'
+          const response=await fetch('https://lxvceqshpjnjjlllbpaq.supabase.co/functions/v1/division-stated-meetings-preview',{
+           headers:{Origin:'https://divisionivmasons.org'},signal:AbortSignal.timeout(12000)
+          });
+          if(!response.ok)throw Error('Lodge feed HTTP '+response.status);
+          if(response.headers.get('access-control-allow-origin')!=='https://divisionivmasons.org')
+           throw Error('Lodge feed CORS origin mismatch');
+          const payload=await response.json();
+          if(!Array.isArray(payload.lodges)||payload.lodges.length<20||payload.lodges.length>100)
+           throw Error('Lodge feed did not return expected active lodges');
+          const allowed=new Set(['name','number','district','day','time','notes','address']);
+          for(const lodge of payload.lodges)for(const key of Object.keys(lodge))
+           if(!allowed.has(key))throw Error('Lodge feed exposed an extra field: '+key);
+          console.log('PASS: public read-only lodge feed returned '+payload.lodges.length+' active lodge schedules.');
+          NODE
       - name: Test Sunday-inclusive weekly agenda, stated meetings and new events
         run: node tests/weekly-agenda-smoke.mjs
       - name: Test gated newsletter and subscriber lifecycle
@@ -52,7 +71,7 @@ jobs:
         run: node tests/shared-navigation-smoke.mjs
 
   browser-smoke:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 18
     steps:
       - name: Check out staging
