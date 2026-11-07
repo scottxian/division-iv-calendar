@@ -48,6 +48,8 @@ jobs:
         run: node tests/newsletter-smoke.mjs
       - name: Validate required public event descriptions (read only)
         run: node tests/public-description-required-smoke.mjs
+      - name: Test individual Google, Apple, and Outlook event export
+        run: node tests/individual-event-calendar-smoke.mjs
       - name: Validate navigation, assets, JavaScript, and security boundaries
         run: node tests/site-smoke.mjs
       - name: Verify email OTP request, code exchange, and MFA boundaries
@@ -60,8 +62,6 @@ jobs:
         run: node tests/inspector-at-large-smoke.mjs
       - name: Test fixed Division and District School of Instruction title rules
         run: node tests/soi-title-smoke.mjs
-      - name: Test individual Google, Apple, and Outlook event export
-        run: node tests/individual-event-calendar-smoke.mjs
       - name: Test Google Calendar publishing title and notes
         run: node tests/calendar-publishing.mjs
       - name: Test Inspector Desk Excel import integration
