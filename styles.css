@@ -551,3 +551,41 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
  .home-stated-info h3{font-size:24px}
  .home-stated-footer{flex-direction:column;align-items:flex-start}
 }
+
+/* One-tap personal calendar options on published events and lodge stated meetings. */
+.home-calendar-actions{position:relative;align-self:flex-start;margin-top:12px;max-width:100%;z-index:1}
+.home-calendar-actions[open]{z-index:5}
+.home-calendar-actions>summary{
+ display:inline-flex;align-items:center;justify-content:space-between;gap:9px;
+ list-style:none;min-height:38px;padding:7px 12px;
+ border:1px solid #bda77d;border-radius:5px;background:#f9f2e5;
+ color:#79551f;font:700 12px/1.45 'DM Sans',system-ui,sans-serif;
+ cursor:pointer;user-select:none
+}
+.home-calendar-actions>summary::-webkit-details-marker{display:none}
+.home-calendar-actions>summary::before{content:'+';font-size:16px;line-height:1}
+.home-calendar-actions>summary::after{content:'⌄';font-size:17px;line-height:1;margin-left:2px}
+.home-calendar-actions[open]>summary::after{transform:rotate(180deg)}
+.home-calendar-actions>summary:hover{background:#f0e5d0;border-color:#98753d}
+.home-calendar-actions>summary:focus-visible,
+.home-calendar-option:focus-visible{outline:3px solid #967239;outline-offset:2px}
+.home-calendar-choices{
+ position:absolute;left:0;top:calc(100% + 5px);
+ z-index:10;width:260px;max-width:min(260px,calc(100vw - 116px));
+ padding:8px;border:1px solid #c8b795;border-radius:7px;
+ background:#fffdf8;box-shadow:0 10px 32px #1b273b2c
+}
+.home-calendar-option{
+ display:block;padding:10px 11px;border-radius:4px;
+ color:#142d46;font:700 13px/1.5 'DM Sans',system-ui,sans-serif;
+ text-decoration:none;overflow-wrap:anywhere
+}
+.home-calendar-option:hover{background:#f0e8d9;color:#79551f}
+.home-calendar-tip{
+ margin:6px 8px 3px;color:#5b6a77;
+ font:400 11px/1.5 'DM Sans',system-ui,sans-serif
+}
+@media(max-width:480px){
+ .home-calendar-actions{margin-top:10px}
+ .home-calendar-choices{width:230px}
+}

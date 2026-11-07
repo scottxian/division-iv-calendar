@@ -59,13 +59,15 @@
     info.append(title);
     if(hostedBy)info.append(hostedBy);
     info.append(timing,where,link);
+    const actions=window.divisionHomeCalendarActions?.create(event);
+    if(actions)info.append(actions);
     article.append(date,info);
     article.classList.add('upcoming-card-clickable');
     article.tabIndex=0;
     article.setAttribute('role','link');
     article.setAttribute('aria-label','Open event details: '+title.textContent);
     article.addEventListener('click',e=>{
-      if(e.target.closest('a'))return;
+      if(e.target.closest('a,button,summary,details'))return;
       window.location.assign(link.href);
     });
     article.addEventListener('keydown',e=>{

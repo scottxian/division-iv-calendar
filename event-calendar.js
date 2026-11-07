@@ -8,7 +8,8 @@
   if(!Number.isFinite(date.getTime()))throw Error('Invalid published event date');
   return date.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z');
  };
- const eventUrl=e=>'https://divisionivmasons.org/calendar/?event='+encodeURIComponent(e.id)+'#events-list';
+ const eventUrl=e=>e.stated_meeting===true?'https://divisionivmasons.org/lodges/':
+  'https://divisionivmasons.org/calendar/?event='+encodeURIComponent(e.id)+'#events-list';
  const venue=e=>{
   if(e.event_mode==='online')return 'Online event';
   if(e.location_tbd)return 'Location TBD';
@@ -20,7 +21,7 @@
   e.district?'District: '+txt(e.district):'',
   e.invited_audience?'Attendees: '+txt(e.invited_audience):'',
   e.attire?'Attire: '+txt(e.attire):'',
-  'Current event details: '+eventUrl(e)
+  (e.stated_meeting===true?'Meeting schedule and updates: ':'Current event details: ')+eventUrl(e)
  ].filter(Boolean).join('\n\n');
  function googleLink(e){
   const u=new URL('https://calendar.google.com/calendar/render');

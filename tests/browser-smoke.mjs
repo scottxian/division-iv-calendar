@@ -46,8 +46,54 @@ try{
    {name:'Next Week Lodge',number:'222',district:'404',day:scheduleDay(nextSunday),time:'8:00 PM',notes:'Every month',address:'Next Lodge Hall, California'}
   ]})});
  });
+ const sampleEventStart=new Date(Date.now()+86400000).toISOString();
+ const sampleEventEnd=new Date(Date.parse(sampleEventStart)+90*60000).toISOString();
+ await desktop.route('**/functions/v1/division-upcoming-events',async route=>{
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({events:[{
+   id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+   title:'Division Homepage Calendar Test',hosted_by:'Sample Lodge No. 173',
+   district:'404',starts_at:sampleEventStart,ends_at:sampleEventEnd,
+   event_mode:'in_person',location_name:'Sample Hall',
+   location_address:'Sacramento, California',public_description:'Published event test'
+  }]})});
+ });
  await check(desktop,'Homepage','/','h1','home-desktop.png');
  await desktop.locator('#home-stated-meetings-list .home-stated-card').first().waitFor({state:'visible'});
+ await desktop.locator('#upcoming-events .upcoming-card').first().waitFor({state:'visible'});
+ const publishedCard=desktop.locator('#upcoming-events .upcoming-card').first();
+ await publishedCard.locator('.home-calendar-actions summary').click();
+ const publishedGoogle=await publishedCard.locator('.home-calendar-option').first().getAttribute('href');
+ const publishedUrl=new URL(publishedGoogle);
+ assert.equal(publishedUrl.hostname,'calendar.google.com');
+ assert.equal(publishedUrl.searchParams.get('dates'),sampleEventStart.replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z')
+  +'/'+sampleEventEnd.replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z'));
+ const publishedDownload=desktop.waitForEvent('download');
+ await publishedCard.locator('.home-calendar-option').nth(1).click();
+ const pubFile=await publishedDownload;
+ assert.match(pubFile.suggestedFilename(),/^division-iv-event-.*\.ics$/);
+ assert.match(await fs.readFile(await pubFile.path(),'utf8'),/SUMMARY:Division Homepage Calendar Test/);
+ assert.equal(new URL(desktop.url()).pathname,'/','Export clicks must not navigate away from the homepage card');
+ pass.push('Published event Google link and Apple .ics download work from homepage');
+
+ const currentMeeting=desktop.locator('#home-stated-meetings-list .home-stated-card').first();
+ await currentMeeting.locator('.home-calendar-actions summary').click();
+ const statedGoogle=new URL(await currentMeeting.locator('.home-calendar-option').first().getAttribute('href'));
+ assert.equal(statedGoogle.hostname,'calendar.google.com');
+ assert.match(statedGoogle.searchParams.get('text'),/Stated Meeting/);
+ assert.match(statedGoogle.searchParams.get('details'),/Estimated two-hour duration|two-hour duration is an estimate/i);
+ assert.match(statedGoogle.searchParams.get('details'),/divisionivmasons.org\/lodges/);
+ const [meetingStarts,meetingEnds]=statedGoogle.searchParams.get('dates').split('/');
+ const numericUtc=iso=>new Date(iso.slice(0,4)+'-'+iso.slice(4,6)+'-'+iso.slice(6,8)+'T'+iso.slice(9,11)+':'+iso.slice(11,13)+':'+iso.slice(13,15)+'Z');
+ assert.equal((numericUtc(meetingEnds)-numericUtc(meetingStarts))/60000,120,'Stated meeting personal calendar duration must be estimated at two hours');
+ const statedDownload=desktop.waitForEvent('download');
+ await currentMeeting.locator('.home-calendar-option').nth(1).click();
+ const statedFile=await statedDownload;
+ assert.match(statedFile.suggestedFilename(),/^stated-meeting-.*\.ics$/);
+ const statedData=await fs.readFile(await statedFile.path(),'utf8');
+ assert.match(statedData,/BEGIN:VEVENT/);
+ assert.match(statedData,/URL:https:\/\/divisionivmasons.org\/lodges\//);
+ assert.doesNotMatch(statedData,/RRULE:/,'Stated meetings should be saved one date at a time');
+ pass.push('Stated meeting Google link and Apple .ics offer a one-off estimated duration');
  const currentWeekLabel=await desktop.locator('#home-stated-week-label').textContent();
  assert.ok(await desktop.locator('#home-stated-meetings-list').getByText('Current Test Lodge No. 111').count());
  assert.equal(await desktop.locator('#home-stated-prev').isDisabled(),true,'Previous week must be disabled on current week');
@@ -403,6 +449,14 @@ try{
 
  const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
  await check(mobile,'Mobile homepage','/','h1','home-mobile.png');
+ await mobile.locator('#home-stated-meetings-list .home-stated-card').first().waitFor({state:'visible'});
+ await mobile.locator('#home-stated-meetings-list .home-calendar-actions summary').first().tap();
+ assert.equal(await mobile.locator('#home-stated-meetings-list .home-stated-card').first().locator('.home-calendar-option').count(),2,'Mobile must expose both Google and Apple choices in each meeting');
+ const meetingMenuFits=await mobile.locator('#home-stated-meetings-list .home-calendar-choices').first().evaluate(element=>({
+  right:element.getBoundingClientRect().right,view:window.innerWidth
+ }));
+ assert.ok(meetingMenuFits.right<=meetingMenuFits.view+1,'Mobile calendar dropdown must fit the screen');
+ pass.push('Mobile stated-meeting calendar choices fit the viewport');
  const homeMobileInstall=mobile.locator('#install-app');
  assert.equal(await homeMobileInstall.isVisible(),true);
  const mobileHomeWidth=await mobile.evaluate(()=>({scroll:document.documentElement.scrollWidth,view:innerWidth}));

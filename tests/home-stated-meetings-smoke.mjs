@@ -20,8 +20,8 @@ assert.match(css,/\.home-stated-info h3\{[^}]*color:#142d46/,'Meeting-card text 
 
 for(const id of ['home-stated-week-label','home-stated-prev','home-stated-next','home-stated-meetings-list'])
  assert.ok(html.includes('id="'+id+'"'),'Missing week navigation: '+id);
-assert.ok(html.includes('/home-stated-meetings.js?v=1'),'Homepage must load the read-only week browser');
-assert.ok(html.includes('/styles.css?v=20'),'Homepage must invalidate previous CSS cache');
+assert.ok(html.includes('/home-stated-meetings.js?v=2'),'Homepage must load the read-only week browser');
+assert.ok(html.includes('/styles.css?v=21'),'Homepage must invalidate previous CSS cache');
 for(const marker of ['.home-stated-meetings{','.home-stated-grid{','.home-stated-week-controls{','.home-stated-arrow:disabled{','@media(max-width:520px)'])
  assert.ok(css.includes(marker),'Responsive navy stated-meeting styles missing: '+marker);
 assert.ok(css.includes('.upcoming-section{')&&css.includes('.division-overview{')&&css.includes('.home-newsletter{')&&css.includes('.homepage-cta{')&&css.includes('.home-install{'),'Existing alternating tan/navy homepage bands must remain');
@@ -59,15 +59,35 @@ const lodges=[
  {name:'Next Week Lodge',number:'103',district:'404',day:'2nd Thu',time:'7:30 PM',notes:'Every month',address:'Elk Grove, CA'},
  {name:'Fifth Sunday Lodge',number:'104',district:'404',day:'5th Sun',time:'7:30 PM',notes:'Every month',address:'Sacramento, CA'}
 ];
-const context={document,Date:TestDate,Intl,AbortController,
+const capturedMeetings=[];
+const window={divisionHomeCalendarActions:{create:event=>{
+ capturedMeetings.push(event);
+ return new MockNode('details');
+}}};
+const context={document,window,Date:TestDate,Intl,AbortController,
  setTimeout:()=>1,clearTimeout:()=>{},
  fetch:async()=>({ok:true,json:async()=>({lodges})})};
-new vm.Script(js,{filename:'home-stated-meetings.js'}).runInNewContext(context);
+const instrumented=js.replace(' const el=(tag,className,value)=>{',
+ ' window.testMeetingStart=meetingStart;'+String.fromCharCode(10)+' const el=(tag,className,value)=>{');
+assert.notEqual(instrumented,js,'Unable to instrument local-time conversion for DST tests');
+new vm.Script(instrumented,{filename:'home-stated-meetings.js'}).runInNewContext(context);
+assert.equal(window.testMeetingStart('2026-03-07','7:30 PM'),'2026-03-08T03:30:00.000Z','Before spring DST shift, Pacific is UTC-8');
+assert.equal(window.testMeetingStart('2026-03-08','7:30 PM'),'2026-03-09T02:30:00.000Z','After spring DST shift, Pacific is UTC-7');
+assert.equal(window.testMeetingStart('2026-10-31','7:30 PM'),'2026-11-01T02:30:00.000Z','Before fall DST shift, Pacific is UTC-7');
+assert.equal(window.testMeetingStart('2026-11-01','7:30 PM'),'2026-11-02T03:30:00.000Z','After fall DST shift, Pacific is UTC-8');
+assert.equal(window.testMeetingStart('2026-07-07','1:00 PM'),'2026-07-07T20:00:00.000Z','Daytime PDT meeting time must be correct');
+assert.equal(window.testMeetingStart('2026-11-07','TBD'),null,'Do not guess calendar times if the lodge time is missing');
 await new Promise(resolve=>setImmediate(resolve));
 const listed=()=>root.textContent;
 assert.ok(heading.textContent.includes('Nov 1')&&heading.textContent.includes('Nov 7'),'Saturday must show current Sunday–Saturday week in Pacific Time');
 assert.equal(back.disabled,true,'Backward arrow disabled on initial current week');
 assert.match(listed(),/Quarterly Lodge No. 101/,'November quarterly meeting must appear');
+assert.equal(capturedMeetings[0].stated_meeting,true);
+assert.equal(capturedMeetings[0].starts_at,'2026-11-04T03:00:00.000Z','November stated meeting starts at 7 PM PST');
+assert.equal(capturedMeetings[0].ends_at,'2026-11-04T05:00:00.000Z','Stated meeting end is estimated at two hours');
+assert.equal(capturedMeetings[0].location_address,'Folsom, CA');
+assert.match(capturedMeetings[0].public_description,/estimate/);
+assert.match(capturedMeetings[0].title,/Stated Meeting/);
 assert.doesNotMatch(listed(),/December Only/,'Other quarterly months must not appear');
 assert.doesNotMatch(listed(),/Next Week Lodge/,'Next-week meetings must not appear before forward navigation');
 next.listeners.click();

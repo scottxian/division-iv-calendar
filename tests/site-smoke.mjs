@@ -206,7 +206,7 @@ if(calendarHTML.includes('src="/public-events.js?v=1"'))
  errors.push('Old list-only calendar script must not load on monthly calendar');
 if(calendarHTML.includes('href="/calendar/" target="_blank"'))
  errors.push('Calendar fallback must open Google Calendar rather than itself');
-if(!read('index.html').includes('/home-events.js?v=4'))
+if(!read('index.html').includes('/home-events.js?v=5'))
  errors.push('Homepage event links should use the updated event-specific navigation');
 if(!read('lodges/index.html').includes('id="lodge-correction-form"')||
    !read('lodges/index.html').includes('/lodge-correction.js?v=3'))
