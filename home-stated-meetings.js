@@ -56,6 +56,35 @@
    ||clock(a.lodge.time).localeCompare(clock(b.lodge.time))
    ||String(a.lodge.name||'').localeCompare(String(b.lodge.name||'')));
  }
+ // Resolve the scheduled Pacific wall clock to UTC, including daylight saving time.
+ // Lodge meetings occur during daytime/evening; the date's noon offset is authoritative.
+ const meetingStart=(iso,time)=>{
+  const match=String(time||'').trim().match(/^(\\d{1,2}):(\\d{2})\\s*(AM|PM)$/i);
+  if(!match||Number(match[1])<1||Number(match[1])>12||Number(match[2])>59)return null;
+  const localHour=(Number(match[1])%12)+(match[3].toUpperCase()==='PM'?12:0);
+  const zoneLabel=new Intl.DateTimeFormat('en-US',{timeZone:zone,timeZoneName:'shortOffset'})
+   .formatToParts(new Date(iso+'T20:00:00Z')).find(p=>p.type==='timeZoneName')?.value||'';
+  const offset=zoneLabel.match(/^GMT([+-])(\\d{1,2})(?::(\\d{2}))?$/);
+  if(!offset)return null;
+  const hours=Number(offset[2]),minutes=Number(offset[3]||0);
+  const offsetMinutes=(offset[1]==='+'?1:-1)*(hours*60+minutes);
+  const [year,month,day]=iso.split('-').map(Number);
+  return new Date(Date.UTC(year,month-1,day,localHour,Number(match[2]))-offsetMinutes*60000).toISOString();
+ };
+ const meetingCalendarEvent=(iso,lodge)=>{
+  const start=meetingStart(iso,lodge.time);
+  if(!start)return null;
+  const title=String(lodge.name||'Lodge')+(lodge.number?' No. '+lodge.number:'');
+  const identifier=String(lodge.number||lodge.name||'lodge').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  return {
+   id:'stated-'+identifier+'-'+iso,stated_meeting:true,title:title+' — Stated Meeting',
+   starts_at:start,ends_at:new Date(Date.parse(start)+2*60*60*1000).toISOString(),
+   hosted_by:title,district:String(lodge.district||''),
+   event_mode:'in_person',location_tbd:!lodge.address,
+   location_address:String(lodge.address||''),
+   public_description:'Regular stated meeting. The two-hour duration is an estimate; please confirm the actual end time and any schedule changes with the lodge. This is one meeting, not a recurring calendar appointment.'
+  };
+ };
  const el=(tag,className,value)=>{
   const node=document.createElement(tag);
   if(className)node.className=className;
@@ -75,6 +104,9 @@
   if(lodge.district)time.append(document.createTextNode(' · District '+lodge.district));
   info.append(time);
   if(lodge.address)info.append(el('p','home-stated-meta home-stated-address',lodge.address));
+  const calendarEvent=meetingCalendarEvent(date.toISOString().slice(0,10),lodge);
+  const actions=calendarEvent&&window.divisionHomeCalendarActions?.create(calendarEvent);
+  if(actions)info.append(actions);
   item.append(badge,info);
   return item;
  }
