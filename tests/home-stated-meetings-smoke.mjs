@@ -67,7 +67,16 @@ const window={divisionHomeCalendarActions:{create:event=>{
 const context={document,window,Date:TestDate,Intl,AbortController,
  setTimeout:()=>1,clearTimeout:()=>{},
  fetch:async()=>({ok:true,json:async()=>({lodges})})};
-new vm.Script(js,{filename:'home-stated-meetings.js'}).runInNewContext(context);
+const instrumented=js.replace(' const el=(tag,className,value)=>{',
+ ' window.testMeetingStart=meetingStart;\\n const el=(tag,className,value)=>{');
+assert.notEqual(instrumented,js,'Unable to instrument local-time conversion for DST tests');
+new vm.Script(instrumented,{filename:'home-stated-meetings.js'}).runInNewContext(context);
+assert.equal(window.testMeetingStart('2026-03-07','7:30 PM'),'2026-03-08T03:30:00.000Z','Before spring DST shift, Pacific is UTC-8');
+assert.equal(window.testMeetingStart('2026-03-08','7:30 PM'),'2026-03-09T02:30:00.000Z','After spring DST shift, Pacific is UTC-7');
+assert.equal(window.testMeetingStart('2026-10-31','7:30 PM'),'2026-11-01T02:30:00.000Z','Before fall DST shift, Pacific is UTC-7');
+assert.equal(window.testMeetingStart('2026-11-01','7:30 PM'),'2026-11-02T03:30:00.000Z','After fall DST shift, Pacific is UTC-8');
+assert.equal(window.testMeetingStart('2026-07-07','1:00 PM'),'2026-07-07T20:00:00.000Z','Daytime PDT meeting time must be correct');
+assert.equal(window.testMeetingStart('2026-11-07','TBD'),null,'Do not guess calendar times if the lodge time is missing');
 await new Promise(resolve=>setImmediate(resolve));
 const listed=()=>root.textContent;
 assert.ok(heading.textContent.includes('Nov 1')&&heading.textContent.includes('Nov 7'),'Saturday must show current Sunday–Saturday week in Pacific Time');
