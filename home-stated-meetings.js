@@ -59,12 +59,12 @@
  // Resolve the scheduled Pacific wall clock to UTC, including daylight saving time.
  // Lodge meetings occur during daytime/evening; the date's noon offset is authoritative.
  const meetingStart=(iso,time)=>{
-  const match=String(time||'').trim().match(/^(\\d{1,2}):(\\d{2})\\s*(AM|PM)$/i);
+  const match=String(time||'').trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
   if(!match||Number(match[1])<1||Number(match[1])>12||Number(match[2])>59)return null;
   const localHour=(Number(match[1])%12)+(match[3].toUpperCase()==='PM'?12:0);
   const zoneLabel=new Intl.DateTimeFormat('en-US',{timeZone:zone,timeZoneName:'shortOffset'})
    .formatToParts(new Date(iso+'T20:00:00Z')).find(p=>p.type==='timeZoneName')?.value||'';
-  const offset=zoneLabel.match(/^GMT([+-])(\\d{1,2})(?::(\\d{2}))?$/);
+  const offset=zoneLabel.match(/^GMT([+-])(\d{1,2})(?::(\d{2}))?$/);
   if(!offset)return null;
   const hours=Number(offset[2]),minutes=Number(offset[3]||0);
   const offsetMinutes=(offset[1]==='+'?1:-1)*(hours*60+minutes);
