@@ -68,7 +68,7 @@ const context={document,window,Date:TestDate,Intl,AbortController,
  setTimeout:()=>1,clearTimeout:()=>{},
  fetch:async()=>({ok:true,json:async()=>({lodges})})};
 const instrumented=js.replace(' const el=(tag,className,value)=>{',
- ' window.testMeetingStart=meetingStart;\\n const el=(tag,className,value)=>{');
+ ' window.testMeetingStart=meetingStart;'+String.fromCharCode(10)+' const el=(tag,className,value)=>{');
 assert.notEqual(instrumented,js,'Unable to instrument local-time conversion for DST tests');
 new vm.Script(instrumented,{filename:'home-stated-meetings.js'}).runInNewContext(context);
 assert.equal(window.testMeetingStart('2026-03-07','7:30 PM'),'2026-03-08T03:30:00.000Z','Before spring DST shift, Pacific is UTC-8');
