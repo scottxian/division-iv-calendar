@@ -28,7 +28,41 @@ try{
  await ready();
  browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  const desktop=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
+ // Deterministic schedule feed: no live Supabase access or publication changes.
+ const pacificParts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{
+   timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'
+ }).formatToParts(new Date()).map(part=>[part.type,part.value]));
+ const thisSunday=new Date(Date.UTC(Number(pacificParts.year),Number(pacificParts.month)-1,Number(pacificParts.day),12));
+ thisSunday.setUTCDate(thisSunday.getUTCDate()-thisSunday.getUTCDay());
+ const nextSunday=new Date(thisSunday);nextSunday.setUTCDate(nextSunday.getUTCDate()+7);
+ const scheduleDay=date=>{
+  const nth=Math.ceil(date.getUTCDate()/7);
+  const suffix=nth===1?'st':nth===2?'nd':nth===3?'rd':'th';
+  return nth+suffix+' Sun';
+ };
+ await desktop.route('**/functions/v1/division-stated-meetings',async route=>{
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({lodges:[
+   {name:'Current Test Lodge',number:'111',district:'402',day:scheduleDay(thisSunday),time:'7:30 PM',notes:'Every month',address:'Current Lodge Hall, California'},
+   {name:'Next Week Lodge',number:'222',district:'404',day:scheduleDay(nextSunday),time:'8:00 PM',notes:'Every month',address:'Next Lodge Hall, California'}
+  ]})});
+ });
  await check(desktop,'Homepage','/','h1','home-desktop.png');
+ await desktop.locator('#home-stated-meetings-list .home-stated-card').first().waitFor({state:'visible'});
+ const currentWeekLabel=await desktop.locator('#home-stated-week-label').textContent();
+ assert.ok(await desktop.locator('#home-stated-meetings-list').getByText('Current Test Lodge No. 111').count());
+ assert.equal(await desktop.locator('#home-stated-prev').isDisabled(),true,'Previous week must be disabled on current week');
+ await desktop.locator('#home-stated-next').click();
+ assert.notEqual(await desktop.locator('#home-stated-week-label').textContent(),currentWeekLabel,'Next arrow must advance one calendar week');
+ assert.ok(await desktop.locator('#home-stated-meetings-list').getByText('Next Week Lodge No. 222').count());
+ await desktop.locator('#home-stated-prev').click();
+ assert.equal(await desktop.locator('#home-stated-week-label').textContent(),currentWeekLabel,'Back arrow must return to current week');
+ const backgrounds=await desktop.locator('.upcoming-section,.home-stated-meetings,.division-overview,.home-newsletter,.homepage-cta,.home-install').evaluateAll(
+  elements=>elements.map(el=>getComputedStyle(el).backgroundImage+' '+getComputedStyle(el).backgroundColor));
+ assert.match(backgrounds[0],/240, 232, 217|#f0e8d9/i,'Upcoming events band should stay tan');
+ assert.match(backgrounds[1],/16, 45, 71|#102d47/i,'Stated meeting panel should be navy');
+ assert.match(backgrounds[2],/22, 57, 84|#163954/i,'Division Overview band should remain navy');
+ assert.equal(backgrounds[5].includes('245, 241, 231'),true,'Installation band should remain tan');
+ pass.push('Sunday–Saturday stated meetings, weekly arrow controls, and original homepage palette');
  await desktop.locator('header[data-header-ready="true"]').waitFor();
  const headerIdentity=async page=>page.locator('header .division-brand').evaluate(el=>{
   const img=el.querySelector('img.brand-emblem');
