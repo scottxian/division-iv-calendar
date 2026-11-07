@@ -9,10 +9,19 @@ const js=fs.readFileSync('home-stated-meetings.js','utf8');
 const endpoint=fs.readFileSync('supabase/functions/division-stated-meetings/index.ts','utf8');
 const upcoming=html.indexOf('id="upcoming-events"'),meeting=html.indexOf('id="stated-meetings"'),overview=html.indexOf('class="division-overview"');
 assert.ok(upcoming>=0&&meeting>upcoming&&overview>meeting,'Stated meetings must be directly below Upcoming Events, before the Division overview');
+assert.ok(html.includes('id="division-events-title"')&&html.includes('id="home-stated-title"'),
+ 'Division Events and Stated Meetings must have distinct subsection headings');
+assert.ok(html.indexOf('id="division-events-title"')<upcoming,'Division Events heading must precede published event list');
+assert.match(html,/id="home-stated-title">Stated Meetings<\/h3>/,'Stated Meetings must be a subordinate heading');
+assert.ok(!html.includes('OUR LODGES · REGULAR MEETINGS'),'Stated section should not repeat the calendar kicker');
+assert.match(css,/\.home-stated-meetings\{[^}]*background:transparent/,'Stated Meetings must share the tan background');
+assert.match(css,/\.home-stated-card\{[^}]*background:#fffdf8/,'Meeting cards should use matching ivory event cards');
+assert.match(css,/\.home-stated-info h3\{[^}]*color:#142d46/,'Meeting-card text should be navy on ivory');
+
 for(const id of ['home-stated-week-label','home-stated-prev','home-stated-next','home-stated-meetings-list'])
  assert.ok(html.includes('id="'+id+'"'),'Missing week navigation: '+id);
 assert.ok(html.includes('/home-stated-meetings.js?v=1'),'Homepage must load the read-only week browser');
-assert.ok(html.includes('/styles.css?v=19'),'Homepage must invalidate previous CSS cache');
+assert.ok(html.includes('/styles.css?v=20'),'Homepage must invalidate previous CSS cache');
 for(const marker of ['.home-stated-meetings{','.home-stated-grid{','.home-stated-week-controls{','.home-stated-arrow:disabled{','@media(max-width:520px)'])
  assert.ok(css.includes(marker),'Responsive navy stated-meeting styles missing: '+marker);
 assert.ok(css.includes('.upcoming-section{')&&css.includes('.division-overview{')&&css.includes('.home-newsletter{')&&css.includes('.homepage-cta{')&&css.includes('.home-install{'),'Existing alternating tan/navy homepage bands must remain');
