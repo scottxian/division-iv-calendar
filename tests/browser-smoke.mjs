@@ -451,7 +451,7 @@ try{
  await check(mobile,'Mobile homepage','/','h1','home-mobile.png');
  await mobile.locator('#home-stated-meetings-list .home-stated-card').first().waitFor({state:'visible'});
  await mobile.locator('#home-stated-meetings-list .home-calendar-actions summary').first().tap();
- assert.equal(await mobile.locator('#home-stated-meetings-list .home-calendar-option').count(),2,'Mobile must expose both Google and Apple choices');
+ assert.equal(await mobile.locator('#home-stated-meetings-list .home-stated-card').first().locator('.home-calendar-option').count(),2,'Mobile must expose both Google and Apple choices in each meeting');
  const meetingMenuFits=await mobile.locator('#home-stated-meetings-list .home-calendar-choices').first().evaluate(element=>({
   right:element.getBoundingClientRect().right,view:window.innerWidth
  }));
