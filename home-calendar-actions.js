@@ -44,7 +44,8 @@
   });
   const tip=document.createElement('p');
   tip.className='home-calendar-tip';
-  tip.textContent='Open the downloaded .ics file to add it on iPhone. Saved copies do not update automatically.';
+  tip.textContent=(event.stated_meeting?'Estimated 2-hour duration. Confirm with the lodge. ':'')+
+   'Open the downloaded .ics file on iPhone. Saved copies do not update automatically.';
   choices.append(google,apple,tip);
   details.append(summary,choices);
   google.addEventListener('click',()=>{details.open=false;});
