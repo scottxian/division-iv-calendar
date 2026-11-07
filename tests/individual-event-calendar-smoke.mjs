@@ -31,6 +31,20 @@ assert.match(g.searchParams.get('location'),/3260 Jefferson Blvd/);
 assert.match(g.searchParams.get('details'),/Hosted by: Scepter Lodge/);
 assert.match(g.searchParams.get('details'),/Current event details: https:/);
 
+// A one-off stated-meeting calendar copy must link to the Lodge Directory, never a missing calendar event.
+const stated={...event,id:'stated-101-2026-11-03',stated_meeting:true,
+ title:'Quarterly Lodge No. 101 — Stated Meeting',
+ starts_at:'2026-11-04T03:00:00.000Z',ends_at:'2026-11-04T05:00:00.000Z',
+ public_description:'Estimated two-hour duration; confirm with lodge.'};
+const statedUrl=new URL(googleLink(stated));
+assert.equal(statedUrl.searchParams.get('dates'),'20261104T030000Z/20261104T050000Z');
+assert.match(statedUrl.searchParams.get('details'),/Meeting schedule and updates: https:\/\/divisionivmasons.org\/lodges\//);
+assert.match(statedUrl.searchParams.get('details'),/Estimated two-hour duration/);
+const statedIcs=icsContent(stated);
+assert.match(statedIcs,/UID:stated-101-2026-11-03@divisionivmasons.org/);
+assert.match(statedIcs,/URL:https:\/\/divisionivmasons.org\/lodges\//);
+assert.ok(!statedIcs.includes('RRULE:'),'Stated meetings must be one-off imports, not automatic recurring events');
+
 const ics=icsContent(event);
 assert.ok(ics.startsWith('BEGIN:VCALENDAR\r\n'));
 assert.ok(ics.endsWith('END:VCALENDAR\r\n'));
