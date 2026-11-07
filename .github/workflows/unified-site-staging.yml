@@ -6,6 +6,7 @@ on:
       - phase-1-unified-site
       - phase-3-release-candidate
       - main
+      - feature/home-events-matching-tan-meetings
   workflow_dispatch:
 
 permissions:
