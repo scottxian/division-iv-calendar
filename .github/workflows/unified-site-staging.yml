@@ -6,7 +6,6 @@ on:
       - phase-1-unified-site
       - phase-3-release-candidate
       - main
-      - feature/home-stated-meetings-week-nav
   workflow_dispatch:
 
 permissions:
