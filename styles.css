@@ -459,75 +459,95 @@ header .brand-home:focus-visible,header .brand-name:focus-visible,header .brand-
 @media(max-width:850px){.home-newsletter-inner{grid-template-columns:1fr;gap:24px}.home-newsletter{padding:48px 23px 55px}}
 @media(max-width:480px){.home-newsletter .home-newsletter-card{padding:24px 20px}.home-newsletter .home-newsletter-card form{grid-template-columns:1fr}.home-newsletter .home-newsletter-card label{grid-column:1}.home-newsletter .home-newsletter-card button{width:100%}.home-newsletter-copy h2{font-size:37px}}
 
-/* Homepage stated-meeting week browser: navy inset within warm Events band.
-   The surrounding homepage bands continue alternating tan and navy. */
-.home-stated-meetings{
- margin-top:42px;padding:30px 34px 27px;
- background:linear-gradient(130deg,#102d47,#0b2238);
- color:#f7f9fb;border:1px solid #36536c;border-top:3px solid #d7b56e;
- border-radius:8px;box-shadow:0 14px 32px #10203328
+/* Homepage events and stated meetings: one tan band, matching light cards. */
+.home-division-events{margin-top:27px}
+.upcoming-subheading,.home-stated-heading{
+ display:flex;justify-content:space-between;align-items:end;
+ gap:22px;margin-bottom:21px
 }
-.home-stated-heading{display:flex;justify-content:space-between;align-items:end;gap:22px;margin-bottom:24px}
+.upcoming-subheading h3,.home-stated-heading h3{
+ font:600 clamp(31px,3.2vw,44px)/1.1 'Cormorant Garamond',Georgia,serif;
+ color:#142d46;margin:0 0 7px
+}
+.upcoming-subheading p,.home-stated-heading>div:first-child>p{
+ color:#516273;font-size:14px;line-height:1.65;margin:0
+}
+.home-stated-meetings{
+ margin-top:45px;padding-top:31px;
+ border-top:1px solid #cdbc9d;
+ background:transparent;color:#142d46;scroll-margin-top:100px
+}
 .home-stated-heading>.home-stated-week-controls{flex:0 0 auto}
-.home-stated-heading .kicker{color:#efcf8f;margin:0 0 9px;font-size:10px}
-.home-stated-heading h2{font-size:clamp(31px,3.2vw,48px);line-height:1.06;color:#fff;margin:0 0 8px}
-.home-stated-heading h2 em{color:#efd39b}
-.home-stated-heading>div:first-child>p:last-child{font-size:13px;color:#d0dce6;line-height:1.6;margin:0}
 .home-stated-week-controls{
- display:flex;align-items:center;gap:10px;min-width:298px;
- padding:6px;background:#071b2d;border:1px solid #496176;border-radius:6px
+ display:flex;align-items:center;gap:10px;min-width:288px;padding:5px;
+ background:#fffdf8;border:1px solid #d3c2a5;border-radius:5px
 }
 .home-stated-week-controls strong{
- text-align:center;flex:1;color:#fff;
- font:700 13px/1.5 'DM Sans',system-ui,sans-serif;white-space:nowrap
+ text-align:center;flex:1;white-space:nowrap;
+ font:700 13px/1.5 'DM Sans',system-ui,sans-serif;color:#142d46
 }
 .home-stated-arrow{
  display:inline-flex;align-items:center;justify-content:center;
  width:42px;height:42px;flex-shrink:0;
- border-radius:4px;border:1px solid #a88b58;
- background:#d7b56e;color:#081c2e;
+ border-radius:4px;border:1px solid #b79b68;
+ background:#d7b56e;color:#142d46;
  font-size:30px;line-height:1;cursor:pointer
 }
 .home-stated-arrow:hover:not(:disabled){background:#f0d99d}
-.home-stated-arrow:focus-visible{outline:3px solid #fff;outline-offset:2px}
-.home-stated-arrow:disabled{background:#344c61;border-color:#45596a;color:#93a6b4;cursor:not-allowed}
-.home-stated-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.home-stated-arrow:focus-visible{outline:3px solid #89602f;outline-offset:2px}
+.home-stated-arrow:disabled{
+ background:#ece6d9;border-color:#d3c6b0;color:#968978;cursor:not-allowed
+}
+.home-stated-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .home-stated-card{
- display:flex;align-items:flex-start;gap:18px;min-width:0;
- background:#193a55;border:1px solid #3c5a72;border-radius:6px;padding:17px 20px
+ display:flex;align-items:stretch;gap:20px;min-width:0;
+ background:#fffdf8;color:#142d46;
+ border:1px solid #d3c2a5;border-radius:5px;padding:20px 22px;
+ box-shadow:0 7px 22px #3428140c
 }
 .home-stated-date{
- display:flex;flex-direction:column;align-items:center;min-width:65px;padding-right:18px;
- border-right:1px solid #4a6579;color:#f0d99d
+ display:flex;flex-direction:column;align-items:center;text-align:center;
+ justify-content:flex-start;min-width:78px;padding:2px 20px 0 0;
+ border-right:1px solid #ddcba9;color:#966a2e
 }
-.home-stated-month{font-size:10px;font-weight:750;letter-spacing:.12em}
-.home-stated-day{font:600 43px/1.0 'Cormorant Garamond',Georgia,serif;margin:4px 0}
-.home-stated-weekday{font-size:11px;color:#cedde8}
-.home-stated-info{min-width:0}
-.home-stated-info h3{font-size:clamp(22px,2.1vw,27px);line-height:1.15;color:#fff;margin:0 0 10px;overflow-wrap:anywhere}
-.home-stated-meta{font-size:13px;line-height:1.65;color:#e3eaf0;margin:0 0 4px;overflow-wrap:anywhere}
-.home-stated-address{color:#bed0de}
-.home-stated-empty{border:1px dashed #526f83;background:#193a55;border-radius:6px;color:#dae6ee;padding:24px;margin:0;font-size:14px}
-.home-stated-empty.is-error{color:#f0d99d}
-.home-stated-footer{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:21px}
-.home-stated-footer span{font-size:12px;line-height:1.6;color:#cad8e1}
-.home-stated-footer a{font-size:12px;font-weight:700;color:#f0d99d;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
-.home-stated-footer a:hover{color:#fff}
-.home-stated-footer a:focus-visible{outline:2px solid #f0d99d;outline-offset:3px}
+.home-stated-month{font-size:11px;font-weight:750;letter-spacing:.18em}
+.home-stated-day{font:600 50px/.98 'Cormorant Garamond',Georgia,serif;margin:3px 0}
+.home-stated-weekday{font-size:12px;color:#516273}
+.home-stated-info{min-width:0;flex:1}
+.home-stated-info h3{
+ font:600 clamp(23px,2vw,28px)/1.14 'Cormorant Garamond',Georgia,serif;
+ color:#142d46;margin:0 0 10px;overflow-wrap:anywhere
+}
+.home-stated-meta{font-size:13px;line-height:1.6;color:#526273;margin:0 0 5px;overflow-wrap:anywhere}
+.home-stated-address{color:#526273}
+.home-stated-empty{
+ border:1px solid #d3c2a5;background:#fffdf8;border-radius:6px;
+ color:#253950;padding:24px;margin:0;font-size:14px
+}
+.home-stated-empty.is-error{color:#823d2c}
+.home-stated-footer{
+ display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:22px
+}
+.home-stated-footer span{font-size:12px;line-height:1.65;color:#526273}
+.home-stated-footer a{
+ font-size:12px;font-weight:700;color:#79551f;
+ text-decoration:underline;text-underline-offset:3px;white-space:nowrap
+}
+.home-stated-footer a:hover{color:#142d46}
+.home-stated-footer a:focus-visible{outline:2px solid #79551f;outline-offset:3px}
 @media(max-width:920px){
  .home-stated-heading{align-items:start;flex-direction:column}
  .home-stated-heading>.home-stated-week-controls{flex:auto}
 }
-@media(max-width:750px){.home-stated-grid{grid-template-columns:1fr}}
+@media(max-width:850px){.home-stated-grid{grid-template-columns:1fr}}
 @media(max-width:520px){
- .home-stated-meetings{padding:22px 16px 24px;margin-top:30px}
- .home-stated-heading h2{font-size:38px}
+ .home-stated-meetings{margin-top:34px;padding-top:25px}
+ .upcoming-subheading h3,.home-stated-heading h3{font-size:35px}
  .home-stated-week-controls{min-width:0;width:100%}
  .home-stated-week-controls strong{font-size:12px}
- .home-stated-card{padding:16px 14px;gap:13px}
- .home-stated-date{min-width:55px;padding-right:13px}
- .home-stated-day{font-size:38px}
- .home-stated-info h3{font-size:23px}
+ .home-stated-card{padding:17px;gap:14px}
+ .home-stated-date{min-width:65px;padding-right:13px}
+ .home-stated-day{font-size:44px}
+ .home-stated-info h3{font-size:24px}
  .home-stated-footer{flex-direction:column;align-items:flex-start}
 }
-@media(prefers-reduced-motion:reduce){.home-stated-arrow{transition:none}}
