@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   verify-staging:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Check out staging
@@ -55,7 +55,7 @@ jobs:
         run: node tests/shared-navigation-smoke.mjs
 
   browser-smoke:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 18
     steps:
       - name: Check out staging
